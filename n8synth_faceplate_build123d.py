@@ -20,6 +20,8 @@ Notes:
 
 from __future__ import annotations
 
+import os
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -45,6 +47,14 @@ from build123d import (
 )
 from build123d.exporters import ExportDXF, ExportSVG
 from ocp_vscode import Camera, show
+
+
+def _ocp_port(default: int = 3939) -> int:
+    try:
+        raw = os.environ.get("OCP_VSCODE_PORT") or os.environ.get("OCP_PORT") or str(default)
+        return int(raw)
+    except ValueError:
+        return default
 
 ExportMode = Literal["combined", "base", "labels"]
 TextMode = Literal["emboss", "deboss", "inlay"]
@@ -850,19 +860,40 @@ def main() -> None:
             export_step(labels, args.step)
 
     # View
-    if args.export_mode == "combined":
-        show(
-            base,
-            labels,
-            names=["base", "labels"],
-            colors=[params.base_color, params.label_color],
-            reset_camera=Camera.RESET,
-            grid=True,
-        )
-    elif args.export_mode == "base" and base is not None:
-        show(base, names=["base"], colors=[params.base_color], reset_camera=Camera.RESET, grid=True)
-    elif args.export_mode == "labels" and labels is not None:
-        show(labels, names=["labels"], colors=[params.label_color], reset_camera=Camera.RESET, grid=True)
+    try:
+        if args.export_mode == "combined":
+            show(
+                base,
+                labels,
+                names=["base", "labels"],
+                colors=[params.base_color, params.label_color],
+                reset_camera=Camera.RESET,
+                grid=True,
+                port=_ocp_port(),
+            )
+        elif args.export_mode == "base" and base is not None:
+            show(
+                base,
+                names=["base"],
+                colors=[params.base_color],
+                reset_camera=Camera.RESET,
+                grid=True,
+                port=_ocp_port(),
+            )
+        elif args.export_mode == "labels" and labels is not None:
+            show(
+                labels,
+                names=["labels"],
+                colors=[params.label_color],
+                reset_camera=Camera.RESET,
+                grid=True,
+                port=_ocp_port(),
+            )
+    except RuntimeError as ex:
+        print("\nOCP viewer is not reachable.")
+        print("- If you're using the VS Code extension: open 'OCP CAD Viewer' and ensure the backend is running.")
+        print("- Or start the standalone viewer with: ./.venv/bin/python -m ocp_vscode --port 3939")
+        print(f"\nDetails: {ex}")
 
 
 if __name__ == "__main__":

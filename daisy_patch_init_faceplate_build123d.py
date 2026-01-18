@@ -24,6 +24,8 @@ Notes:
 
 from __future__ import annotations
 
+import os
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -51,6 +53,14 @@ from build123d import (
 )
 from build123d.exporters import ExportDXF, ExportSVG
 from ocp_vscode import Camera, show
+
+
+def _ocp_port(default: int = 3939) -> int:
+    try:
+        raw = os.environ.get("OCP_VSCODE_PORT") or os.environ.get("OCP_PORT") or str(default)
+        return int(raw)
+    except ValueError:
+        return default
 
 ExportMode = Literal["combined", "base", "labels"]
 LabelSource = Literal["holes", "kicad"]
@@ -207,6 +217,17 @@ class FaceplateParams:
     # (dx, dy) in mm applied to the hole center.
     label_offset: tuple[float, float] = (0.0, -7.0)
 
+    # Secondary (shift/alt) labels under the main label.
+    # Used for CV_1..CV_4 (pots) which may have an alternate function depending on B8.
+    # Set entries to "" to omit that secondary label.
+    secondary_label_size: float = 2.1
+    secondary_label_height: float = 0.4
+    secondary_label_style: FontStyle = FontStyle.BOLD
+    # Offset from the main label position (dx, dy) in mm.
+    secondary_label_offset_from_main: tuple[float, float] = (0.0, -3.0)
+    # Order is (CV_1, CV_2, CV_3, CV_4)
+    cv_secondary_labels: tuple[str, str, str, str] = ("ALT1", "ALT2", "ALT3", "ALT4")
+
     # Inverse label style (like n8synth): a raised rounded rectangle plaque with the
     # text cut out, leaving the base color to show through.
     inverse_label_enable: bool = True
@@ -264,6 +285,28 @@ def _slot_or_hole_2d(params: FaceplateParams) -> None:
         SlotOverall(params.mount_slot_len, params.mount_hole_d)
     else:
         Circle(params.mount_hole_d / 2)
+
+
+def _rotate_xy(dx: float, dy: float, rot_deg: float) -> tuple[float, float]:
+    if abs(rot_deg) < 1e-12:
+        return (dx, dy)
+    a = math.radians(rot_deg)
+    ca = math.cos(a)
+    sa = math.sin(a)
+    return (dx * ca - dy * sa, dx * sa + dy * ca)
+
+
+def _secondary_label_for_main(params: FaceplateParams, main_txt: str) -> str:
+    t = main_txt.strip()
+    if t == "CV_1":
+        return params.cv_secondary_labels[0].strip()
+    if t == "CV_2":
+        return params.cv_secondary_labels[1].strip()
+    if t == "CV_3":
+        return params.cv_secondary_labels[2].strip()
+    if t == "CV_4":
+        return params.cv_secondary_labels[3].strip()
+    return ""
 
 
 def _parse_kicad_fp_rects_edge_cuts(kicad_text: str) -> list[KiCadRect]:
@@ -612,20 +655,21 @@ def build_base(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                     at_xy: tuple[float, float],
                     rot_deg: float,
                     font_size: float,
+                    style: FontStyle,
                     justify_h: Literal["left", "center", "right"],
                     justify_v: Literal["bottom", "center", "top"],
                 ) -> None:
                     dx, dy = _text_local_offset(
                         txt,
                         font=params.label_font,
-                        style=params.label_font_style,
+                        style=style,
                         font_size=font_size,
                         justify_h=justify_h,
                         justify_v=justify_v,
                     )
                     with Locations(Location((at_xy[0], at_xy[1], 0), (0, 0, rot_deg))):
                         with Locations((dx, dy)):
-                            Text(txt, font_size=font_size, font=params.label_font, font_style=params.label_font_style)
+                            Text(txt, font_size=font_size, font=params.label_font, font_style=style)
 
                 with BuildSketch(Plane.XY.offset(z0)) as pocket_sk:
                     # Branding
@@ -636,6 +680,7 @@ def build_base(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                             at_xy=(top_x, top_y),
                             rot_deg=top_rot,
                             font_size=params.brand_size,
+                            style=params.label_font_style,
                             justify_h="center",
                             justify_v="center",
                         )
@@ -645,6 +690,7 @@ def build_base(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                             at_xy=(bot_x, bot_y),
                             rot_deg=bot_rot,
                             font_size=params.brand_size,
+                            style=params.label_font_style,
                             justify_h="center",
                             justify_v="center",
                         )
@@ -668,9 +714,24 @@ def build_base(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                                 at_xy=(lab.x, lab.y),
                                 rot_deg=lab.rot_deg,
                                 font_size=size,
+                                style=params.label_font_style,
                                 justify_h=justify_h,  # type: ignore[arg-type]
                                 justify_v=justify_v,  # type: ignore[arg-type]
                             )
+
+                            sec = _secondary_label_for_main(params, s)
+                            if sec:
+                                sec_dx, sec_dy = params.secondary_label_offset_from_main
+                                odx, ody = _rotate_xy(sec_dx, sec_dy, lab.rot_deg)
+                                add_text(
+                                    sec,
+                                    at_xy=(lab.x + odx, lab.y + ody),
+                                    rot_deg=lab.rot_deg,
+                                    font_size=params.secondary_label_size,
+                                    style=params.secondary_label_style,
+                                    justify_h=justify_h,  # type: ignore[arg-type]
+                                    justify_v=justify_v,  # type: ignore[arg-type]
+                                )
                     else:
                         dx_off, dy_off = params.label_offset
                         rot_extra = 0.0
@@ -689,9 +750,24 @@ def build_base(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                                 at_xy=(h.x + dx_off, h.y + dy_off),
                                 rot_deg=rot_extra,
                                 font_size=params.label_size,
+                                style=params.label_font_style,
                                 justify_h="center",
                                 justify_v="center",
                             )
+
+                            sec = _secondary_label_for_main(params, s)
+                            if sec:
+                                sec_dx, sec_dy = params.secondary_label_offset_from_main
+                                odx, ody = _rotate_xy(sec_dx, sec_dy, rot_extra)
+                                add_text(
+                                    sec,
+                                    at_xy=(h.x + dx_off + odx, h.y + dy_off + ody),
+                                    rot_deg=rot_extra,
+                                    font_size=params.secondary_label_size,
+                                    style=params.secondary_label_style,
+                                    justify_h="center",
+                                    justify_v="center",
+                                )
 
                 extrude(to_extrude=pocket_sk.sketch, amount=pocket_depth + 0.1, mode=Mode.SUBTRACT)
 
@@ -716,13 +792,14 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                 at_xy: tuple[float, float],
                 rot_deg: float,
                 font_size: float,
+                style: FontStyle,
                 justify_h: Literal["left", "center", "right"],
                 justify_v: Literal["bottom", "center", "top"],
             ) -> None:
                 dx, dy = _text_local_offset(
                     txt,
                     font=params.label_font,
-                    style=params.label_font_style,
+                    style=style,
                     font_size=font_size,
                     justify_h=justify_h,
                     justify_v=justify_v,
@@ -730,7 +807,7 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                 with BuildSketch(Plane.XY.offset(z0)) as sk:
                     with Locations(Location((at_xy[0], at_xy[1], 0), (0, 0, rot_deg))):
                         with Locations((dx, dy)):
-                            Text(txt, font_size=font_size, font=params.label_font, font_style=params.label_font_style)
+                            Text(txt, font_size=font_size, font=params.label_font, font_style=style)
                 extrude(to_extrude=sk.sketch, amount=depth, mode=Mode.ADD)
 
             # Branding
@@ -741,6 +818,7 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                     at_xy=(top_x, top_y),
                     rot_deg=top_rot,
                     font_size=params.brand_size,
+                    style=params.label_font_style,
                     justify_h="center",
                     justify_v="center",
                 )
@@ -750,6 +828,7 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                     at_xy=(bot_x, bot_y),
                     rot_deg=bot_rot,
                     font_size=params.brand_size,
+                    style=params.label_font_style,
                     justify_h="center",
                     justify_v="center",
                 )
@@ -772,9 +851,24 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                         at_xy=(lab.x, lab.y),
                         rot_deg=lab.rot_deg,
                         font_size=size,
+                        style=params.label_font_style,
                         justify_h=justify_h,  # type: ignore[arg-type]
                         justify_v=justify_v,  # type: ignore[arg-type]
                     )
+
+                    sec = _secondary_label_for_main(params, s)
+                    if sec:
+                        sec_dx, sec_dy = params.secondary_label_offset_from_main
+                        odx, ody = _rotate_xy(sec_dx, sec_dy, lab.rot_deg)
+                        add_text(
+                            sec,
+                            at_xy=(lab.x + odx, lab.y + ody),
+                            rot_deg=lab.rot_deg,
+                            font_size=params.secondary_label_size,
+                            style=params.secondary_label_style,
+                            justify_h=justify_h,  # type: ignore[arg-type]
+                            justify_v=justify_v,  # type: ignore[arg-type]
+                        )
             else:
                 dx_off, dy_off = params.label_offset
                 rot_extra = 0.0
@@ -793,9 +887,24 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                         at_xy=(h.x + dx_off, h.y + dy_off),
                         rot_deg=rot_extra,
                         font_size=params.label_size,
+                        style=params.label_font_style,
                         justify_h="center",
                         justify_v="center",
                     )
+
+                    sec = _secondary_label_for_main(params, s)
+                    if sec:
+                        sec_dx, sec_dy = params.secondary_label_offset_from_main
+                        odx, ody = _rotate_xy(sec_dx, sec_dy, rot_extra)
+                        add_text(
+                            sec,
+                            at_xy=(h.x + dx_off + odx, h.y + dy_off + ody),
+                            rot_deg=rot_extra,
+                            font_size=params.secondary_label_size,
+                            style=params.secondary_label_style,
+                            justify_h="center",
+                            justify_v="center",
+                        )
 
         return p.part
 
@@ -934,6 +1043,21 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                         justify_v=justify_v,
                     )
                     extrude(to_extrude=sk, amount=params.label_height, mode=Mode.ADD)
+
+                sec = _secondary_label_for_main(params, lab.text)
+                if sec:
+                    sec_dx, sec_dy = params.secondary_label_offset_from_main
+                    odx, ody = _rotate_xy(sec_dx, sec_dy, lab.rot_deg)
+                    sec_sk = _make_text_sketch(
+                        sec,
+                        font_size=params.secondary_label_size,
+                        style=params.secondary_label_style,
+                        at_xy=(lab.x + odx, lab.y + ody),
+                        rot_deg=lab.rot_deg,
+                        justify_h=justify_h,
+                        justify_v=justify_v,
+                    )
+                    extrude(to_extrude=sec_sk, amount=params.secondary_label_height, mode=Mode.ADD)
         else:
             dx_off, dy_off = params.label_offset
             rot_extra = 0.0
@@ -973,6 +1097,21 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                         justify_v="center",
                     )
                     extrude(to_extrude=sk, amount=params.label_height, mode=Mode.ADD)
+
+                sec = _secondary_label_for_main(params, txt)
+                if sec:
+                    sec_dx, sec_dy = params.secondary_label_offset_from_main
+                    odx, ody = _rotate_xy(sec_dx, sec_dy, rot_extra)
+                    sec_sk = _make_text_sketch(
+                        sec,
+                        font_size=params.secondary_label_size,
+                        style=params.secondary_label_style,
+                        at_xy=(at_xy[0] + odx, at_xy[1] + ody),
+                        rot_deg=rot_extra,
+                        justify_h="center",
+                        justify_v="center",
+                    )
+                    extrude(to_extrude=sec_sk, amount=params.secondary_label_height, mode=Mode.ADD)
 
     return p.part
 
@@ -1116,6 +1255,22 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
                     justify_v=justify_v,
                 )
                 sketches.append(tsk)
+
+                sec = _secondary_label_for_main(params, lab.text)
+                if sec:
+                    sec_dx, sec_dy = params.secondary_label_offset_from_main
+                    odx, ody = _rotate_xy(sec_dx, sec_dy, lab.rot_deg)
+                    sketches.append(
+                        text_sketch(
+                            sec,
+                            at_xy=(lab.x + odx, lab.y + ody),
+                            rot_deg=lab.rot_deg,
+                            font_size=params.secondary_label_size,
+                            justify_h=justify_h,
+                            justify_v=justify_v,
+                        )
+                    )
+
                 if is_inverse(lab.text):
                     bb = tsk.bounding_box().size
                     w = max(params.inverse_min_w, bb.X + 2 * params.inverse_pad_x)
@@ -1149,6 +1304,22 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
                     justify_v="center",
                 )
                 sketches.append(tsk)
+
+                sec = _secondary_label_for_main(params, txt)
+                if sec:
+                    sec_dx, sec_dy = params.secondary_label_offset_from_main
+                    odx, ody = _rotate_xy(sec_dx, sec_dy, rot_extra)
+                    sketches.append(
+                        text_sketch(
+                            sec,
+                            at_xy=(at_xy[0] + odx, at_xy[1] + ody),
+                            rot_deg=rot_extra,
+                            font_size=params.secondary_label_size,
+                            justify_h="center",
+                            justify_v="center",
+                        )
+                    )
+
                 if is_inverse(txt):
                     bb = tsk.bounding_box().size
                     w = max(params.inverse_min_w, bb.X + 2 * params.inverse_pad_x)
@@ -1368,19 +1539,40 @@ def main() -> None:
             export_step(labels, args.step)
 
     # View
-    if args.export_mode == "combined":
-        show(
-            base,
-            labels,
-            names=["base", "labels"],
-            colors=[params.base_color, params.label_color],
-            reset_camera=Camera.RESET,
-            grid=True,
-        )
-    elif args.export_mode == "base" and base is not None:
-        show(base, names=["base"], colors=[params.base_color], reset_camera=Camera.RESET, grid=True)
-    elif args.export_mode == "labels" and labels is not None:
-        show(labels, names=["labels"], colors=[params.label_color], reset_camera=Camera.RESET, grid=True)
+    try:
+        if args.export_mode == "combined":
+            show(
+                base,
+                labels,
+                names=["base", "labels"],
+                colors=[params.base_color, params.label_color],
+                reset_camera=Camera.RESET,
+                grid=True,
+                port=_ocp_port(),
+            )
+        elif args.export_mode == "base" and base is not None:
+            show(
+                base,
+                names=["base"],
+                colors=[params.base_color],
+                reset_camera=Camera.RESET,
+                grid=True,
+                port=_ocp_port(),
+            )
+        elif args.export_mode == "labels" and labels is not None:
+            show(
+                labels,
+                names=["labels"],
+                colors=[params.label_color],
+                reset_camera=Camera.RESET,
+                grid=True,
+                port=_ocp_port(),
+            )
+    except RuntimeError as ex:
+        print("\nOCP viewer is not reachable.")
+        print("- If you're using the VS Code extension: open 'OCP CAD Viewer' and ensure the backend is running.")
+        print("- Or start the standalone viewer with: ./.venv/bin/python -m ocp_vscode --port 3939")
+        print(f"\nDetails: {ex}")
 
 
 if __name__ == "__main__":

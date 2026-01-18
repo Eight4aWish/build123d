@@ -7,7 +7,8 @@ This workspace is set up to use the local virtual environment at `./.venv`.
 1. Create/activate the venv (if you don't already have one):
 
    ```sh
-   python3 -m venv .venv
+   # Prefer Homebrew Python 3.12 on macOS (recommended)
+   /opt/homebrew/bin/python3.12 -m venv .venv
    source .venv/bin/activate
    python -m pip install -U pip
    ```
@@ -114,6 +115,27 @@ Optional tweaks:
 ## VS Code viewer
 
 Install the VS Code extension **OCP CAD Viewer** (`bernhard-42.ocp-cad-viewer`) and open it to view the model.
+
+Key point: make sure you are running the scripts with the workspace venv at `./.venv`.
+If you run them with a different interpreter (e.g. PlatformIO’s `penv`), you’ll typically get import errors or the viewer won’t receive anything.
+
+If VS Code keeps prompting to switch interpreters, pick the workspace one:
+`./.venv/bin/python` (this repo expects Python 3.12).
+
+Recommended VS Code setup:
+
+1. Select the interpreter: Command Palette → **Python: Select Interpreter** → choose `./.venv/bin/python`.
+2. Open the viewer: Command Palette → **OCP CAD Viewer: Open Viewer** (or open the OCP CAD Viewer panel).
+3. Run a script, e.g.:
+
+   ```sh
+   ./.venv/bin/python show_build123d_demo.py
+   ```
+
+Troubleshooting:
+
+- If the script runs but the viewer stays empty, ensure the OCP CAD Viewer backend is running (you’ll usually see an “OCP backend” terminal).
+- If you need to override host/port, copy `.env.example` to `.env` and set `OCP_VSCODE_HOST` / `OCP_VSCODE_PORT`.
 
 ## macOS “Not Opened” (possible malware) dialogs
 
