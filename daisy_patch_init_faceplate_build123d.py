@@ -1539,6 +1539,18 @@ def main() -> None:
         help="Export labels/inlay STL to this path (recommended for 2-part printing workflows)",
     )
     parser.add_argument(
+        "--thickness",
+        type=float,
+        default=None,
+        help="Panel thickness in mm (default: 3.0)",
+    )
+    parser.add_argument(
+        "--label-height",
+        type=float,
+        default=None,
+        help="Height of raised labels in mm (default: 0.4). Should be a multiple of your layer height.",
+    )
+    parser.add_argument(
         "--labels-above-cv-b8",
         action="store_true",
         help="Also place labels above CV_1..CV_4 and B8 using the mirrored Y offset",
@@ -1636,6 +1648,11 @@ def main() -> None:
     params = replace(FaceplateParams(), text_mode=args.text_mode, inlay_depth=float(args.inlay_depth))
     if args.no_export_centered:
         params = replace(params, export_centered=False)
+
+    if args.thickness is not None:
+        params = replace(params, thickness=args.thickness)
+    if args.label_height is not None:
+        params = replace(params, label_height=args.label_height)
 
     # In non-emboss modes, inverse plaques aren't meaningful for 2-color inlay/deboss.
     if params.text_mode in ("deboss", "inlay") and params.inverse_label_enable:
