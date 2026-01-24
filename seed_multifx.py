@@ -88,7 +88,7 @@ class FaceplateParams:
     mount_slot_len: float = 4.0
 
     # Labels
-    label_height: float = 0.4
+    label_height: float = 0.2
     label_font: str = "Arial"
     label_font_style: FontStyle = FontStyle.BOLD
     label_size: float = 3.2
@@ -96,7 +96,7 @@ class FaceplateParams:
 
     # Secondary (shift/alt) labels under the main label
     secondary_label_size: float = 2.1
-    secondary_label_height: float = 0.4
+    secondary_label_height: float = 0.2
     secondary_label_style: FontStyle = FontStyle.BOLD
     # Offset from the main label position (dx, dy) in mm
     secondary_label_offset_from_main: tuple[float, float] = (0.0, -3.0)
@@ -117,21 +117,21 @@ class FaceplateParams:
     inverse_min_h: float = 0.0
 
     brand_size: float = 2.6
-    brand_height: float = 0.4
+    brand_height: float = 0.2
 
     # Text rendering mode
     # - emboss: raised text (current behaviour)
     # - deboss: engraved text (subtracted from base)
     # - inlay: recessed pocket in base + separate inlay solid (for 2-color printing)
     text_mode: TextMode = "emboss"
-    # Depth used for deboss/inlay (mm). With 0.2 mm layers, 0.4 mm = 2 layers.
-    inlay_depth: float = 0.4
+    # Depth used for deboss/inlay (mm). With 0.1 mm layers, 0.2 mm = 2 layers.
+    inlay_depth: float = 0.2
 
     base_color: tuple[float, float, float] = (0.86, 0.86, 0.86)
     label_color: tuple[float, float, float] = (0.10, 0.10, 0.10)
 
     brand_text: str = "84aW"
-    model_text: str = "MFX"
+    model_text: str = "MultiFX"
     brand_margin: float = 4.01
 
     # Screen
@@ -145,11 +145,11 @@ class FaceplateParams:
     screen_bottom_hole_offset: float = 7.6
 
     # Per-hole labels (must match len(row_y))
-    labels_left: tuple[str, ...] = ("INR", "INL", "CV1", "POT2", "POT1")
-    labels_right: tuple[str, ...] = ("OTR", "OTL", "CV2", "POT3", "BTN")
+    labels_left: tuple[str, ...] = ("IN-R", "IN-L", "CV1", "CV1", "MIX")
+    labels_right: tuple[str, ...] = ("OUT-R", "OUT-L", "CV2", "CV2", "SELECT")
     # Optional secondary labels (set to "" for none)
-    secondary_left: tuple[str, ...] = ("INR", "INL", "CV1", "POT2", "POT1")
-    secondary_right: tuple[str, ...] =  ("OTR", "OTL", "CV2", "POT3", "BTN")
+    secondary_left: tuple[str, ...] = ("", "", "", "", "")
+    secondary_right: tuple[str, ...] =  ("", "", "CLK", "", "MENU")
     label_offset: tuple[float, float] = (0.0, -7.0)
 
     def screen_origin(self) -> tuple[float, float]:
@@ -182,7 +182,7 @@ def build_base(params: FaceplateParams) -> "object":
     """Return the base panel solid with all cutouts subtracted."""
 
     cut_z0 = -0.2
-    cut_h = params.thickness + 0.4
+    cut_h = params.thickness + 0.2
 
     with BuildPart() as p:
         Box(
@@ -802,8 +802,8 @@ def main() -> None:
     parser.add_argument(
         "--inlay-depth",
         type=float,
-        default=0.4,
-        help="Depth in mm used for deboss/inlay modes (e.g. 0.4 = 2 layers at 0.2 mm)",
+        default=0.2,
+        help="Depth in mm used for deboss/inlay modes (e.g. 0.2 = 2 layers at 0.1 mm)",
     )
     parser.add_argument(
         "--template-svg",

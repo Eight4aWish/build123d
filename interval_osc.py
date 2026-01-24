@@ -20,6 +20,32 @@ Notes:
 - Coordinates follow the established convention: XY origin at panel bottom-left, Z up.
 - Text is imported from KiCad `gr_text` blocks on F.SilkS (size/rotation/justification).
   The font face is normalized to `Arial` bold for consistency with the N8Synth script.
+
+2-Color Printing Tips (Bambu Studio):
+-------------------------------------
+The panel is printed FACE-UP with the base on the bed and labels extruded on top.
+With a 2mm base and 0.2mm labels (two 0.1mm layers), the label filament starts at 2.0mm.
+
+If the panel has asymmetric features (like the slightly offset rectangle near the centre)
+and labels end up on the wrong side relative to the hardware, use --mirror-x to flip
+the model:
+  ./.venv/bin/python interval_osc.py --mirror-x --stl-base base.stl --stl-labels labels.stl
+
+When pausing for a filament change, ensure the pause happens AFTER the last layer of
+the base is printed with the base filament. For a 2mm base + 0.2mm labels:
+- Base: layers 0 to 2.0mm (black/base color)
+- Labels: layers 2.0mm to 2.2mm (white/label color)
+- Set pause at 2.0mm (or the layer just before labels start)
+
+Slicers sometimes assign the wrong filament to layers near the transition. To avoid this:
+1. Manually inspect the layer preview to verify filament assignments before printing
+2. Use the slicer's "Filament change" feature at a specific layer number instead of height
+3. Ensure both STLs are imported together so the slicer sees them as one multi-material object
+
+For corner lift during printing:
+- Ensure good bed adhesion (clean bed, appropriate temperature)
+- Use a brim if needed
+- Minimize pause time during filament changes
 """
 
 from __future__ import annotations
@@ -104,7 +130,7 @@ text_labels_above = [
     "",  # B5
     "",  # B9
     "",  # B10
-    "RTNL",  # B8
+    "RATNL",  # B8
     "",  # C10
     "",  # B7
     "",  # CV_4
@@ -209,7 +235,7 @@ class FaceplateParams:
     # Panel
     panel_w: float = 50.8  # 10HP
     panel_h: float = 128.5
-    thickness: float = 3.0
+    thickness: float = 2.0  # Base thickness in mm
 
     # Optional Eurorack mounting (if not using the KiCad-provided slots)
     add_mount_holes: bool = False
@@ -227,7 +253,7 @@ class FaceplateParams:
     drop_kicad_mount_slots: bool = False
 
     # Labels
-    label_height: float = 0.4
+    label_height: float = 0.2  # Two 0.1mm layers
     label_font: str = "Arial"
     label_font_style: FontStyle = FontStyle.BOLD
     # Match the established N8Synth defaults unless explicitly overridden.
@@ -297,7 +323,7 @@ class FaceplateParams:
     brand_text_top: str = "IntervalOsc"
     brand_text_bottom: str = "84aW"
     brand_size: float = 2.6
-    brand_height: float = 0.4
+    brand_height: float = 0.2  # Match label_height for consistent layer heights
     brand_margin: float = 4.01
 
     # Export behavior
@@ -306,15 +332,57 @@ class FaceplateParams:
     # If enabled, exported solids are translated so the panel center is at (0,0).
     export_centered: bool = True
 
+    # Mirror the exported model across the X axis (flip left/right).
+    # This corrects for the KiCad coordinate inversion so the rectangle is
+    # displaced to the right (matching the physical hardware).
+    # The mirror is applied about the panel center (after centering transform if enabled).
+    export_mirror_x: bool = True
+
 
 def _export_transform(obj: object, params: FaceplateParams) -> object:
-    if not params.export_centered:
-        return obj
-    try:
-        # Keep Z unchanged; only unify XY reference.
-        return obj.moved(Location((-params.panel_w / 2, -params.panel_h / 2, 0)))
-    except Exception:
-        return obj
+    """Apply centering and optional mirroring for export (for base geometry)."""
+    from build123d import Plane as B123dPlane
+
+    result = obj
+
+    # Center at origin (X/Y only)
+    if params.export_centered:
+        try:
+            result = result.moved(Location((-params.panel_w / 2, -params.panel_h / 2, 0)))
+        except Exception:
+            pass
+
+    # Mirror across X axis (flip left/right) about the center
+    # This fixes orientation when the panel has asymmetric features and
+    # the labels end up on the wrong side relative to hardware after printing.
+    if params.export_mirror_x:
+        try:
+            result = result.mirror(B123dPlane.YZ)
+        except Exception:
+            pass
+
+    return result
+
+
+def _export_transform_labels(obj: object, params: FaceplateParams) -> object:
+    """Apply centering only for labels (no mirror - text would read backwards)."""
+    result = obj
+
+    # Center at origin (X/Y only)
+    if params.export_centered:
+        try:
+            result = result.moved(Location((-params.panel_w / 2, -params.panel_h / 2, 0)))
+        except Exception:
+            pass
+
+    return result
+
+
+def _mirror_x(x: float, params: FaceplateParams) -> float:
+    """Mirror an X coordinate about the panel center if export_mirror_x is enabled."""
+    if params.export_mirror_x:
+        return params.panel_w - x
+    return x
 
 
 def _slot_or_hole_2d(params: FaceplateParams) -> None:
@@ -970,6 +1038,9 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
     with BuildPart() as p:
         # Branding (always present; matches n8synth style)
         (top_x, top_y, top_rot), (bot_x, bot_y, bot_rot) = _brand_positions(params)
+        # Mirror X coordinates for branding if needed
+        top_x = _mirror_x(top_x, params)
+        bot_x = _mirror_x(bot_x, params)
         for txt, x, y, rot in (
             (params.brand_text_top, top_x, top_y, top_rot),
             (params.brand_text_bottom, bot_x, bot_y, bot_rot),
@@ -1050,7 +1121,9 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                 txt = params.hole_labels[idx - 1].strip()
                 if not txt:
                     continue
-                at_xy = (h.x + dx_off, h.y + dy_off)
+                # Mirror X coordinate if needed
+                hx = _mirror_x(h.x, params)
+                at_xy = (hx + dx_off, h.y + dy_off)
                 if _is_inverse_label(txt):
                     _add_inverse_label(
                         txt,
@@ -1076,7 +1149,7 @@ def build_labels(params: FaceplateParams, kicad: KiCadPanelImport) -> "object":
                     above_txt = params.hole_labels_above[idx - 1].strip()
                     if not above_txt:
                         continue
-                    at_xy2 = (h.x + dx_off, h.y - dy_off)
+                    at_xy2 = (hx + dx_off, h.y - dy_off)
                     if _is_inverse_label(above_txt):
                         _add_inverse_label(
                             above_txt,
@@ -1472,6 +1545,11 @@ def main() -> None:
         action="store_true",
         help="Disable export-centering transform (leave origin at panel bottom-left)",
     )
+    parser.add_argument(
+        "--mirror-x",
+        action="store_true",
+        help="Mirror the model across the X axis (flip left/right). Use this if labels end up on the wrong side relative to hardware features.",
+    )
 
     args = parser.parse_args()
 
@@ -1517,6 +1595,9 @@ def main() -> None:
     if args.no_export_centered:
         params = replace(params, export_centered=False)
 
+    if args.mirror_x:
+        params = replace(params, export_mirror_x=True)
+
     if args.template_svg is not None or args.template_dxf is not None:
         export_print_template(params, svg=args.template_svg, dxf=args.template_dxf)
 
@@ -1527,42 +1608,55 @@ def main() -> None:
         if args.export_mode == "combined":
             from build123d import Compound
 
-            export_stl(_export_transform(Compound([o for o in (base, labels) if o is not None]), params), args.stl)
+            # For combined, we need to handle base and labels separately then combine
+            parts = []
+            if base is not None:
+                parts.append(_export_transform(base, params))
+            if labels is not None:
+                parts.append(_export_transform_labels(labels, params))
+            if parts:
+                export_stl(Compound(parts), args.stl)
         elif args.export_mode == "base" and base is not None:
             export_stl(_export_transform(base, params), args.stl)
         elif args.export_mode == "labels" and labels is not None:
-            export_stl(_export_transform(labels, params), args.stl)
+            export_stl(_export_transform_labels(labels, params), args.stl)
 
     # Convenience exports (can be used alongside --export-mode)
     if args.stl_base is not None and base is not None:
         export_stl(_export_transform(base, params), args.stl_base)
     if args.stl_labels is not None and labels is not None:
-        export_stl(_export_transform(labels, params), args.stl_labels)
+        export_stl(_export_transform_labels(labels, params), args.stl_labels)
 
     if args.step is not None:
         if args.export_mode == "combined":
             from build123d import Compound
 
-            export_step(_export_transform(Compound([o for o in (base, labels) if o is not None]), params), args.step)
+            parts = []
+            if base is not None:
+                parts.append(_export_transform(base, params))
+            if labels is not None:
+                parts.append(_export_transform_labels(labels, params))
+            if parts:
+                export_step(Compound(parts), args.step)
         elif args.export_mode == "base" and base is not None:
             export_step(_export_transform(base, params), args.step)
         elif args.export_mode == "labels" and labels is not None:
-            export_step(_export_transform(labels, params), args.step)
+            export_step(_export_transform_labels(labels, params), args.step)
 
     # View
     if args.export_mode == "combined":
         show(
-            base,
-            labels,
+            _export_transform(base, params) if base else None,
+            _export_transform_labels(labels, params) if labels else None,
             names=["base", "labels"],
             colors=[params.base_color, params.label_color],
             reset_camera=Camera.RESET,
             grid=True,
         )
     elif args.export_mode == "base" and base is not None:
-        show(base, names=["base"], colors=[params.base_color], reset_camera=Camera.RESET, grid=True)
+        show(_export_transform(base, params), names=["base"], colors=[params.base_color], reset_camera=Camera.RESET, grid=True)
     elif args.export_mode == "labels" and labels is not None:
-        show(labels, names=["labels"], colors=[params.label_color], reset_camera=Camera.RESET, grid=True)
+        show(_export_transform_labels(labels, params), names=["labels"], colors=[params.label_color], reset_camera=Camera.RESET, grid=True)
 
 
 if __name__ == "__main__":
