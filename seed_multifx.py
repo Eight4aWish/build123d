@@ -107,7 +107,7 @@ class FaceplateParams:
     inverse_label_enable: bool = True
     # Per-label masks (must match len(row_y)); True means use inverse style for that label.
     inverse_left: tuple[bool, ...] = (False, False, False, False, False)
-    inverse_right: tuple[bool, ...] = (True, True, False, False, False)
+    inverse_right: tuple[bool, ...] = (False, False, False, False, False)
     inverse_corner_r: float = 0.8
     # Padding around estimated text bounds (mm)
     inverse_pad_x: float = 0.6
@@ -130,7 +130,7 @@ class FaceplateParams:
     base_color: tuple[float, float, float] = (0.86, 0.86, 0.86)
     label_color: tuple[float, float, float] = (0.10, 0.10, 0.10)
 
-    brand_text: str = "84aW"
+    brand_text: str = "Eight4aWish"
     model_text: str = "MultiFX"
     brand_margin: float = 4.01
 
@@ -138,7 +138,7 @@ class FaceplateParams:
     screen_enable: bool = True
     screen_w: float = 24.8
     screen_h: float = 13.6
-    screen_y_bias: float = 3.0
+    screen_y_bias: float = 2.0
     screen_corner_r: float = 0.0
     screen_mount_hole_d: float = 3.0
     screen_top_hole_offset: float = 2.2
@@ -250,10 +250,15 @@ def build_base(params: FaceplateParams) -> "object":
                 yB = sy
                 yT = sy + params.screen_h
 
-                # Match the OpenSCAD: bottom holes only (top holes commented out there)
+                # Screen mounting holes: top and bottom
+                # Inset by 0.5mm each side for 23.8mm hole spacing
+                hole_xL = xL + 0.5
+                hole_xR = xR - 0.5
                 screen_mount_pts = [
-                    (xL, yB - params.screen_bottom_hole_offset),
-                    (xR, yB - params.screen_bottom_hole_offset),
+                    (hole_xL, yB - params.screen_bottom_hole_offset),
+                    (hole_xR, yB - params.screen_bottom_hole_offset),
+                    (hole_xL, yT + params.screen_top_hole_offset),
+                    (hole_xR, yT + params.screen_top_hole_offset),
                 ]
                 with Locations(*screen_mount_pts):
                     Circle(params.screen_mount_hole_d / 2)
@@ -609,10 +614,17 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
                 xL = sx
                 xR = sx + params.screen_w
                 yB = sy
+                yT = sy + params.screen_h
 
+                # Screen mounting holes: top and bottom
+                # Inset by 0.5mm each side for 23.8mm hole spacing
+                hole_xL = xL + 0.5
+                hole_xR = xR - 0.5
                 with Locations(
-                    (xL, yB - params.screen_bottom_hole_offset),
-                    (xR, yB - params.screen_bottom_hole_offset),
+                    (hole_xL, yB - params.screen_bottom_hole_offset),
+                    (hole_xR, yB - params.screen_bottom_hole_offset),
+                    (hole_xL, yT + params.screen_top_hole_offset),
+                    (hole_xR, yT + params.screen_top_hole_offset),
                 ):
                     Circle(params.screen_mount_hole_d / 2)
 
