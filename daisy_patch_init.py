@@ -134,6 +134,23 @@ HOLES: tuple[Hole, ...] = (
 )
 
 # ---------------------------------------------------------------------------
+# Rectangular Cutouts (from KiCad Edge.Cuts)
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class RectCutout:
+    x: float  # min X
+    y: float  # min Y
+    w: float  # width
+    h: float  # height
+
+
+# Offset rectangle cutout (display window/slot)
+RECT_CUTOUTS: tuple[RectCutout, ...] = (
+    RectCutout(x=24.14, y=33.493, w=27.348 - 24.14, h=46.295 - 33.493),
+)
+
+# ---------------------------------------------------------------------------
 # Panel Parameters
 # ---------------------------------------------------------------------------
 
@@ -215,7 +232,7 @@ def build_base(params: PanelParams) -> object:
             align=(Align.MIN, Align.MIN, Align.MIN),
         )
 
-        # Cut all holes
+        # Cut all holes and rectangular cutouts
         with BuildSketch(Plane.XY.offset(-0.1)) as sk:
             for h in HOLES:
                 with Locations((h.x, h.y)):
@@ -223,6 +240,11 @@ def build_base(params: PanelParams) -> object:
                         Circle(h.drill[0] / 2)
                     else:
                         SlotOverall(h.drill[0], h.drill[1])
+
+            # Rectangular cutouts (e.g., display window)
+            for r in RECT_CUTOUTS:
+                with Locations((r.x, r.y)):
+                    Rectangle(r.w, r.h, align=(Align.MIN, Align.MIN))
 
         extrude(to_extrude=sk.sketch, amount=params.thickness + 0.2, mode=Mode.SUBTRACT)
 
