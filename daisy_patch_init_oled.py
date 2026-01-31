@@ -56,23 +56,23 @@ from ocp_vscode import Camera, show
 HOLE_LABELS = (
     "OUT-R",# OUT-R
     "OUT-L",# OUT-L
-    "IN-R",# IN-R
-    "IN-L",# IN-L
-    "CV 4",# CV_8
-    "CV 3",# CV_7
-    "CV 2",# CV_6
-    "CV 1",# CV_5
+    "",# IN-R
+    "",# IN-L
+    "",# CV_8
+    "COLOR",# CV_7
+    "TMBR",# CV_6
+    "V/OCT",# CV_5
     "",# B6
     "",# B5
-    "",# B9
-    "CLK",# B10
+    "SYNC",# B9
+    "GATE",# B10
     # B8 removed - OLED screen location
     "",# C10
-    "SELECT",# B7
-    "MOD 4",# CV_4
-    "MOD 3",# CV_3
-    "MOD 2",# CV_2
-    "MOD 1",# CV_1
+    "MODE",# B7
+    "DECAY",# CV_4
+    "ATTACK",# CV_3
+    "COLOR",# CV_2
+    "TIMBRE",# CV_1
 )
 
 # Labels placed above each hole (use "" for no label above that hole)
@@ -185,7 +185,7 @@ class PanelParams:
     label_offset: tuple[float, float] = (0.0, -7.0)  # Offset from hole center
 
     # Branding
-    brand_text_top: str = "DaisyMultiFX"
+    brand_text_top: str = "DaisyBraids"
     brand_text_bottom: str = "Eight4aWish"
     brand_size: float = 4.0
 
