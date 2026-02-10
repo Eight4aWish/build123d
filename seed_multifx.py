@@ -131,7 +131,7 @@ class FaceplateParams:
     label_color: tuple[float, float, float] = (0.10, 0.10, 0.10)
 
     brand_text: str = "Eight4aWish"
-    model_text: str = "MultiFX"
+    model_text: str = "OnCLite"
     brand_margin: float = 4.01
 
     # Screen
@@ -145,11 +145,11 @@ class FaceplateParams:
     screen_bottom_hole_offset: float = 7.6
 
     # Per-hole labels (must match len(row_y))
-    labels_left: tuple[str, ...] = ("IN-R", "IN-L", "CV1", "CV1", "MIX")
-    labels_right: tuple[str, ...] = ("OUT-R", "OUT-L", "CV2", "CV2", "SELECT")
+    labels_left: tuple[str, ...] = ("OUT 3", "OUT 1", "IN 1", "POT 2", "POT 1")
+    labels_right: tuple[str, ...] = ("OUT 4", "OUT 2", "IN 2", "POT 3", "SELECT")
     # Optional secondary labels (set to "" for none)
-    secondary_left: tuple[str, ...] = ("", "", "", "", "")
-    secondary_right: tuple[str, ...] =  ("", "", "CLK", "", "MENU")
+    secondary_left: tuple[str, ...] = ("", "", "CLK", "", "")
+    secondary_right: tuple[str, ...] =  ("", "", "", "", "MENU")
     label_offset: tuple[float, float] = (0.0, -7.0)
 
     def screen_origin(self) -> tuple[float, float]:

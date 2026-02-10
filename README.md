@@ -25,6 +25,25 @@ This workspace is set up to use the local virtual environment at `./.venv`.
 ./.venv/bin/python show_build123d_demo.py
 ```
 
+## Desk headphone holder (slide-in, no clamp)
+
+Generate and view the holder:
+
+```sh
+./.venv/bin/python headphone_holder_build123d.py
+```
+
+Export an STL:
+
+```sh
+./.venv/bin/python headphone_holder_build123d.py --stl headphone_holder.stl
+```
+
+Tuning tips:
+
+- If the desk has a fixed underside strut, keep `--stabilizer-depth` less than the strut offset (or disable it with `--no-stabilizer`).
+- For friction fits, start with `--fit-clearance 0.3` (PLA) or `0.4-0.6` (PETG) and iterate.
+
 ## N8Synth faceplate (build123d rebuild)
 
 Generate and view the faceplate (base + raised labels):
