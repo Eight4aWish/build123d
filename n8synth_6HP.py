@@ -62,9 +62,9 @@ TextMode = Literal["emboss", "deboss", "inlay"]
 
 @dataclass(frozen=True)
 class FaceplateParams:
-    # Panel
-    panel_w: float = 30.00248
-    panel_h: float = 128.50114
+    # Panel (standard Eurorack: 6 HP = 30.48 mm, 3U = 128.5 mm)
+    panel_w: float = 30.48
+    panel_h: float = 128.5
     thickness: float = 2.0
 
     # Control holes
@@ -79,12 +79,14 @@ class FaceplateParams:
     row_y: tuple[float, ...] = (17.001699, 34.271711, 51.541635, 68.811655, 86.08158)
 
     # Eurorack mounting
+    # Standard 6 HP: hole spacing = 5 HP = 25.40 mm
+    # Edge distance = (30.48 - 25.40) / 2 = 2.54 mm
     add_mount_holes: bool = True
     mount_hole_d: float = 3.2
-    mount_x_from_edge: float = 3.0
+    mount_x_from_edge: float = 2.54
     mount_y_from_edge: float = 3.0
     mount_both_sides: bool = True
-    mount_slot: bool = True
+    mount_slot: bool = False
     mount_slot_len: float = 4.0
 
     # Labels
