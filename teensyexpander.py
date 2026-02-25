@@ -61,9 +61,9 @@ TextMode = Literal["emboss", "deboss", "inlay"]
 
 @dataclass(frozen=True)
 class FaceplateParams:
-    # Panel
-    panel_w: float = 30.00248
-    panel_h: float = 128.50114
+    # Panel (standard Eurorack: 6 HP = 30.48 mm, 3U = 128.5 mm)
+    panel_w: float = 30.48
+    panel_h: float = 128.5
     thickness: float = 2.0
 
     # Control holes
@@ -89,12 +89,11 @@ class FaceplateParams:
         return (col_idx, row_idx) not in self.remove_holes
 
     # Eurorack mounting
-    # Standard 6 HP hole spacing is 5 HP = 25.40 mm.
-    # For 3D printing we use round holes (not slots) and 2.50 mm
-    # from each edge → 25.00 mm spacing, ~0.9 mm wall to edge.
+    # Standard 6 HP: hole spacing = 5 HP = 25.40 mm
+    # Edge distance = (30.48 - 25.40) / 2 = 2.54 mm
     add_mount_holes: bool = True
     mount_hole_d: float = 3.2
-    mount_x_from_edge: float = 2.50
+    mount_x_from_edge: float = 2.54
     mount_y_from_edge: float = 3.0
     mount_both_sides: bool = True
     mount_slot: bool = False
