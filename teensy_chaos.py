@@ -199,13 +199,13 @@ class FaceplateParams:
 		# Row 2:
 		"",            "",   "X",
 		# Row 3:
-		"MOD",            "CHAOS",   "Y",
+		"CHAOS",            "CHAOS",   "Y",
 		# Row 4:
 		"ASGN",           "RATE",  "OUT-L",
 		# Row 5:
-		"CLOCK",           "CHAR",  "OUT-R",
+		"V/OCT",           "CHAR",  "OUT-R",
 		# Row 6 (bottom):
-		"RESET",           "DEPTH",  "AUD-IN",
+		"GATE",           "DEPTH",  "AUD-IN",
 	)
 	# Labels placed above each hole ("" for none)
 	hole_labels_above: tuple[str, ...] = (
@@ -238,8 +238,22 @@ class FaceplateParams:
 	# Index into holes_sorted() whose Y the bottom mount holes should align with
 	screen_bottom_hole_align_index: int = 5
 
-	base_color: tuple[float, float, float] = (0.86, 0.86, 0.86)
-	label_color: tuple[float, float, float] = (0.10, 0.10, 0.10)
+	# Render hints: column-2 controls are trimmers; MENU (idx 2) is a button.
+	trimmer_hole_indices: tuple[int, ...] = (7, 10, 13, 16)
+	button_hole_indices: tuple[int, ...] = (2,)
+	# Befaco nut colour overrides by label: X/Y are CV outputs (gold); V/OCT,
+	# GATE and AUD-IN are silver.
+	nut_overrides: tuple[tuple[str, str], ...] = (
+		("X", "nut_gold"),
+		("Y", "nut_gold"),
+		("V/OCT", "nut_silver"),
+		("GATE", "nut_silver"),
+		("AUD-IN", "nut_silver"),
+	)
+
+	# Real-life finish: dark grey panel with white lettering.
+	base_color: tuple[float, float, float] = (0.028, 0.028, 0.032)
+	label_color: tuple[float, float, float] = (0.92, 0.92, 0.93)
 
 	def _content_offsets(self) -> tuple[float, float]:
 		"""Center SVG-derived geometry onto the standard panel size."""

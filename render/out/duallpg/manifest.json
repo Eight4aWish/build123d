@@ -1,0 +1,164 @@
+{
+  "module": "duallpg",
+  "panel_w": 50.5,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "idx": 0,
+      "x": 10.040845506000002,
+      "y": 105.35869089600001,
+      "kind": "jack",
+      "label": "IN 1",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 1,
+      "x": 25.280848046000003,
+      "y": 105.35869089600001,
+      "kind": "pot",
+      "label": "DEPTH"
+    },
+    {
+      "idx": 2,
+      "x": 40.520842966000004,
+      "y": 105.35869089600001,
+      "kind": "jack",
+      "label": "OUT 1",
+      "nut": "nut_red"
+    },
+    {
+      "idx": 3,
+      "x": 10.040845506000002,
+      "y": 88.088697496,
+      "kind": "trimmer",
+      "label": "ATTEN"
+    },
+    {
+      "idx": 4,
+      "x": 25.280848046000003,
+      "y": 88.088697496,
+      "kind": "trimmer",
+      "label": "MANUAL"
+    },
+    {
+      "idx": 5,
+      "x": 40.520842966000004,
+      "y": 88.088697496,
+      "kind": "led_holder",
+      "label": ""
+    },
+    {
+      "idx": 6,
+      "x": 10.040845506000002,
+      "y": 70.81874981600001,
+      "kind": "jack",
+      "label": "CV",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 7,
+      "x": 25.280848046000003,
+      "y": 70.81874981600001,
+      "kind": "jack",
+      "label": "STRIKE",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 8,
+      "x": 40.520842966000004,
+      "y": 70.81874981600001,
+      "kind": "jack",
+      "label": "MIX",
+      "nut": "nut_gold"
+    },
+    {
+      "idx": 9,
+      "x": 10.040845506000002,
+      "y": 53.548743716000004,
+      "kind": "jack",
+      "label": "IN 2",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 10,
+      "x": 25.280848046000003,
+      "y": 53.548743716000004,
+      "kind": "pot",
+      "label": "DEPTH"
+    },
+    {
+      "idx": 11,
+      "x": 40.520842966000004,
+      "y": 53.548743716000004,
+      "kind": "jack",
+      "label": "OUT 2",
+      "nut": "nut_red"
+    },
+    {
+      "idx": 12,
+      "x": 10.040845506000002,
+      "y": 36.278818896000004,
+      "kind": "trimmer",
+      "label": "ATTEN"
+    },
+    {
+      "idx": 13,
+      "x": 25.280848046000003,
+      "y": 36.278818896000004,
+      "kind": "trimmer",
+      "label": "MANUAL"
+    },
+    {
+      "idx": 14,
+      "x": 40.520842966000004,
+      "y": 36.278818896000004,
+      "kind": "led_holder",
+      "label": ""
+    },
+    {
+      "idx": 15,
+      "x": 10.040845506000002,
+      "y": 19.008807715999993,
+      "kind": "jack",
+      "label": "CV",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 16,
+      "x": 25.280848046000003,
+      "y": 19.008807715999993,
+      "kind": "jack",
+      "label": "STRIKE",
+      "nut": "nut_silver"
+    }
+  ],
+  "leds": [],
+  "screens": [],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "nut_black": "nut_black.stl",
+    "jack_body": "jack_body.stl",
+    "knob": "knob.stl",
+    "knob_pointer": "knob_pointer.stl",
+    "nut_red": "nut_red.stl",
+    "trimmer": "trimmer.stl",
+    "trimmer_pointer": "trimmer_pointer.stl",
+    "led_holder": "led_holder.stl",
+    "led": "led.stl",
+    "led_dome": "led_dome.stl",
+    "nut_silver": "nut_silver.stl",
+    "nut_gold": "nut_gold.stl"
+  }
+}

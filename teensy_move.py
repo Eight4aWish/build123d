@@ -241,9 +241,17 @@ class FaceplateParams:
 	# left hole center is (left edge - 0.5mm), right hole center is (right edge + 1.5mm)
 	screen_left_hole_center_from_edge: float = 0.5
 	screen_right_hole_center_from_edge: float = 1.5
+	# OLED native pixel size (128x32) so the render fits the lit area's aspect
+	# inside the wider window rather than stretching it.
+	screen_px: tuple[int, int] = (128, 32)
 
-	base_color: tuple[float, float, float] = (0.86, 0.86, 0.86)
-	label_color: tuple[float, float, float] = (0.10, 0.10, 0.10)
+	# Render hints: column-2 controls are trimmers; MENU (idx 2) is a button.
+	trimmer_hole_indices: tuple[int, ...] = (4, 7, 10, 13)
+	button_hole_indices: tuple[int, ...] = (2,)
+
+	# Real-life finish: dark grey panel with white lettering.
+	base_color: tuple[float, float, float] = (0.028, 0.028, 0.032)
+	label_color: tuple[float, float, float] = (0.92, 0.92, 0.93)
 
 	def _content_offsets(self) -> tuple[float, float]:
 		"""Center SVG-derived geometry onto the standard panel size."""

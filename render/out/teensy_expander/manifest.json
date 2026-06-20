@@ -1,0 +1,98 @@
+{
+  "module": "teensyexpander",
+  "panel_w": 30.48,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "x": 23.727485,
+      "y": 93.22828899999999,
+      "kind": "jack",
+      "label": "DRM1",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 23.727485,
+      "y": 75.958365,
+      "kind": "jack",
+      "label": "DRM2",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 23.727485,
+      "y": 58.688345,
+      "kind": "jack",
+      "label": "DRM3",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 23.727485,
+      "y": 41.41842,
+      "kind": "jack",
+      "label": "DRM4",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 7.217410000000001,
+      "y": 110.498301,
+      "kind": "jack",
+      "label": "GATE",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 7.217410000000001,
+      "y": 93.22828899999999,
+      "kind": "jack",
+      "label": "MOD",
+      "nut": "nut_red"
+    },
+    {
+      "x": 7.217410000000001,
+      "y": 75.958365,
+      "kind": "jack",
+      "label": "PITCH",
+      "nut": "nut_red"
+    },
+    {
+      "x": 7.217410000000001,
+      "y": 58.688345,
+      "kind": "jack",
+      "label": "GATE",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 7.217410000000001,
+      "y": 41.41842,
+      "kind": "jack",
+      "label": "MOD",
+      "nut": "nut_red"
+    },
+    {
+      "x": 7.217410000000001,
+      "y": 24.14841,
+      "kind": "jack",
+      "label": "PITCH",
+      "nut": "nut_red"
+    }
+  ],
+  "leds": [],
+  "screens": [],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "nut_gold": "nut_gold.stl",
+    "jack_body": "jack_body.stl",
+    "nut_silver": "nut_silver.stl",
+    "nut_red": "nut_red.stl"
+  }
+}

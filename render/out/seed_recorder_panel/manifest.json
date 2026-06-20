@@ -1,0 +1,39 @@
+{
+  "module": "seed_recorder_panel",
+  "panel_w": 40.64,
+  "panel_h": 39.3,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "x": 29.5,
+      "y": 26.5,
+      "kind": "button",
+      "label": ""
+    }
+  ],
+  "leds": [
+    {
+      "x": 11.0,
+      "y": 26.5,
+      "color": "red"
+    }
+  ],
+  "screens": [],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "led": "led.stl",
+    "led_dome": "led_dome.stl",
+    "switch_cap_silver": "switch_cap_silver.stl"
+  }
+}

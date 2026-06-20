@@ -1,0 +1,127 @@
+{
+  "module": "pico2w_onclite",
+  "panel_w": 30.48,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "x": 6.752515,
+      "y": 18.001699,
+      "kind": "jack",
+      "label": "OUT 3",
+      "nut": "nut_red"
+    },
+    {
+      "x": 6.752515,
+      "y": 35.271711,
+      "kind": "jack",
+      "label": "OUT 1",
+      "nut": "nut_red"
+    },
+    {
+      "x": 6.752515,
+      "y": 52.541635,
+      "kind": "jack",
+      "label": "IN 1",
+      "nut": "nut_black"
+    },
+    {
+      "x": 6.752515,
+      "y": 69.811655,
+      "kind": "trimmer",
+      "label": "POT 2"
+    },
+    {
+      "x": 6.752515,
+      "y": 87.08158,
+      "kind": "trimmer",
+      "label": "POT 1"
+    },
+    {
+      "x": 23.26259,
+      "y": 18.001699,
+      "kind": "jack",
+      "label": "OUT 4",
+      "nut": "nut_red"
+    },
+    {
+      "x": 23.26259,
+      "y": 35.271711,
+      "kind": "jack",
+      "label": "OUT 2",
+      "nut": "nut_red"
+    },
+    {
+      "x": 23.26259,
+      "y": 52.541635,
+      "kind": "jack",
+      "label": "IN 2",
+      "nut": "nut_black"
+    },
+    {
+      "x": 23.26259,
+      "y": 69.811655,
+      "kind": "trimmer",
+      "label": "POT 3"
+    },
+    {
+      "x": 23.26259,
+      "y": 87.08158,
+      "kind": "button",
+      "label": "SELECT"
+    },
+    {
+      "x": 3.34,
+      "y": 94.39079000000001,
+      "kind": "bolt"
+    },
+    {
+      "x": 27.14,
+      "y": 94.39079000000001,
+      "kind": "bolt"
+    },
+    {
+      "x": 3.34,
+      "y": 117.79079,
+      "kind": "bolt"
+    },
+    {
+      "x": 27.14,
+      "y": 117.79079,
+      "kind": "bolt"
+    }
+  ],
+  "leds": [],
+  "screens": [
+    {
+      "x": 15.24,
+      "y": 108.79079,
+      "z": 1.6,
+      "w": 23.3,
+      "h": 11.65,
+      "dy": 0.0,
+      "image": "pico2w_onclite_screen.png"
+    }
+  ],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "nut_red": "nut_red.stl",
+    "jack_body": "jack_body.stl",
+    "nut_black": "nut_black.stl",
+    "trimmer": "trimmer.stl",
+    "trimmer_pointer": "trimmer_pointer.stl",
+    "switch_cap": "switch_cap.stl",
+    "bolt": "bolt.stl"
+  }
+}

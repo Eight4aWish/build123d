@@ -1,0 +1,90 @@
+{
+  "module": "clklinkrec",
+  "panel_w": 20.0,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "idx": 0,
+      "x": 9.998160499999997,
+      "y": 111.53978799999999,
+      "kind": "button",
+      "label": "LINK"
+    },
+    {
+      "idx": 1,
+      "x": 9.998160499999997,
+      "y": 94.269777,
+      "kind": "jack",
+      "label": "CLOCK",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 2,
+      "x": 9.998160499999997,
+      "y": 76.99985199999999,
+      "kind": "jack",
+      "label": "RESET OUT",
+      "nut": "nut_red"
+    },
+    {
+      "idx": 3,
+      "x": 9.998160499999997,
+      "y": 59.72984099999999,
+      "kind": "jack",
+      "label": "RUNNING",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 4,
+      "x": 9.998160499999997,
+      "y": 42.459903999999995,
+      "kind": "jack",
+      "label": "RESET IN",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 5,
+      "x": 9.998160499999997,
+      "y": 25.189904,
+      "kind": "button",
+      "label": "RECORD"
+    }
+  ],
+  "leds": [
+    {
+      "x": 12.498160499999997,
+      "y": 105.03978799999999,
+      "color": "blue"
+    },
+    {
+      "x": 12.498160499999997,
+      "y": 18.689904,
+      "color": "red"
+    }
+  ],
+  "screens": [],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "switch_cap": "switch_cap.stl",
+    "nut_silver": "nut_silver.stl",
+    "jack_body": "jack_body.stl",
+    "nut_red": "nut_red.stl",
+    "nut_black": "nut_black.stl",
+    "led_blue": "led_blue.stl",
+    "led_blue_dome": "led_blue_dome.stl",
+    "led": "led.stl",
+    "led_dome": "led_dome.stl"
+  }
+}

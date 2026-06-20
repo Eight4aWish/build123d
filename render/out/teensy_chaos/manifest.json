@@ -1,0 +1,170 @@
+{
+  "module": "teensy_chaos",
+  "panel_w": 50.8,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "idx": 2,
+      "x": 40.670842965999995,
+      "y": 103.35869089600001,
+      "kind": "button",
+      "label": "MENU"
+    },
+    {
+      "idx": 5,
+      "x": 40.670842965999995,
+      "y": 86.088697496,
+      "kind": "jack",
+      "label": "X",
+      "nut": "nut_gold"
+    },
+    {
+      "idx": 6,
+      "x": 10.190845506,
+      "y": 68.81874981600001,
+      "kind": "jack",
+      "label": "CHAOS",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 7,
+      "x": 25.430848046,
+      "y": 68.81874981600001,
+      "kind": "trimmer",
+      "label": "CHAOS"
+    },
+    {
+      "idx": 8,
+      "x": 40.670842965999995,
+      "y": 68.81874981600001,
+      "kind": "jack",
+      "label": "Y",
+      "nut": "nut_gold"
+    },
+    {
+      "idx": 9,
+      "x": 10.190845506,
+      "y": 51.548743716000004,
+      "kind": "jack",
+      "label": "ASGN",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 10,
+      "x": 25.430848046,
+      "y": 51.548743716000004,
+      "kind": "trimmer",
+      "label": "RATE"
+    },
+    {
+      "idx": 11,
+      "x": 40.670842965999995,
+      "y": 51.548743716000004,
+      "kind": "jack",
+      "label": "OUT-L",
+      "nut": "nut_red"
+    },
+    {
+      "idx": 12,
+      "x": 10.190845506,
+      "y": 34.278818896000004,
+      "kind": "jack",
+      "label": "V/OCT",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 13,
+      "x": 25.430848046,
+      "y": 34.278818896000004,
+      "kind": "trimmer",
+      "label": "CHAR"
+    },
+    {
+      "idx": 14,
+      "x": 40.670842965999995,
+      "y": 34.278818896000004,
+      "kind": "jack",
+      "label": "OUT-R",
+      "nut": "nut_red"
+    },
+    {
+      "idx": 15,
+      "x": 10.190845506,
+      "y": 17.008807715999993,
+      "kind": "jack",
+      "label": "GATE",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 16,
+      "x": 25.430848046,
+      "y": 17.008807715999993,
+      "kind": "trimmer",
+      "label": "DEPTH"
+    },
+    {
+      "idx": 17,
+      "x": 40.670842965999995,
+      "y": 17.008807715999993,
+      "kind": "jack",
+      "label": "AUD-IN",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 6.060846776000002,
+      "y": 86.088697496,
+      "kind": "bolt"
+    },
+    {
+      "x": 29.560846776,
+      "y": 86.088697496,
+      "kind": "bolt"
+    },
+    {
+      "x": 6.060846776000002,
+      "y": 109.588697496,
+      "kind": "bolt"
+    },
+    {
+      "x": 29.560846776,
+      "y": 109.588697496,
+      "kind": "bolt"
+    }
+  ],
+  "leds": [],
+  "screens": [
+    {
+      "x": 17.810846776,
+      "y": 100.13869749599999,
+      "z": 1.6,
+      "w": 23.0,
+      "h": 11.5,
+      "dy": 0.0,
+      "image": "teensy_chaos_screen.png"
+    }
+  ],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "switch_cap": "switch_cap.stl",
+    "nut_gold": "nut_gold.stl",
+    "jack_body": "jack_body.stl",
+    "nut_black": "nut_black.stl",
+    "trimmer": "trimmer.stl",
+    "trimmer_pointer": "trimmer_pointer.stl",
+    "nut_red": "nut_red.stl",
+    "nut_silver": "nut_silver.stl",
+    "bolt": "bolt.stl"
+  }
+}

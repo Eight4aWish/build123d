@@ -1,0 +1,168 @@
+{
+  "module": "daisy_grids",
+  "panel_w": 50.8,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "x": 43.650000999999996,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "OUT-R",
+      "nut": "nut_red"
+    },
+    {
+      "x": 31.483306,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "OUT-L",
+      "nut": "nut_red"
+    },
+    {
+      "x": 19.316702999999997,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "IN-R",
+      "nut": "nut_black"
+    },
+    {
+      "x": 7.149999999999999,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "IN-L",
+      "nut": "nut_black"
+    },
+    {
+      "x": 43.650000999999996,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "CHAOS",
+      "nut": "nut_black"
+    },
+    {
+      "x": 31.483306,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "DENS",
+      "nut": "nut_black"
+    },
+    {
+      "x": 19.316702999999997,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "Y",
+      "nut": "nut_black"
+    },
+    {
+      "x": 7.149999999999999,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "X",
+      "nut": "nut_black"
+    },
+    {
+      "x": 43.650000999999996,
+      "y": 43.938047999999995,
+      "kind": "jack",
+      "label": "SNARE",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 31.483306,
+      "y": 43.938097,
+      "kind": "jack",
+      "label": "KICK",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 19.316702999999997,
+      "y": 43.938097,
+      "kind": "jack",
+      "label": "RESET",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 7.149999999999999,
+      "y": 43.938097,
+      "kind": "jack",
+      "label": "CLOCK",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 25.297105999999996,
+      "y": 66.543403,
+      "kind": "toggle",
+      "label": "INTERNAL/EXTERNAL"
+    },
+    {
+      "x": 42.15000499999999,
+      "y": 69.211775,
+      "kind": "jack",
+      "label": "HAT",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 8.644912999999995,
+      "y": 69.211794,
+      "kind": "button",
+      "label": "MODE"
+    },
+    {
+      "x": 39.6245,
+      "y": 86.472689,
+      "kind": "trimmer",
+      "label": "CHAOS"
+    },
+    {
+      "x": 11.150003999999996,
+      "y": 86.472689,
+      "kind": "trimmer",
+      "label": "DENSITY"
+    },
+    {
+      "x": 39.6245,
+      "y": 105.595711,
+      "kind": "trimmer",
+      "label": "Y"
+    },
+    {
+      "x": 11.150003999999996,
+      "y": 105.595711,
+      "kind": "trimmer",
+      "label": "X"
+    }
+  ],
+  "leds": [
+    {
+      "x": 25.400000999999996,
+      "y": 109.247995,
+      "color": "red"
+    }
+  ],
+  "screens": [],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "nut_red": "nut_red.stl",
+    "jack_body": "jack_body.stl",
+    "nut_black": "nut_black.stl",
+    "nut_gold": "nut_gold.stl",
+    "nut_silver": "nut_silver.stl",
+    "toggle": "toggle.stl",
+    "switch_cap": "switch_cap.stl",
+    "trimmer": "trimmer.stl",
+    "trimmer_pointer": "trimmer_pointer.stl",
+    "led": "led.stl",
+    "led_dome": "led_dome.stl"
+  }
+}

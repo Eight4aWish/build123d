@@ -1,9 +1,8 @@
-"""N8Synth 6HP 2xN faceplate recreated in build123d.
+"""Teensy Expander 6HP 2xN faceplate (based on N8Synth 6HP).
 
-This file mirrors the geometry/parameters from the provided OpenSCAD source:
+Derived from n8synth_6HP.py with the screen removed.
 - Base panel with optional Eurorack mounting slots/holes
 - 2 columns of control holes
-- Optional screen cutout + (bottom) screen mounting holes
 - Raised text labels (separate solid for 2-color printing)
 
 Run:
@@ -76,7 +75,18 @@ class FaceplateParams:
 
     # Hole positions (mm from bottom-left)
     col_x: tuple[float, float] = (6.752515, 23.26259)
-    row_y: tuple[float, ...] = (17.001699, 34.271711, 51.541635, 68.811655, 86.08158)
+    row_y: tuple[float, ...] = (17.001699, 34.271711, 51.541635, 68.811655, 86.08158, 103.35159)
+
+    # Holes to remove as (col_index, row_index) pairs.
+    # With rotate_labels=True the panel is viewed 180°, so
+    # col 0 appears on the right and row 0 appears at the top.
+    remove_holes: tuple[tuple[int, int], ...] = (
+        (0, 0),  # top-right when installed = OUT 3
+        (0, 5),  # bottom-right when installed = 6L
+    )
+
+    def _hole_enabled(self, col_idx: int, row_idx: int) -> bool:
+        return (col_idx, row_idx) not in self.remove_holes
 
     # Eurorack mounting
     # Standard 6 HP: hole spacing = 5 HP = 25.40 mm
@@ -108,8 +118,8 @@ class FaceplateParams:
     # leaving "white text" by exposing the base color.
     inverse_label_enable: bool = True
     # Per-label masks (must match len(row_y)); True means use inverse style for that label.
-    inverse_left: tuple[bool, ...] = (False, False, False, False, False)
-    inverse_right: tuple[bool, ...] = (False, False, False, False, False)
+    inverse_left: tuple[bool, ...] = (False, False, False, False, False, False)
+    inverse_right: tuple[bool, ...] = (False, False, False, False, False, False)
     inverse_corner_r: float = 0.8
     # Padding around estimated text bounds (mm)
     inverse_pad_x: float = 0.6
@@ -129,15 +139,16 @@ class FaceplateParams:
     # Depth used for deboss/inlay (mm). With 0.1 mm layers, 0.2 mm = 2 layers.
     inlay_depth: float = 0.2
 
-    base_color: tuple[float, float, float] = (0.86, 0.86, 0.86)
-    label_color: tuple[float, float, float] = (0.10, 0.10, 0.10)
+    # Real-life finish: dark grey panel with white lettering.
+    base_color: tuple[float, float, float] = (0.028, 0.028, 0.032)
+    label_color: tuple[float, float, float] = (0.92, 0.92, 0.93)
 
-    brand_text: str = "Eight4aWish"
-    model_text: str = "OnCLite"
+    brand_text: str = "TMExpander"
+    model_text: str = "Eight4aWish"
     brand_margin: float = 4.01
 
     # Screen
-    screen_enable: bool = True
+    screen_enable: bool = False
     screen_w: float = 24.8
     screen_h: float = 13.6
     screen_y_bias: float = 2.0
@@ -147,12 +158,40 @@ class FaceplateParams:
     screen_bottom_hole_offset: float = 7.6
 
     # Per-hole labels (must match len(row_y))
-    labels_left: tuple[str, ...] = ("OUT 3", "OUT 1", "IN 1", "POT 2", "POT 1")
-    labels_right: tuple[str, ...] = ("OUT 4", "OUT 2", "IN 2", "POT 3", "SELECT")
+    labels_left: tuple[str, ...] = ("OUT 3", "DRM1", "DRM2", "DRM3", "DRM4", "6L")
+    labels_right: tuple[str, ...] = ("GATE", "MOD", "PITCH", "GATE", "MOD", "PITCH")
     # Optional secondary labels (set to "" for none)
-    secondary_left: tuple[str, ...] = ("", "", "CLK", "", "")
-    secondary_right: tuple[str, ...] =  ("", "", "", "", "MENU")
+    secondary_left: tuple[str, ...] = ("", "", "", "", "", "")
+    secondary_right: tuple[str, ...] =  ("", "", "", "", "", "")
+
+    # Befaco nut colours by label: drum triggers gold; MOD/PITCH red (GATE
+    # stays silver by default).
+    nut_overrides: tuple[tuple[str, str], ...] = (
+        ("DRM1", "nut_gold"), ("DRM2", "nut_gold"), ("DRM3", "nut_gold"), ("DRM4", "nut_gold"),
+        ("MOD", "nut_red"), ("PITCH", "nut_red"),
+    )
     label_offset: tuple[float, float] = (0.0, -7.0)
+
+    # Rotate all labels 180° (for modules installed upside-down).
+    # When True the label offset is negated so labels still appear
+    # below the holes after the panel is flipped, and brand/model
+    # text is rotated to read correctly.
+    rotate_labels: bool = True
+
+    def _label_rotation(self) -> float:
+        return 180.0 if self.rotate_labels else 0.0
+
+    def _effective_label_offset(self) -> tuple[float, float]:
+        dx, dy = self.label_offset
+        if self.rotate_labels:
+            return (-dx, -dy)
+        return (dx, dy)
+
+    def _effective_secondary_offset(self) -> tuple[float, float]:
+        dx, dy = self.secondary_label_offset_from_main
+        if self.rotate_labels:
+            return (-dx, -dy)
+        return (dx, dy)
 
     def screen_origin(self) -> tuple[float, float]:
         """Bottom-left of screen cutout, matching the OpenSCAD formula."""
@@ -170,6 +209,12 @@ class FaceplateParams:
 
     def brand_top_pos(self) -> tuple[float, float]:
         return (self.panel_w / 2, self.panel_h - self.brand_margin)
+
+    def brand_bottom_pos_rot(self) -> tuple[tuple[float, float], float]:
+        return self.brand_bottom_pos(), self._label_rotation()
+
+    def brand_top_pos_rot(self) -> tuple[tuple[float, float], float]:
+        return self.brand_top_pos(), self._label_rotation()
 
 
 def _slot_or_hole_2d(params: FaceplateParams) -> None:
@@ -218,9 +263,10 @@ def build_base(params: FaceplateParams) -> "object":
 
             # 2xN control holes
             control_points: list[tuple[float, float]] = []
-            for cx in params.col_x:
-                for y in params.row_y:
-                    control_points.append((cx, y + params.labels_y_offset + dy))
+            for ci, cx in enumerate(params.col_x):
+                for ri, y in enumerate(params.row_y):
+                    if params._hole_enabled(ci, ri):
+                        control_points.append((cx, y + params.labels_y_offset + dy))
 
             with Locations(*control_points):
                 d = params.hole_d + params.hole_oversize
@@ -278,62 +324,74 @@ def build_base(params: FaceplateParams) -> "object":
                     with Locations(at_xy):
                         Text(txt, font_size=font_size, font=params.label_font, font_style=style)
 
+                rot = params._label_rotation()
+
+                def add_text_to_sketch_rot(txt: str, *, font_size: float, style: FontStyle, at_xy: tuple[float, float], rotation: float = 0.0):
+                    with Locations(Location((at_xy[0], at_xy[1], 0), (0, 0, rotation))):
+                        Text(txt, font_size=font_size, font=params.label_font, font_style=style)
+
                 with BuildSketch(Plane.XY.offset(z0)) as pocket_sk:
                     # Brand labels (no global vertical offset)
-                    add_text_to_sketch(
+                    add_text_to_sketch_rot(
                         params.brand_text,
                         font_size=params.brand_size,
                         style=params.label_font_style,
                         at_xy=params.brand_bottom_pos(),
+                        rotation=rot,
                     )
-                    add_text_to_sketch(
+                    add_text_to_sketch_rot(
                         params.model_text,
                         font_size=params.brand_size,
                         style=params.label_font_style,
                         at_xy=params.brand_top_pos(),
+                        rotation=rot,
                     )
 
                     # Per-hole labels shifted by the global offset
                     dy = params.content_y_offset
-                    dx_off, dy_off = params.label_offset
-                    sec_dx, sec_dy = params.secondary_label_offset_from_main
+                    dx_off, dy_off = params._effective_label_offset()
+                    sec_dx, sec_dy = params._effective_secondary_offset()
 
                     for i, y in enumerate(params.row_y):
                         y0_txt = y + params.labels_y_offset + dy + dy_off
                         left_xy = (params.col_x[0] + dx_off, y0_txt)
                         right_xy = (params.col_x[1] + dx_off, y0_txt)
 
-                        if params.labels_left[i]:
-                            add_text_to_sketch(
+                        if params._hole_enabled(0, i) and params.labels_left[i]:
+                            add_text_to_sketch_rot(
                                 params.labels_left[i],
                                 font_size=params.label_size,
                                 style=params.label_font_style,
                                 at_xy=left_xy,
+                                rotation=rot,
                             )
-                        if params.labels_right[i]:
-                            add_text_to_sketch(
+                        if params._hole_enabled(1, i) and params.labels_right[i]:
+                            add_text_to_sketch_rot(
                                 params.labels_right[i],
                                 font_size=params.label_size,
                                 style=params.label_font_style,
                                 at_xy=right_xy,
+                                rotation=rot,
                             )
 
                         sec_left = params.secondary_left[i].strip()
-                        if sec_left:
-                            add_text_to_sketch(
+                        if params._hole_enabled(0, i) and sec_left:
+                            add_text_to_sketch_rot(
                                 sec_left,
                                 font_size=params.secondary_label_size,
                                 style=params.secondary_label_style,
                                 at_xy=(left_xy[0] + sec_dx, left_xy[1] + sec_dy),
+                                rotation=rot,
                             )
 
                         sec_right = params.secondary_right[i].strip()
-                        if sec_right:
-                            add_text_to_sketch(
+                        if params._hole_enabled(1, i) and sec_right:
+                            add_text_to_sketch_rot(
                                 sec_right,
                                 font_size=params.secondary_label_size,
                                 style=params.secondary_label_style,
                                 at_xy=(right_xy[0] + sec_dx, right_xy[1] + sec_dy),
+                                rotation=rot,
                             )
 
                 extrude(to_extrude=pocket_sk.sketch, amount=pocket_depth + 0.1, mode=Mode.SUBTRACT)
@@ -362,9 +420,11 @@ def build_labels(params: FaceplateParams) -> "object":
             if depth <= 0:
                 return p.part
 
-            def add_text(txt: str, *, font_size: float, style: FontStyle, at_xy: tuple[float, float]):
+            rot = params._label_rotation()
+
+            def add_text(txt: str, *, font_size: float, style: FontStyle, at_xy: tuple[float, float], rotation: float = 0.0):
                 with BuildSketch(Plane.XY.offset(z0)) as sk:
-                    with Locations(at_xy):
+                    with Locations(Location((at_xy[0], at_xy[1], 0), (0, 0, rotation))):
                         Text(txt, font_size=font_size, font=params.label_font, font_style=style)
                 extrude(to_extrude=sk.sketch, amount=depth, mode=Mode.ADD)
 
@@ -374,62 +434,70 @@ def build_labels(params: FaceplateParams) -> "object":
                 font_size=params.brand_size,
                 style=params.label_font_style,
                 at_xy=params.brand_bottom_pos(),
+                rotation=rot,
             )
             add_text(
                 params.model_text,
                 font_size=params.brand_size,
                 style=params.label_font_style,
                 at_xy=params.brand_top_pos(),
+                rotation=rot,
             )
 
             dy = params.content_y_offset
-            dx_off, dy_off = params.label_offset
-            sec_dx, sec_dy = params.secondary_label_offset_from_main
+            dx_off, dy_off = params._effective_label_offset()
+            sec_dx, sec_dy = params._effective_secondary_offset()
 
             for i, y in enumerate(params.row_y):
                 y0_txt = y + params.labels_y_offset + dy + dy_off
                 left_xy = (params.col_x[0] + dx_off, y0_txt)
                 right_xy = (params.col_x[1] + dx_off, y0_txt)
 
-                if params.labels_left[i]:
+                if params._hole_enabled(0, i) and params.labels_left[i]:
                     add_text(
                         params.labels_left[i],
                         font_size=params.label_size,
                         style=params.label_font_style,
                         at_xy=left_xy,
+                        rotation=rot,
                     )
-                if params.labels_right[i]:
+                if params._hole_enabled(1, i) and params.labels_right[i]:
                     add_text(
                         params.labels_right[i],
                         font_size=params.label_size,
                         style=params.label_font_style,
                         at_xy=right_xy,
+                        rotation=rot,
                     )
 
                 sec_left = params.secondary_left[i].strip()
-                if sec_left:
+                if params._hole_enabled(0, i) and sec_left:
                     add_text(
                         sec_left,
                         font_size=params.secondary_label_size,
                         style=params.secondary_label_style,
                         at_xy=(left_xy[0] + sec_dx, left_xy[1] + sec_dy),
+                        rotation=rot,
                     )
 
                 sec_right = params.secondary_right[i].strip()
-                if sec_right:
+                if params._hole_enabled(1, i) and sec_right:
                     add_text(
                         sec_right,
                         font_size=params.secondary_label_size,
                         style=params.secondary_label_style,
                         at_xy=(right_xy[0] + sec_dx, right_xy[1] + sec_dy),
+                        rotation=rot,
                     )
 
         return p.part
 
     # Default: emboss mode (existing behaviour)
-    def make_text_sketch(txt: str, *, font_size: float, style: FontStyle, at_xy: tuple[float, float]):
+    rot = params._label_rotation()
+
+    def make_text_sketch(txt: str, *, font_size: float, style: FontStyle, at_xy: tuple[float, float], rotation: float = 0.0):
         with BuildSketch(Plane.XY.offset(params.thickness)) as sk:
-            with Locations(at_xy):
+            with Locations(Location((at_xy[0], at_xy[1], 0), (0, 0, rotation))):
                 Text(txt, font_size=font_size, font=params.label_font, font_style=style)
         return sk.sketch
 
@@ -466,21 +534,23 @@ def build_labels(params: FaceplateParams) -> "object":
             font_size=params.brand_size,
             style=params.label_font_style,
             at_xy=params.brand_bottom_pos(),
+            rotation=rot,
         )
         brand_top_sk = make_text_sketch(
             params.model_text,
             font_size=params.brand_size,
             style=params.label_font_style,
             at_xy=params.brand_top_pos(),
+            rotation=rot,
         )
         extrude(to_extrude=brand_bottom_sk, amount=params.brand_height, mode=Mode.ADD)
         extrude(to_extrude=brand_top_sk, amount=params.brand_height, mode=Mode.ADD)
 
         # Per-hole labels shifted by the global offset
         dy = params.content_y_offset
-        dx_off, dy_off = params.label_offset
+        dx_off, dy_off = params._effective_label_offset()
 
-        sec_dx, sec_dy = params.secondary_label_offset_from_main
+        sec_dx, sec_dy = params._effective_secondary_offset()
 
         for i, y in enumerate(params.row_y):
             y0 = y + params.labels_y_offset + dy + dy_off
@@ -489,7 +559,7 @@ def build_labels(params: FaceplateParams) -> "object":
             right_xy = (params.col_x[1] + dx_off, y0)
 
             # Main labels
-            if params.inverse_label_enable and params.inverse_left[i] and params.labels_left[i]:
+            if params._hole_enabled(0, i) and params.inverse_label_enable and params.inverse_left[i] and params.labels_left[i]:
                 add_inverse_label(
                     params.labels_left[i],
                     at_xy=left_xy,
@@ -497,16 +567,17 @@ def build_labels(params: FaceplateParams) -> "object":
                     main_style=params.label_font_style,
                     height=params.label_height,
                 )
-            elif params.labels_left[i]:
+            elif params._hole_enabled(0, i) and params.labels_left[i]:
                 left_sk = make_text_sketch(
                     params.labels_left[i],
                     font_size=params.label_size,
                     style=params.label_font_style,
                     at_xy=left_xy,
+                    rotation=rot,
                 )
                 extrude(to_extrude=left_sk, amount=params.label_height, mode=Mode.ADD)
 
-            if params.inverse_label_enable and params.inverse_right[i] and params.labels_right[i]:
+            if params._hole_enabled(1, i) and params.inverse_label_enable and params.inverse_right[i] and params.labels_right[i]:
                 add_inverse_label(
                     params.labels_right[i],
                     at_xy=right_xy,
@@ -514,33 +585,36 @@ def build_labels(params: FaceplateParams) -> "object":
                     main_style=params.label_font_style,
                     height=params.label_height,
                 )
-            elif params.labels_right[i]:
+            elif params._hole_enabled(1, i) and params.labels_right[i]:
                 right_sk = make_text_sketch(
                     params.labels_right[i],
                     font_size=params.label_size,
                     style=params.label_font_style,
                     at_xy=right_xy,
+                    rotation=rot,
                 )
                 extrude(to_extrude=right_sk, amount=params.label_height, mode=Mode.ADD)
 
             # Secondary labels (small) under the main label
             sec_left = params.secondary_left[i].strip()
-            if sec_left:
+            if params._hole_enabled(0, i) and sec_left:
                 sec_left_sk = make_text_sketch(
                     sec_left,
                     font_size=params.secondary_label_size,
                     style=params.secondary_label_style,
                     at_xy=(left_xy[0] + sec_dx, left_xy[1] + sec_dy),
+                    rotation=rot,
                 )
                 extrude(to_extrude=sec_left_sk, amount=params.secondary_label_height, mode=Mode.ADD)
 
             sec_right = params.secondary_right[i].strip()
-            if sec_right:
+            if params._hole_enabled(1, i) and sec_right:
                 sec_right_sk = make_text_sketch(
                     sec_right,
                     font_size=params.secondary_label_size,
                     style=params.secondary_label_style,
                     at_xy=(right_xy[0] + sec_dx, right_xy[1] + sec_dy),
+                    rotation=rot,
                 )
                 extrude(to_extrude=sec_right_sk, amount=params.secondary_label_height, mode=Mode.ADD)
 
@@ -589,9 +663,10 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
 
             # 2xN control holes
             control_points: list[tuple[float, float]] = []
-            for cx in params.col_x:
-                for y in params.row_y:
-                    control_points.append((cx, y + params.labels_y_offset + dy))
+            for ci, cx in enumerate(params.col_x):
+                for ri, y in enumerate(params.row_y):
+                    if params._hole_enabled(ci, ri):
+                        control_points.append((cx, y + params.labels_y_offset + dy))
             with Locations(*control_points):
                 d = params.hole_d + params.hole_oversize
                 Circle(d / 2)
@@ -632,9 +707,9 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
 
         return sk.sketch
 
-    def text_sketch(txt: str, *, font_size: float, style: FontStyle, at_xy: tuple[float, float]):
+    def text_sketch(txt: str, *, font_size: float, style: FontStyle, at_xy: tuple[float, float], rotation: float = 0.0):
         with BuildSketch(Plane.XY) as sk:
-            with Locations(at_xy):
+            with Locations(Location((at_xy[0], at_xy[1], 0), (0, 0, rotation))):
                 Text(txt, font_size=font_size, font=params.label_font, font_style=style)
         return sk.sketch
 
@@ -645,6 +720,7 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
         return sk.sketch
 
     def make_layer_labels():
+        rot = params._label_rotation()
         # Brand labels (no content offset)
         brand = [
             text_sketch(
@@ -652,18 +728,20 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
                 font_size=params.brand_size,
                 style=params.label_font_style,
                 at_xy=params.brand_bottom_pos(),
+                rotation=rot,
             ),
             text_sketch(
                 params.model_text,
                 font_size=params.brand_size,
                 style=params.label_font_style,
                 at_xy=params.brand_top_pos(),
+                rotation=rot,
             ),
         ]
 
         dy = params.content_y_offset
-        dx_off, dy_off = params.label_offset
-        sec_dx, sec_dy = params.secondary_label_offset_from_main
+        dx_off, dy_off = params._effective_label_offset()
+        sec_dx, sec_dy = params._effective_secondary_offset()
 
         main_text: list[object] = []
         secondary_text: list[object] = []
@@ -675,12 +753,13 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
             right_xy = (params.col_x[1] + dx_off, y0)
 
             # Left main
-            if params.labels_left[i]:
+            if params._hole_enabled(0, i) and params.labels_left[i]:
                 tsk = text_sketch(
                     params.labels_left[i],
                     font_size=params.label_size,
                     style=params.label_font_style,
                     at_xy=left_xy,
+                    rotation=rot,
                 )
                 main_text.append(tsk)
                 if params.inverse_label_enable and params.inverse_left[i]:
@@ -690,12 +769,13 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
                     plaques.append(plaque_sketch(w=w, h=h, r=params.inverse_corner_r, at_xy=left_xy))
 
             # Right main
-            if params.labels_right[i]:
+            if params._hole_enabled(1, i) and params.labels_right[i]:
                 tsk = text_sketch(
                     params.labels_right[i],
                     font_size=params.label_size,
                     style=params.label_font_style,
                     at_xy=right_xy,
+                    rotation=rot,
                 )
                 main_text.append(tsk)
                 if params.inverse_label_enable and params.inverse_right[i]:
@@ -706,23 +786,25 @@ def export_print_template(params: FaceplateParams, *, svg: Path | None, dxf: Pat
 
             # Secondary labels
             sec_left = params.secondary_left[i].strip()
-            if sec_left:
+            if params._hole_enabled(0, i) and sec_left:
                 secondary_text.append(
                     text_sketch(
                         sec_left,
                         font_size=params.secondary_label_size,
                         style=params.secondary_label_style,
                         at_xy=(left_xy[0] + sec_dx, left_xy[1] + sec_dy),
+                        rotation=rot,
                     )
                 )
             sec_right = params.secondary_right[i].strip()
-            if sec_right:
+            if params._hole_enabled(1, i) and sec_right:
                 secondary_text.append(
                     text_sketch(
                         sec_right,
                         font_size=params.secondary_label_size,
                         style=params.secondary_label_style,
                         at_xy=(right_xy[0] + sec_dx, right_xy[1] + sec_dy),
+                        rotation=rot,
                     )
                 )
 

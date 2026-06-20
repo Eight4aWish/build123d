@@ -1,0 +1,282 @@
+{
+  "module": "ksoloti_biggenes",
+  "panel_w": 101.3,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "x": 17.0,
+      "y": 110.0,
+      "kind": "trimmer",
+      "label": "P1"
+    },
+    {
+      "x": 39.0,
+      "y": 110.0,
+      "kind": "trimmer",
+      "label": "P2"
+    },
+    {
+      "x": 61.0,
+      "y": 110.0,
+      "kind": "trimmer",
+      "label": "P3"
+    },
+    {
+      "x": 83.0,
+      "y": 110.0,
+      "kind": "trimmer",
+      "label": "P4"
+    },
+    {
+      "x": 17.0,
+      "y": 90.0,
+      "kind": "trimmer",
+      "label": "P5"
+    },
+    {
+      "x": 39.0,
+      "y": 90.0,
+      "kind": "trimmer",
+      "label": "P6"
+    },
+    {
+      "x": 61.0,
+      "y": 90.0,
+      "kind": "trimmer",
+      "label": "P7"
+    },
+    {
+      "x": 83.0,
+      "y": 90.0,
+      "kind": "trimmer",
+      "label": "P8"
+    },
+    {
+      "x": 14.5,
+      "y": 66.0,
+      "kind": "encoder",
+      "label": "E1-S1"
+    },
+    {
+      "x": 86.5,
+      "y": 66.0,
+      "kind": "encoder",
+      "label": "E2-S2"
+    },
+    {
+      "x": 9.0,
+      "y": 49.0,
+      "kind": "jack",
+      "label": "MIDI",
+      "nut": "nut_black"
+    },
+    {
+      "x": 18.0,
+      "y": 49.0,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 41.0,
+      "y": 49.0,
+      "kind": "button",
+      "label": "S3"
+    },
+    {
+      "x": 57.0,
+      "y": 49.0,
+      "kind": "button",
+      "label": "S4"
+    },
+    {
+      "x": 9.0,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "P1",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 18.5,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "P2",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 28.0,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "P3",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 37.5,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "P4",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 49.0,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "CV-X",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 59.0,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "GTE-1",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 68.0,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "CV-1",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 82.0,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "IN-L",
+      "nut": "nut_black"
+    },
+    {
+      "x": 93.0,
+      "y": 31.0,
+      "kind": "jack",
+      "label": "OUT-L",
+      "nut": "nut_red"
+    },
+    {
+      "x": 9.0,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "CV-A",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 18.5,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "CV-B",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 28.0,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "CV-C",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 37.5,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "CV-D",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 49.0,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "CV-Y",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 59.0,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "GTE-2",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 68.0,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "CV-2",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 82.0,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "IN-R",
+      "nut": "nut_black"
+    },
+    {
+      "x": 93.0,
+      "y": 17.0,
+      "kind": "jack",
+      "label": "OUT-R",
+      "nut": "nut_red"
+    }
+  ],
+  "leds": [
+    {
+      "x": 72.0,
+      "y": 113.0,
+      "color": "green"
+    },
+    {
+      "x": 72.0,
+      "y": 107.0,
+      "color": "green"
+    },
+    {
+      "x": 48.0,
+      "y": 49.0,
+      "color": "red"
+    },
+    {
+      "x": 64.0,
+      "y": 49.0,
+      "color": "red"
+    }
+  ],
+  "screens": [
+    {
+      "x": 50.6,
+      "y": 66.0,
+      "z": 1.6,
+      "w": 37.0,
+      "h": 18.5,
+      "dy": 0.0,
+      "image": "ksoloti_biggenes_screen.png"
+    }
+  ],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "trimmer": "trimmer.stl",
+    "trimmer_pointer": "trimmer_pointer.stl",
+    "led_green": "led_green.stl",
+    "led_green_dome": "led_green_dome.stl",
+    "knob": "knob.stl",
+    "knob_cap": "knob_cap.stl",
+    "knob_pointer": "knob_pointer.stl",
+    "nut_black": "nut_black.stl",
+    "jack_body": "jack_body.stl",
+    "switch_cap": "switch_cap.stl",
+    "led": "led.stl",
+    "led_dome": "led_dome.stl",
+    "nut_silver": "nut_silver.stl",
+    "nut_gold": "nut_gold.stl",
+    "nut_red": "nut_red.stl"
+  }
+}

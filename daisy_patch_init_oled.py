@@ -192,9 +192,9 @@ class PanelParams:
     # Minimum hole diameter to label (excludes mounting holes)
     label_hole_min_d: float = 5.0
 
-    # Display colors
-    base_color: tuple[float, float, float] = (0.86, 0.86, 0.86)
-    label_color: tuple[float, float, float] = (0.10, 0.10, 0.10)
+    # Display colors — real-life finish: dark grey panel, white lettering.
+    base_color: tuple[float, float, float] = (0.028, 0.028, 0.032)
+    label_color: tuple[float, float, float] = (0.92, 0.92, 0.93)
 
 
 # ---------------------------------------------------------------------------
