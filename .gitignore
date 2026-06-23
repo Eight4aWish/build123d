@@ -1,3 +1,4 @@
+# macOS / Windows
 .DS_Store
 Thumbs.db
 
@@ -5,7 +6,11 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 *.pyd
+*.so
 .Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Virtual environments
 .venv/
@@ -19,30 +24,6 @@ ENV/
 .vscode/
 .idea/
 
-# CAD/cache-ish artifacts (keep repo clean)
-*.log
-*.bak
-*~
-# Python
-__pycache__/
-*.py[cod]
-*.pyd
-*.so
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Virtual environments
-.venv/
-venv/
-ENV/
-
-# macOS
-.DS_Store
-
-# VS Code (uncomment if you want to commit workspace settings)
-.vscode/
-
 # KiCad / EDA noise (keep source + gerbers, ignore user/cache/backup)
 **/*-backups/
 **/fp-info-cache
@@ -53,6 +34,7 @@ ENV/
 **/*.kicad_pcb-bak
 
 # Misc
+*.log
 *.bak
 *.tmp
-*.log
+*~

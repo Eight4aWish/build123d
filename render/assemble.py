@@ -27,6 +27,8 @@ from pathlib import Path
 # Make sibling module (hardware) and repo root importable.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Panel generator modules live in ../panels and are imported by bare name.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "panels"))
 
 from build123d import (  # noqa: E402
     Align,
@@ -147,7 +149,7 @@ def _daisy_labels(mod, params, xf):
 
 def build_assembly_daisy(mod, module_name: str):
     """Adapter for the declarative-Hole / RECT_CUTOUTS panel API
-    (daisy_patch_init_oled etc.).
+    (daisy_braids, daisy_grids etc.).
 
     The KiCad-derived geometry is rotated 180° to the real-front orientation
     (TIMBRE trimmer top-left, OUT-R jack bottom-right). Jacks/trimmers/LEDs

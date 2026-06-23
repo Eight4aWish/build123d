@@ -38,7 +38,7 @@ from build123d import (
 )
 from ocp_vscode import Camera, show
 
-from teensyexpander import (
+from teensy_expander import (
     FaceplateParams,
     build_faceplate,
 )

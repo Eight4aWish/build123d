@@ -8,10 +8,10 @@ This script generates a Eurorack faceplate with:
 The panel prints FACE-UP with embossed labels on the top surface.
 
 Run:
-  ./.venv/bin/python daisy_patch_init_oled.py
+  ./.venv/bin/python daisy_mfx.py
 
 Export STLs:
-  ./.venv/bin/python daisy_patch_init_oled.py --stl-base base.stl --stl-labels labels.stl
+  ./.venv/bin/python daisy_mfx.py --stl-base base.stl --stl-labels labels.stl
 
 In Bambu Studio:
 1. Import both STLs together (select both files, choose "Yes" to combine as one object)

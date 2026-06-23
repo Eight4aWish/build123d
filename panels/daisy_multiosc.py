@@ -1,4 +1,8 @@
-"""Daisy Patch Init OLED 10HP faceplate - Face-up 2-color printing.
+"""DaisyMultiOsc 10HP OLED faceplate - Face-up 2-color printing.
+
+Multi-oscillator firmware on a Daisy Patch Init, with OLED screen, SD card slot
+and two screen mounting bolts. Shares the Daisy Patch Init hardware base (same
+holes as DaisyBraids); only HOLE_LABELS differ.
 
 This script generates a Eurorack faceplate with:
 - Base panel solid (printed first, black filament)
@@ -8,10 +12,10 @@ This script generates a Eurorack faceplate with:
 The panel prints FACE-UP with embossed labels on the top surface.
 
 Run:
-  ./.venv/bin/python daisy_patch_init_oled.py
+  ./.venv/bin/python daisy_multiosc.py
 
 Export STLs:
-  ./.venv/bin/python daisy_patch_init_oled.py --stl-base base.stl --stl-labels labels.stl
+  ./.venv/bin/python daisy_multiosc.py --stl-base base.stl --stl-labels labels.stl
 
 In Bambu Studio:
 1. Import both STLs together (select both files, choose "Yes" to combine as one object)
@@ -56,23 +60,23 @@ from ocp_vscode import Camera, show
 HOLE_LABELS = (
     "OUT-R",# OUT-R
     "OUT-L",# OUT-L
-    "",# IN-R
-    "",# IN-L
-    "",# CV_8
-    "COLOR",# CV_7
-    "TMBR",# CV_6
+    "IN-R",# IN-R
+    "IN-L",# IN-L
+    "MOD3",# CV_8
+    "MOD2",# CV_7
+    "MOD1",# CV_6
     "V/OCT",# CV_5
     "",# B6
     "",# B5
-    "SYNC",# B9
-    "GATE",# B10
+    "GATE2",# B9
+    "GATE1",# B10
     # B8 removed - OLED screen location
     "",# C10
-    "MODE",# B7
-    "DECAY",# CV_4
-    "ATTACK",# CV_3
-    "COLOR",# CV_2
-    "TIMBRE",# CV_1
+    "SELECT",# B7
+    "MOD3",# CV_4
+    "MOD2",# CV_3
+    "MOD1",# CV_2
+    "TUNE",# CV_1
 )
 
 # Labels placed above each hole (use "" for no label above that hole)
@@ -185,7 +189,7 @@ class PanelParams:
     label_offset: tuple[float, float] = (0.0, -7.0)  # Offset from hole center
 
     # Branding
-    brand_text_top: str = "DaisyBraids"
+    brand_text_top: str = "DaisyMultiOsc"
     brand_text_bottom: str = "Eight4aWish"
     brand_size: float = 4.0
 
@@ -330,7 +334,7 @@ def export_transform_labels(obj: object, params: PanelParams) -> object:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Daisy Patch Init OLED 10HP faceplate")
+    parser = argparse.ArgumentParser(description="DaisyMultiOsc 10HP OLED faceplate")
     parser.add_argument("--stl-base", type=Path, default=None, help="Export base STL")
     parser.add_argument("--stl-labels", type=Path, default=None, help="Export labels STL")
 
