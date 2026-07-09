@@ -119,6 +119,10 @@ class FaceplateParams:
     # Match TeensyMove module orientation.
     flip_y: bool = True
 
+    # Shift all content (holes + labels) up by this much so the bottom row
+    # clears the rack rail. Mounting slots are NOT affected.
+    content_y_offset: float = 2.0
+
     # Eurorack mounting slots.
     add_mount_slots: bool = True
     mount_slot_overall_len: float = 4.0
@@ -213,7 +217,10 @@ class FaceplateParams:
             for cy_u in HOLE_CY_U:
                 x0, y0 = _svg_to_panel_xy(cx_u, cy_u)
                 x, y = (x0 + dx, y0 + dy + self.labels_y_offset)
-                holes.append(self._maybe_flip(x, y))
+                x, y = self._maybe_flip(x, y)
+                # Shift content up after the flip so it always moves the holes
+                # toward the top edge regardless of flip_y.
+                holes.append((x, y + self.content_y_offset))
         return holes
 
     def holes_sorted(self) -> list[tuple[float, float]]:
