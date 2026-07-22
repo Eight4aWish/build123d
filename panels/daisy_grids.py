@@ -54,8 +54,8 @@ from ocp_vscode import Camera, show
 HOLE_LABELS = (
     "OUT-R",# OUT-R
     "OUT-L",# OUT-L
-    "IN-R",# IN-R
-    "IN-L",# IN-L
+    "",# IN-R
+    "",# IN-L
     "CHAOS",# CV_8
     "DENS",# CV_7
     "Y",# CV_6
@@ -169,7 +169,7 @@ class PanelParams:
     label_offset: tuple[float, float] = (0.0, -7.0)  # Offset from hole center
 
     # Branding
-    brand_text_top: str = "DaisyGrids"
+    brand_text_top: str = "Sorrow"
     brand_text_bottom: str = "Eight4aWish"
     brand_size: float = 4.0
 

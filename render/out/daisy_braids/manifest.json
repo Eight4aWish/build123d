@@ -1,5 +1,5 @@
 {
-  "module": "daisybraids",
+  "module": "daisy_braids",
   "panel_w": 50.8,
   "panel_h": 128.5,
   "thickness": 2.0,
@@ -166,7 +166,7 @@
       "w": 13.5,
       "h": 10.5,
       "dy": 0.0,
-      "image": "daisybraids_screen.png"
+      "image": "daisy_braids_screen.png"
     }
   ],
   "stl": {

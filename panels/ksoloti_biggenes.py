@@ -22,7 +22,7 @@ LAYOUT = {
     "panel_w": PW, "panel_h": PH, "thickness": 2.0,
     "base_color": (0.028, 0.028, 0.032),
     "label_color": (0.92, 0.92, 0.93),
-    "brand_top": "KsolotiElements",
+    "brand_top": "Girl",
     "brand_bottom": "Eight4aWish",
     "controls": [
         # --- 8 trimmer pots (standard trimmer style) ---

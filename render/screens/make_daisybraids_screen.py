@@ -1,15 +1,20 @@
-"""Generate the DaisyBraids OLED default patch screen as an emissive texture.
+"""Generate the Joy (DaisyBraids) OLED default patch screen as an emissive texture.
 
 Reproduces the 64x48 SSD1306 "Patch mode" screen from daisy_braids_oled
 (src/main.cpp UpdateDisplay), rendered with the firmware's own 5x7 bitmap
 font (common/oled_soft_i2c.cpp) so the glyphs match the real display exactly.
 
-  ANA:CSAW          (bank 0 "ANA", patch 0 "CSAW", centred, y=0)
-  ----------        (HLine y=9)
-  TIMB  COLR        (y=14)
-  ATK   DCY         (y=24)
+Joy v1.1 layout — bank name and patch name on their own centred lines, and a
+PER-MODEL knob-label line (from the Braids manual fold-out) above the fixed AD:
 
-Output: render/out/daisybraids/daisybraids_screen.png
+  ANALOG            (bank 0 full name, centred, y=0)
+  CSAW              (patch 0 name, centred, y=10)
+  ----------        (HLine y=19)
+  WIDT  POLR        (per-model knob labels for CSAW, y=23)
+  ATK   DCY         (fixed internal AD envelope, y=33)
+
+Output: render/out/daisy_braids/daisy_braids_screen.png (where the Blender
+render reads it from, per the module manifest).
 """
 
 from __future__ import annotations
@@ -62,24 +67,26 @@ def main() -> None:
     img = Image.new("1", (W, H), 0)
     px = img.load()
 
-    title = "ANA:CSAW"
-    tw = len(title) * 6
-    draw_string(px, (W - tw) // 2, 0, title, font)
+    def centered(y: int, s: str) -> None:
+        draw_string(px, (W - len(s) * 6) // 2, y, s, font)
 
-    for x in range(W):                    # HLine at y=9
-        px[x, 9] = 1
+    centered(0, "ANALOG")                 # bank 0 full name
+    centered(10, "CSAW")                  # patch 0 name
 
-    draw_string(px, 0, 14, "TIMB  COLR", font)
-    draw_string(px, 0, 24, "ATK   DCY", font)
+    for x in range(W):                    # HLine at y=19
+        px[x, 19] = 1
+
+    draw_string(px, 0, 23, "WIDT  POLR", font)   # per-model knob labels (CSAW)
+    draw_string(px, 0, 33, "ATK   DCY", font)    # fixed internal AD
 
     big = img.resize((W * SCALE, H * SCALE), Image.NEAREST)
     rgb = Image.new("RGB", big.size, OFF)
     mask = big.convert("L").point(lambda v: 255 if v > 127 else 0)
     rgb.paste(Image.new("RGB", big.size, ON), (0, 0), mask)
 
-    out_dir = Path(__file__).resolve().parents[1] / "out" / "daisybraids"
+    out_dir = Path(__file__).resolve().parents[1] / "out" / "daisy_braids"
     out_dir.mkdir(parents=True, exist_ok=True)
-    out = out_dir / "daisybraids_screen.png"
+    out = out_dir / "daisy_braids_screen.png"
     rgb.save(out)
     print(f"wrote {out}  ({rgb.size[0]}x{rgb.size[1]})")
 

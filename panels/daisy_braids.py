@@ -189,7 +189,7 @@ class PanelParams:
     label_offset: tuple[float, float] = (0.0, -7.0)  # Offset from hole center
 
     # Branding
-    brand_text_top: str = "DaisyBraids"
+    brand_text_top: str = "Joy"
     brand_text_bottom: str = "Eight4aWish"
     brand_size: float = 4.0
 

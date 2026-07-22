@@ -40,41 +40,51 @@ Checked-in printables for these live in [../exports/panels/](../exports/panels/)
 > `n8_10hp_base/labels.stl` — pass explicit `--stl` paths so they don't overwrite
 > each other.
 
-## Face-down 2-colour + ribbed panels (`patch_init_oled.py`)
+## Ribbed panel + raised lettering (`patch_init_oled.py`)
 
-Most scripts here print **face-up** (raised white labels on top of a black base).
-`patch_init_oled.py` is the template for the alternative **face-down** workflow:
+Template for the Patch-Init/OLED family. It prints as **two parts**: a face-up panel with
+raised letters, and a stiffening rib grid you glue to its back.
 
-- The KiCad hole data is run through a 180° `phys()` flip to the real mounted layout
-  (**pots at the top, jacks at the bottom**, MOD 1 top-left, OUT-R bottom-right). It's
-  modelled **front-face-up** so the viewer matches the mounted module; on **export** the
-  front face is flipped onto the bed (`z = 0`) for face-down printing.
-- Two `--text-mode` options for the lettering:
-  - **`inlay`** (default, 2-colour) — the base has letter-shaped pockets in its front skin
-    (`label_height`, default 0.2 mm = 2 layers) and the `labels` solid fills them. Printed
-    face-down this is the "two white layers first, then build the black panel up on top"
-    trick; the letters end up **mirrored** so they read correctly through the front. Crisp,
-    but the tiny white letter islands can lift off the bed.
-  - **`deboss`** — single-colour black panel with recessed letters (`deboss_depth`). Two
-    uses, no white STL and reliable adhesion (solid black first layer with holes):
-    - **Layer colour-change reveal (recommended, single extruder):** the recess *is* the
-      "letter holes" in the first black layers. Print black up to `Z = recess depth`, swap to
-      white for ~2 layers (which cap/bridge the letters), then back to black. Two whole-layer
-      filament changes (add them on Bambu's layer slider **by Z height**) reveal white
-      letters — no AMS, no per-region colour. Set the recess to `black layers × layer height`
-      via `--label-height` (e.g. 0.3 mm = 3 × 0.1 mm).
-    - **Paint-fill:** flood the recesses and wipe — but watery paint tends to bead out of
-      narrow grooves, so the colour-change reveal above is usually better.
-- The back carries a **lattice of stiffening ribs** (vertical + horizontal) trimmed by
-  **rectangular** keep-outs around every jack / pot / OLED board / SD slot / LED, so a solid
-  ~2 mm rib threads the gaps between them; ribs also stay out of the top/bottom rack-rail
-  border. Ribs sit on explicit centrelines (`rib_v` verticals as `(x, y_start, y_end)`,
-  `rib_h` horizontals as `(y, x_start, x_end)`, physical/mounted coords) chosen to fall in
-  the gaps between rows/columns; tune those plus `rib_height`,
+```sh
+./.venv/bin/python panels/patch_init_oled.py \
+    --stl-base exports/panels/patch_init_oled_panel.stl \
+    --stl-ribs exports/panels/patch_init_oled_ribgrid.stl
+```
+
+**Why two parts.** Ribs can only print pointing *up*, so an integrated rib grid forces the
+panel **face-down** — which puts the lettering on the bed, where the over-extruded first
+layer squashes the thin letter voids and the small counters (the holes in O/D/R) lift off
+as isolated islands. Every face-down lettering trick fights that. Printing the panel
+**face-up** instead puts the letters on *top*, laid last onto solid material: crisp, and
+trivially sliceable. The ribs then simply become their own part.
+
+- **Panel (`emboss`, the default).** Flat back on the bed, letters raised `label_height`
+  proud of the front. They're the only geometry above `z = thickness`, so **one
+  height-based filament change at `Z = thickness` (2.0 mm)** prints them white — no AMS,
+  no per-region colour, no multi-part assembly in the slicer.
+- **Rib grid (`--stl-ribs`).** Exported with its **glue face on the bed** (flat and smooth
+  for a good bond) and already mirrored into the panel's back-view, so you lift it straight
+  off the plate and set it glue-face-down on the panel back, ribs standing away into the
+  case. Glue the *whole* footprint — a rib only stiffens the panel if the bond transfers
+  shear, so spots of glue do very little.
+- **Layout.** KiCad hole data is run through a 180° `phys()` flip to the real mounted layout
+  (**pots at the top, jacks at the bottom**, MOD 1 top-left, OUT-R bottom-right).
+- **Label size.** `label_size` is 4.0 mm — the largest that still fits every label inside the
+  12.17 mm jack pitch. Its 0.58 mm stems are ~2.6× a 0.22 mm line width; 3.2 mm gave only
+  ~2.1× and printed mushy.
+- **Ribs.** A lattice trimmed by **rectangular** keep-outs around every jack / pot / OLED
+  board / SD slot / LED, kept clear of the top/bottom rack-rail border. Ribs sit on explicit
+  centrelines (`rib_v` verticals as `(x, y_start, y_end)`, `rib_h` horizontals as
+  `(y, x_start, x_end)`, physical/mounted coords). Tune those plus `rib_height`,
   `rib_thickness`, `rail_margin`, `rib_keepout_clearance`, the `*_body` footprints and
-  `mount_keepout_r` in `PanelParams`; disable with `--no-ribs`.
-- Running it shows the panel **plus preview models** of the mounted jacks/pots/OLED so you
-  can check the ribs clear the hardware. `--no-preview` hides them.
+  `mount_keepout_r`; disable with `--no-ribs`.
+- Running it shows the panel **plus the rib grid and preview models** of the mounted
+  jacks/pots/OLED, so you can check the ribs clear the hardware. `--no-preview` hides them.
+
+### Other text modes (face-down, not recommended)
+`--text-mode inlay` (flush white inlay filling front-face pockets) and `--text-mode deboss`
+(recessed letters revealed by two whole-layer filament changes, or paint-filled) both print
+face-down and both suffer the squashed-first-layer problem above. Kept for reference.
 
 ```sh
 ./.venv/bin/python panels/patch_init_oled.py                              # view assembly + ribs + parts

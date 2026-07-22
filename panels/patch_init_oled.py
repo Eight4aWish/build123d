@@ -39,6 +39,7 @@ Run / export
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -76,17 +77,35 @@ class PanelParams:
     panel_h: float = 128.5
     thickness: float = 2.0
 
-    # Text mode (prints face-down, ribs up):
-    #   "inlay"  — 2-colour flush: white letter solids fill pockets in the front skin.
-    #   "deboss" — single black panel with recessed letters to paint-fill afterwards.
-    text_mode: Literal["inlay", "deboss"] = "inlay"
-    deboss_depth: float = 0.5  # recess depth for paint-fill (deboss mode), mm
+    # Text mode:
+    #   "emboss" — RECOMMENDED. Prints FACE-UP (flat back on the bed) with the letters
+    #              raised proud of the front. They're the only thing above z = thickness, so
+    #              one height-based filament change at Z = thickness prints them white.
+    #              Printed last onto solid material => crisp. Ribs go on a SEPARATE glue-on
+    #              plate (see build_rib_plate), because ribs can only print pointing up and
+    #              would otherwise force the panel face-down.
+    #   "inlay"  — face-down 2-colour flush: white letter solids fill pockets in the front.
+    #   "deboss" — face-down, recessed letters revealed by two whole-layer filament changes.
+    #              Both face-down modes fight the over-extruded first layer and print mushy.
+    text_mode: Literal["emboss", "inlay", "deboss"] = "emboss"
+    deboss_depth: float = 0.3  # recess depth = black layers x layer height (3 x 0.1 mm)
+
+    # The first layer is over-extruded for bed adhesion (0.25 mm line vs 0.22 mm), which
+    # squeezes black into the thin letter voids and closes them up. Widen the void over the
+    # FIRST LAYER ONLY to cancel that. Determined from the text_relief_test.py coupon.
+    first_layer_relief: float = 0.04  # mm per side
+    first_layer_h: float = 0.1        # must match the slicer's first layer height
 
     # Flush inlay labels (front face is up at z = thickness while modelling)
     label_height: float = 0.2  # two 0.1 mm layers of white
     label_font: str = "Arial"
     label_font_style: FontStyle = FontStyle.BOLD
-    label_size: float = 3.2
+    # Constrained by the 12.17 mm jack pitch: two neighbouring labels collide once
+    # (w1 + w2)/2 exceeds it. The widest adjacent pair is GATE2|GATE1, which needs 12.42 mm
+    # at 4.0 mm (they touch) but only 11.18 mm at 3.6 mm. 3.8 mm is the hard ceiling.
+    # Bigger is better for printing (0.50 mm stems at 3.6 = ~2.3 x the 0.22 mm line width,
+    # vs only ~2.1 at 3.2, which printed mushy) — so 3.6 is the practical compromise.
+    label_size: float = 3.6
     label_below_offset: float = -7.0  # label sits this far below its hole centre (mm)
 
     # Branding
@@ -296,10 +315,31 @@ def _label_placements(
     return out
 
 
-def _add_text(txt: str, x: float, y: float, size: float, params: PanelParams) -> None:
+def _add_text(txt: str, x: float, y: float, size: float, params: PanelParams,
+              ox: float = 0.0, oy: float = 0.0) -> None:
     dx, dy = _text_local_offset(txt, font=params.label_font, style=params.label_font_style, font_size=size)
-    with Locations(Location((x + dx, y + dy, 0))):
+    with Locations(Location((x + dx + ox, y + dy + oy, 0))):
         Text(txt, font_size=size, font=params.label_font, font_style=params.label_font_style)
+
+
+# 8 directions is ample: the dilation error is relief * (1 - cos(pi/8)) ~= 0.003 mm at
+# relief 0.04, far below one line width. More steps just multiply the boolean cost.
+_DILATE_STEPS = 8
+
+
+def _add_text_dilated(txt: str, x: float, y: float, size: float, params: PanelParams,
+                      relief: float) -> None:
+    """Add `txt` dilated outward by `relief` to the active BuildSketch.
+
+    OCC's 2D offset self-intersects on glyph counters (it returns an invalid shape past
+    ~0.1 mm), so approximate a dilation by a disc: union the glyph with copies of itself
+    translated `relief` in a ring of directions. Every copy is known-good geometry, so the
+    result stays valid/manifold. The un-shifted copy is included so thin strokes can't end
+    up with a gap down the middle."""
+    _add_text(txt, x, y, size, params)
+    for k in range(_DILATE_STEPS):
+        th = 2.0 * math.pi * k / _DILATE_STEPS
+        _add_text(txt, x, y, size, params, relief * math.cos(th), relief * math.sin(th))
 
 
 def _is_brand(s: str, params: PanelParams) -> bool:
@@ -344,14 +384,48 @@ def build_base(
             _hole_sketch(params, holes, rects)
         extrude(to_extrude=sk.sketch, amount=t + 0.2, mode=Mode.SUBTRACT)
 
+        placements = _label_placements(params, holes, labels_below, labels_above)
+
+        def _size_of(s: str) -> float:
+            return params.brand_size if _is_brand(s, params) else params.label_size
+
+        # EMBOSS (face-up): raise the letters `label_height` proud of the front face. They
+        # are then the ONLY geometry above z = thickness, so a single height-based filament
+        # change at Z = thickness prints them white. Printed last, on top of solid material,
+        # so they come out crisp — no bed squish, no isolated islands.
+        if params.text_mode == "emboss":
+            if params.label_height > 0:
+                with BuildSketch(Plane.XY.offset(t)) as txt:
+                    for s, x, y in placements:
+                        _add_text(s, x, y, _size_of(s), params)
+                extrude(to_extrude=txt.sketch, amount=params.label_height, mode=Mode.ADD)
+            if params.rib_enable and params.rib_height > 0:
+                ribs = build_ribs(params, holes, rects)
+                if ribs is not None:
+                    p.part += ribs
+            return p.part
+
         # Recessed letters in the FRONT (top) face: z = t-depth .. t. In "inlay" mode the
-        # pocket is filled by build_labels (white); in "deboss" mode it's left to paint-fill.
+        # pocket is filled by build_labels (white); in "deboss" mode the white is revealed
+        # by two whole-layer filament changes while printing.
         depth = params.label_height if params.text_mode == "inlay" else params.deboss_depth
+
         if depth > 0:
+            # True letter shape, full recess depth — this gives the crisp edge.
             with BuildSketch(Plane.XY.offset(t - depth)) as txt:
-                for s, x, y in _label_placements(params, holes, labels_below, labels_above):
-                    _add_text(s, x, y, params.brand_size if _is_brand(s, params) else params.label_size, params)
+                for s, x, y in placements:
+                    _add_text(s, x, y, _size_of(s), params)
             extrude(to_extrude=txt.sketch, amount=depth + 0.05, mode=Mode.SUBTRACT)
+
+            # First layer only: widen the void so the over-extruded first layer can't
+            # squeeze black into the letters and close them up.
+            relief = params.first_layer_relief
+            if params.text_mode == "deboss" and relief > 0:
+                flh = min(params.first_layer_h, depth)
+                with BuildSketch(Plane.XY.offset(t - flh)) as big:
+                    for s, x, y in placements:
+                        _add_text_dilated(s, x, y, _size_of(s), params, relief)
+                extrude(to_extrude=big.sketch, amount=flh + 0.05, mode=Mode.SUBTRACT)
 
         # Back-side ribs (hang below the back face at z = 0)
         if params.rib_enable and params.rib_height > 0:
@@ -376,12 +450,18 @@ def build_ribs(
     if band_w <= 0 or band_h <= 0:
         return None
 
+    # Verticals stop flush with the OUTER EDGES of the outermost horizontal ribs, rather
+    # than running on to the rail band — otherwise they poke out as stubs top and bottom.
+    hys = [y for y, _, _ in params.rib_h]
+    v_lo = max(y_lo, min(hys) - params.rib_thickness / 2) if hys else y_lo
+    v_hi = min(y_hi, max(hys) + params.rib_thickness / 2) if hys else y_hi
+
     clr = params.rib_keepout_clearance
     with BuildPart() as p:
         # Ribs grow downward from the back face (align MAX at z = 0)
         for x, v0, v1 in params.rib_v:
-            ry0 = y_lo if v0 is None else max(v0, y_lo)
-            ry1 = y_hi if v1 is None else min(v1, y_hi)
+            ry0 = v_lo if v0 is None else max(v0, v_lo)
+            ry1 = v_hi if v1 is None else min(v1, v_hi)
             if ry1 - ry0 <= 0:
                 continue
             with Locations(Location((x, (ry0 + ry1) / 2, 0))):
@@ -495,8 +575,27 @@ def build_components(params: PanelParams, holes: tuple[Hole, ...] = HOLES) -> di
 
 
 def view_transform(obj: object, params: PanelParams) -> object:
-    """Centre only — front face up, as you'd look at the mounted module."""
+    """Centre only — front face up, as you'd look at the mounted module.
+
+    This is also the FACE-UP print orientation used by `emboss`: the flat back sits on the
+    bed and the raised letters are on top, printed last."""
     return obj.moved(Location((-params.panel_w / 2, -params.panel_h / 2, 0)))
+
+
+def build_rib_plate(params: PanelParams, holes: tuple[Hole, ...] = HOLES,
+                    rects: tuple[RectCutout, ...] = RECT_CUTOUTS) -> object | None:
+    """The stiffening rib grid as a SEPARATE part, ready to print and glue to the panel back.
+
+    Rotating 180° about Y does two things at once: it seats the *glue* face on the bed (so it
+    comes out flat and smooth for a good bond) and mirrors X into the panel's back-view. So
+    the print can be lifted straight off the bed and set glue-face-down onto the panel back,
+    with the ribs standing away from it into the case — no flipping, no guessing handedness."""
+    ribs = build_ribs(params, holes, rects)
+    if ribs is None:
+        return None
+    centred = view_transform(ribs, params)
+    flipped = centred.rotate(Axis.Y, 180)
+    return flipped.moved(Location((0, 0, -flipped.bounding_box().min.Z)))
 
 
 def export_transform(obj: object, params: PanelParams) -> object:
@@ -546,38 +645,57 @@ def write_template_svg(path: Path, params: PanelParams, holes: tuple[Hole, ...] 
 def main() -> None:
     import argparse
 
-    ap = argparse.ArgumentParser(description="Patch Init + Grove OLED 10HP faceplate (face-down, ribbed)")
-    ap.add_argument("--stl-base", type=Path, default=None, help="Export base STL")
+    ap = argparse.ArgumentParser(description="Patch Init + Grove OLED 10HP faceplate")
+    ap.add_argument("--stl-base", type=Path, default=None, help="Export the panel STL")
+    ap.add_argument("--stl-ribs", type=Path, default=None,
+                    help="Export the stiffening rib grid as a separate glue-on part (emboss mode)")
     ap.add_argument("--stl-labels", type=Path, default=None, help="Export labels (white) STL (inlay mode only)")
-    ap.add_argument("--text-mode", choices=("inlay", "deboss"), default="inlay",
-                    help="inlay = 2-colour flush (base+labels); deboss = recessed for paint-fill")
+    ap.add_argument("--text-mode", choices=("emboss", "inlay", "deboss"), default="emboss",
+                    help="emboss = face-up, raised letters, one filament change, ribs separate "
+                         "(recommended); inlay/deboss = face-down variants")
     ap.add_argument("--label-height", type=float, default=None,
-                    help="lettering height / recess depth in mm (e.g. 0.1 for a single 0.1 mm layer)")
+                    help="raised letter height (emboss) / recess depth (inlay, deboss) in mm")
     ap.add_argument("--template-svg", type=Path, default=None, help="Write a 1:1 alignment SVG")
-    ap.add_argument("--no-ribs", action="store_true", help="disable back-side stiffening ribs")
+    ap.add_argument("--integrated-ribs", action="store_true",
+                    help="emboss only: put the ribs on the panel itself (forces it face-down; not printable face-up)")
+    ap.add_argument("--no-ribs", action="store_true", help="no ribs at all")
     ap.add_argument("--no-preview", action="store_true", help="don't draw component preview in the viewer")
     args = ap.parse_args()
 
     kw = {} if args.label_height is None else {"label_height": args.label_height, "deboss_depth": args.label_height}
-    params = PanelParams(rib_enable=not args.no_ribs, text_mode=args.text_mode, **kw)
+    face_up = args.text_mode == "emboss"
+    # Face-up printing cannot carry the ribs: they'd hang below the bed. So in emboss mode
+    # the panel is built rib-free and the ribs become a separate glue-on plate.
+    ribs_on_panel = (not args.no_ribs) and (not face_up or args.integrated_ribs)
+    params = PanelParams(rib_enable=ribs_on_panel, text_mode=args.text_mode, **kw)
+    rib_params = PanelParams(rib_enable=not args.no_ribs, text_mode=args.text_mode, **kw)
     inlay = params.text_mode == "inlay"
+
+    orient = view_transform if face_up else export_transform
 
     if args.template_svg is not None:
         write_template_svg(args.template_svg, params)
         print(f"Wrote template {args.template_svg}")
 
-    # STL export uses the face-down orientation
     if args.stl_base is not None:
-        export_stl(export_transform(build_base(params), params), args.stl_base)
-        print(f"Wrote {args.stl_base}")
+        export_stl(orient(build_base(params), params), args.stl_base)
+        print(f"Wrote {args.stl_base}  ({'FACE-UP' if face_up else 'face-down'}"
+              f"{', ribs separate' if face_up and not args.integrated_ribs else ''})")
+    if args.stl_ribs is not None:
+        plate = build_rib_plate(rib_params)
+        if plate is None:
+            print("Skipping --stl-ribs: ribs are disabled")
+        else:
+            export_stl(plate, args.stl_ribs)
+            print(f"Wrote {args.stl_ribs}  (glue face on the bed, ribs standing up)")
     if args.stl_labels is not None:
         if not inlay:
             print(f"Skipping --stl-labels: {params.text_mode} mode is a single STL")
         else:
-            export_stl(export_transform(build_labels(params), params), args.stl_labels)
+            export_stl(orient(build_labels(params), params), args.stl_labels)
             print(f"Wrote {args.stl_labels}")
 
-    # Viewer uses the front-up (mounted) orientation
+    # Viewer: mounted orientation, panel + (separate) ribs behind it + component preview
     base = view_transform(build_base(params), params)
     comps = {} if args.no_preview else {
         k: view_transform(v, params) for k, v in build_components(params).items()
@@ -586,6 +704,12 @@ def main() -> None:
     objs = [base]
     names = ["base"]
     colors = [params.base_color]
+    if face_up and not args.no_ribs and not args.integrated_ribs:
+        ribs = build_ribs(rib_params)
+        if ribs is not None:
+            objs.append(view_transform(ribs, rib_params))
+            names.append("ribs (separate)")
+            colors.append((0.35, 0.35, 0.38))
     if inlay:  # white inlay is a separate part only in inlay mode
         objs.append(view_transform(build_labels(params), params))
         names.append("labels")
