@@ -73,6 +73,15 @@ class TestParams:
     style: FontStyle = FontStyle.BOLD
 
     thickness: float = 1.6
+    # Face-up variant: match the production panels — 2.0 mm plate with the
+    # letters raised 0.2 mm proud (2 layers @ 0.1 mm).
+    top_thickness: float = 2.0
+    raised_height: float = 0.2
+    # Face-up variant sweeps FONT SIZE (one row per size) instead of relief.
+    # Covers every size used across the modules: 2.1 (6HP secondary), 2.4 (4HP),
+    # 2.6 (6HP brand), 3.0 (old N8), 3.2 (label standard), 3.6, 4.0 (brand
+    # standard), 4.5.
+    font_sizes: tuple[float, ...] = (2.1, 2.4, 2.6, 3.0, 3.2, 3.6, 4.0, 4.5)
     row_pitch: float = 11.0
     margin_x: float = 6.0
     margin_y: float = 7.0
@@ -160,6 +169,46 @@ def build_coupon(p: TestParams) -> object:
     return part.part
 
 
+def _plate_size_top(p: TestParams) -> tuple[float, float]:
+    """Plate size for the face-up FONT-SIZE sweep: marker column + one sample."""
+    marker_w = _text_width("0.0", p.value_size, p)
+    sample_w = max(_text_width(p.sample_text, s, p) for s in p.font_sizes)
+    w = p.margin_x + marker_w + p.col_gap + sample_w + p.margin_x
+    h = p.margin_y * 2 + p.row_pitch * len(p.font_sizes)
+    return (round(w, 1), round(h, 1))
+
+
+def build_coupon_top(p: TestParams) -> object:
+    """Face-UP variant: letters RAISED on top, one row per FONT SIZE.
+
+    This is the recipe the production panels moved to — print base-down, letters
+    laid last on solid material. One filament change at Z = top_thickness prints
+    them white. With no first-layer squish to fight, the interesting variable is
+    legibility vs size, so each row prints the sample text at one of
+    `font_sizes`, with the size as the row marker.
+    """
+    w, h = _plate_size_top(p)
+    t = p.top_thickness
+    x_marker = p.margin_x
+    x_sample = x_marker + _text_width("0.0", p.value_size, p) + p.col_gap
+
+    with BuildPart() as part:
+        Box(w, h, t, align=(Align.MIN, Align.MIN, Align.MIN))
+        with BuildSketch(Plane.XY.offset(t)) as sk:
+            for i, size in enumerate(p.font_sizes):
+                y = h - p.margin_y - p.row_pitch / 2 - i * p.row_pitch
+                for x, txt, fs in (
+                    (x_marker, f"{size:.1f}", p.value_size),
+                    (x_sample, p.sample_text, size),
+                ):
+                    with Locations(Location((x, y, 0))):
+                        Text(txt, font_size=fs, font=p.font, font_style=p.style,
+                             align=(Align.MIN, Align.CENTER))
+        extrude(to_extrude=sk.sketch, amount=p.raised_height, mode=Mode.ADD)
+
+    return part.part
+
+
 def export_transform(obj: object, p: TestParams) -> object:
     """Flip front-down onto the bed (front at z=0) and mirror, as the panel does."""
     w, h = _plate_size(p)
@@ -173,6 +222,10 @@ def main() -> None:
 
     ap = argparse.ArgumentParser(description="First-layer relief test coupon")
     ap.add_argument("--stl", type=Path, default=None, help="Export the coupon STL")
+    ap.add_argument("--top", action="store_true",
+                    help="face-UP variant: letters raised on top, one row per font size")
+    ap.add_argument("--sizes", type=float, nargs="+", default=None,
+                    help="font-size sweep for --top in mm, e.g. --sizes 2.6 3.2 4.0")
     ap.add_argument("--first-layer", type=float, default=None,
                     help="your slicer's FIRST layer height in mm (must match, default 0.1)")
     ap.add_argument("--recess", type=float, default=None,
@@ -188,15 +241,24 @@ def main() -> None:
         kw["recess_depth"] = args.recess
     if args.reliefs is not None:
         kw["reliefs"] = tuple(args.reliefs)
+    if args.sizes is not None:
+        kw["font_sizes"] = tuple(args.sizes)
     p = TestParams(**kw)
-    w, h = _plate_size(p)
-    coupon = build_coupon(p)
-    out = export_transform(coupon, p)
-
-    print(f"Coupon {w} x {h} x {p.thickness} mm")
-    print(f"  recess depth   : {p.recess_depth} mm  <- black up to here, then white")
-    print(f"  first layer    : {p.first_layer_h} mm  <- dilated zone")
-    print(f"  relief sweep   : {', '.join(f'{r:.2f}' for r in p.reliefs)} mm")
+    if args.top:
+        # Face-up: prints as modelled (base on the bed, letters on top).
+        w, h = _plate_size_top(p)
+        out = build_coupon_top(p)
+        print(f"Coupon (face-UP, letters on top) {w} x {h} x {p.top_thickness}+{p.raised_height} mm")
+        print(f"  print base-down; ONE filament change at Z = {p.top_thickness} mm -> white letters")
+        print(f"  font-size sweep: {', '.join(f'{s:.1f}' for s in p.font_sizes)} mm")
+    else:
+        coupon = build_coupon(p)
+        out = export_transform(coupon, p)
+        w, h = _plate_size(p)
+        print(f"Coupon (face-DOWN) {w} x {h} x {p.thickness} mm")
+        print(f"  recess depth   : {p.recess_depth} mm  <- black up to here, then white")
+        print(f"  first layer    : {p.first_layer_h} mm  <- dilated zone")
+        print(f"  relief sweep   : {', '.join(f'{r:.2f}' for r in p.reliefs)} mm")
 
     if args.stl is not None:
         export_stl(out, args.stl)

@@ -111,12 +111,13 @@ def _text_local_offset(
 
 @dataclass(frozen=True)
 class FaceplateParams:
-    # Panel — standard 10HP/3U.
-    panel_w: float = 50.8
+    # Panel — 10HP/3U. Doepfer cuts 10 HP to 50.5 mm (nominal pitch is
+    # 10 x 5.08 = 50.8, minus ~0.3 mm clearance so modules don't bind in a row).
+    panel_w: float = 50.5
     panel_h: float = 128.5
     thickness: float = 2.0
 
-    # Match TeensyMove module orientation.
+    # Match Boy (teensy_move.py) module orientation.
     flip_y: bool = True
 
     # Shift all content (holes + labels) up by this much so the bottom row
@@ -138,19 +139,19 @@ class FaceplateParams:
     label_height: float = 0.2
     label_font: str = "Arial"
     label_font_style: FontStyle = FontStyle.BOLD
-    label_size: float = 3.0
+    label_size: float = 3.2
     labels_y_offset: float = 0.0
     label_offset: tuple[float, float] = (0.0, -7.0)
 
     # Branding text (top and bottom).
     brand_text_top: str = "Eight4aWish"
     brand_text_bottom: str = "CortHex"
-    brand_size: float = 3.2
+    brand_size: float = 4.0
     brand_height: float = 0.2
     brand_margin: float = 4.0
 
     # Per-hole labels — 18 entries for the 3×6 grid (top-to-bottom,
-    # left-to-right). Carried over from TeensyMove; row 1 col1+col2
+    # left-to-right). Carried over from Boy (teensy_move.py); row 1 col1+col2
     # were the OLED slots, so set whatever CortHex uses there.
     hole_labels_below: tuple[str, ...] = (
         # Row 1 (top):  col1   col2   col3

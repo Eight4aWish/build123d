@@ -1,4 +1,7 @@
-"""N8Synth 10HP 3x6 panel (derived from SVG print template).
+"""Boy — N8Synth 10HP 3x6 panel (derived from SVG print template).
+
+Product name "Boy" (previously "TeensyMove"; renamed to avoid the Teensy and
+Move trademarks — the file keeps its hardware-descriptive name).
 
 This script was created by extracting the true panel rectangle and feature locations
 from the provided KiCad/PCBNEW SVG output ("label template").
@@ -149,11 +152,11 @@ def _text_local_offset(
 
 @dataclass(frozen=True)
 class FaceplateParams:
-	# Panel
-	# Use standard 10HP/3U by default.
+	# Panel — 10HP/3U. Doepfer cuts 10 HP to 50.5 mm (nominal pitch is
+	# 10 x 5.08 = 50.8, minus ~0.3 mm clearance so modules don't bind in a row).
 	# The SVG-derived rectangle is slightly undersized (PCB/print template friendly),
 	# so we center its features onto the standard panel.
-	panel_w: float = 50.8
+	panel_w: float = 50.5
 	panel_h: float = 128.5
 	thickness: float = 2.0
 
@@ -182,7 +185,7 @@ class FaceplateParams:
 	label_height: float = 0.2
 	label_font: str = "Arial"
 	label_font_style: FontStyle = FontStyle.BOLD
-	label_size: float = 3.0
+	label_size: float = 3.2
 	labels_y_offset: float = 0.0
 
 	# Place labels under holes with this offset from the hole center (dx, dy)
@@ -190,8 +193,8 @@ class FaceplateParams:
 
 	# Branding text (top and bottom)
 	brand_text_top: str = "Eight4aWish"
-	brand_text_bottom: str = "TeensyMove"
-	brand_size: float = 3.2
+	brand_text_bottom: str = "Boy"
+	brand_size: float = 4.0
 	brand_height: float = 0.2
 	brand_margin: float = 4.0
 
@@ -201,13 +204,13 @@ class FaceplateParams:
 		# Row 1 (top):  col1   col2   col3
 		"",            "",   "MENU",
 		# Row 2:
-		"GATE",            "ROOT",   "GATE",
+		"GATE",            "1",   "GATE",
 		# Row 3:
-		"MOD",            "CHORD",   "MOD",
+		"MOD",            "2",   "MOD",
 		# Row 4:
-		"PITCH",           "PROG",  "PITCH",
+		"PITCH",           "3",  "PITCH",
 		# Row 5:
-		"IN L-R",           "VOICE",  "OUT-L",
+		"IN L-R",           "4",  "OUT-L",
 		# Row 6 (bottom):
 		"CLOCK",           "RESET",  "OUT-R",
 	)
@@ -481,7 +484,7 @@ def export_print_template(params: FaceplateParams, svg: Path | None = None, dxf:
 def main() -> None:
 	import argparse
 
-	parser = argparse.ArgumentParser(description="Build N8Synth 10HP 3x6 Eurorack panel from SVG-derived geometry")
+	parser = argparse.ArgumentParser(description="Boy — N8Synth 10HP 3x6 Eurorack panel from SVG-derived geometry")
 	parser.add_argument("--export-mode", choices=("combined", "base", "labels"), default="combined")
 	parser.add_argument("--stl", type=Path, default=None, help="Export STL to this path")
 	parser.add_argument("--stl-base", type=Path, default=None, help="Export base STL to this path")

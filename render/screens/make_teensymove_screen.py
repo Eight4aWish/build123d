@@ -1,4 +1,4 @@
-"""Generate the TeensyMove OLED default screen (128x32) as an emissive texture.
+"""Generate the Boy (formerly TeensyMove) OLED default screen (128x32) as an emissive texture.
 
 Reproduces the default CV-MODE screen (page 0) from
 eurorack_modules/src/teensy-move/main.cpp: four 8px rows reporting CV / gate /

@@ -28,17 +28,17 @@ Checked-in printables for these live in [../exports/panels/](../exports/panels/)
 | `ksoloti_biggenes.py` | Ksoloti Big Genes (Elements) | ~20HP | Approximate, render-only |
 | `mkikick.py` | mkikick | 6HP, 2×6 | Derives `FaceplateParams` from `teensy_expander.py` |
 | `nanoesp32_corthex.py` | CortHex (N8Synth, Nano-ESP32) | 10HP, 3×6 | All 18 holes, no screen. Name maps to the matching eurorack repo |
-| `patch_init_oled.py` | Daisy Patch Init + Grove 0.66" OLED | 10HP, OLED | **Face-down 2-colour + back-side stiffening ribs.** Reusable template — see note below |
+| `patch_init_oled.py` | Daisy Patch Init + Grove 0.66" OLED | 10HP, OLED | **Face-down 2-colour + back-side stiffening ribs.** Superseded by the face-up recipe, kept for the rib/assembly demo — see note below |
 | `pico2w_onclite.py` | OnCLite (N8Synth 6HP, Pico 2 W) | 6HP, 2×N | Name maps to the matching eurorack repo; docstring/argparse text still say generic "N8Synth 6HP" |
 | `seed_panel.py` | Seeed XIAO RP2040 | 8HP Intellijel 1U | Tactile switch + 3 mm LED; includes retainer fit variants |
 | `seed_recorder_panel.py` | Seed Recorder | 8HP Intellijel 1U | |
-| `teensy_chaos.py` | TeensyChaos | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG |
+| `teensy_chaos.py` | Chaos | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyChaos" (trademark) |
 | `teensy_expander.py` | Teensy Expander | 6HP, 2×N | Based on N8Synth 6HP |
-| `teensy_move.py` | N8Synth 10HP (Teensy Move) | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG |
+| `teensy_move.py` | Boy | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyMove" (trademark) |
 
-> Note: `teensy_chaos.py` and `teensy_move.py` both default their export name to
-> `n8_10hp_base/labels.stl` — pass explicit `--stl` paths so they don't overwrite
-> each other.
+> Note: `teensy_chaos.py` and `teensy_move.py` have no default export paths — export
+> with explicit `--stl-base`/`--stl-labels` paths, named after the product
+> (`chaos_*.stl`, `boy_*.stl`).
 
 ## Ribbed panel + raised lettering (`patch_init_oled.py`)
 

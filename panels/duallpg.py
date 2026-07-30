@@ -149,7 +149,7 @@ class FaceplateParams:
     label_height: float = 0.2
     label_font: str = "Arial"
     label_font_style: FontStyle = FontStyle.BOLD
-    label_size: float = 3.0
+    label_size: float = 3.2
     labels_y_offset: float = 0.0
     label_offset: tuple[float, float] = (0.0, -7.0)
     # Pot labels sit a little lower than jacks to clear the wider opening.
@@ -158,7 +158,7 @@ class FaceplateParams:
     # Branding text (top and bottom).
     brand_text_top: str = "Eight4aWish"
     brand_text_bottom: str = "DualLPG"
-    brand_size: float = 3.2
+    brand_size: float = 4.0
     brand_height: float = 0.2
     brand_margin: float = 4.0
 
