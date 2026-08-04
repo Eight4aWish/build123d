@@ -34,8 +34,8 @@ in [../exports/pcb/](../exports/pcb/).
 | Script | Module | Size / layout | Notes |
 | --- | --- | --- | --- |
 | `amyboard.py` | AMYboard | 10HP | Rebuilt from the assembled-panel photo |
-| `daisy_braids.py` | DaisyBraids | 10HP, OLED | |
-| `daisy_grids.py` | DaisyGrids | 10HP, OLED | Same hole layout as `daisy_intervalosc.py`, different labels |
+| `daisy_braids.py` | Joy | 10HP, OLED | Braids macro-oscillator. Renamed from "DaisyBraids". PCB faceplate in [`../exports/pcb/joy_10hp/`](../exports/pcb/joy_10hp/) |
+| `daisy_grids.py` | Sorrow | 10HP, OLED | Same hole layout as `daisy_intervalosc.py`, different labels. Renamed from "DaisyGrids" |
 | `daisy_intervalosc.py` | IntervalOsc | 10HP | Same hole layout as `daisy_grids.py`, different labels. *Renamed from `daisy_intervalosc copy.py`* |
 | `daisy_mfx.py` | Daisy Patch Init OLED (MFX) | 10HP | |
 | `daisy_multiosc.py` | DaisyMultiOsc | 10HP, OLED | Based on `daisy_braids.py` (same holes), different labels |
