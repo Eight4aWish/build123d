@@ -33,6 +33,19 @@ The board is written in the KiCad 6/7 file format, which KiCad 7, 8 and 9 all
 open directly. Run the script with `--help` for the text-size, brand-margin and
 washer-pad options.
 
+`preview.png` is the same board plotted flat — front copper, front silkscreen
+and the outline, in KiCad's default theme colours (so the mask-free copper rings
+come out red and the silkscreen pale yellow) on a black background:
+
+```sh
+kicad-cli pcb export svg --mode-single -o preview.svg \
+    --layers F.Cu,F.SilkS,Edge.Cuts --page-size-mode 2 --exclude-drawing-sheet \
+    exports/pcb/joy_10hp/joy_10hp.kicad_pcb
+```
+
+then rasterised over black at 575 px wide. It is a picture of the plot, not of
+the finished board — the real panel is black mask with white lettering.
+
 ## What's in the design
 
 Taken verbatim from the printed panel (which in turn comes from Electrosmith's
