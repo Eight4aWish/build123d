@@ -62,7 +62,7 @@ HOLE_LABELS = (
     "OUT-L",# OUT-L
     "",# IN-R
     "",# IN-L
-    "",# CV_8
+    "FM",# CV_8
     "COLOR",# CV_7
     "TMBR",# CV_6
     "V/OCT",# CV_5
