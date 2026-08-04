@@ -13,6 +13,22 @@ One build123d script per module. Most build a **base** solid plus a separate
 Run a script with `--help` for its own options (text mode, fit clearances, etc.).
 Checked-in printables for these live in [../exports/panels/](../exports/panels/).
 
+## PCB faceplates
+
+[`kicad_faceplate.py`](kicad_faceplate.py) turns any of these scripts into a
+KiCad board and a JLCPCB-ready gerber zip — same holes, same cutouts, same
+labels, but as a black-solder-mask PCB with white silkscreen instead of a
+two-colour print:
+
+```sh
+python3 panels/kicad_faceplate.py panels/daisy_braids.py \
+    --outdir exports/pcb/joy_10hp --name joy_10hp --gerbers
+```
+
+It parses the panel script rather than importing it, so it needs nothing but
+stock Python 3 (and `kicad-cli` for `--gerbers`). Output and ordering notes live
+in [../exports/pcb/](../exports/pcb/).
+
 ## Modules
 
 | Script | Module | Size / layout | Notes |
