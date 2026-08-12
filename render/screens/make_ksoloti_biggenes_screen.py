@@ -1,8 +1,11 @@
 """Generate the Ksoloti Big Genes (Elements) OLED screen (128x64).
 
-Reproduces the single-page idle UI from eurorack_modules/src/ksoloti_elements/
-main.cc (default state: resonator_model=Mod, pot_mode=Levels, cv_assign =
+Reproduces the idle UI from eurorack_modules/src/ksoloti_elements/main.cc
+(default state: resonator_model=Mod, pot state=Levels, cv_assign =
 Flow/Mallet/None, cv_sel=A), drawn with the shared 5x7 font.
+
+Six rows, each under the controls it describes. Kept in step with main.cc by hand —
+if the screen layout changes there, it changes here too.
 
 Output: render/out/ksoloti_biggenes/ksoloti_biggenes_screen.png
 """
@@ -33,15 +36,15 @@ def main() -> None:
     img = Image.new("1", (W, H), 0)
     px = img.load()
 
-    draw_string(px, 0, 0, "S1 Mod E1 Con SE2 Cv", font)
+    draw_string(px, 0, 0, "S1:Mod", font)
     hline(px, 0, 9, 128)
-    draw_string(px, 0, 11, "P1-4 Geo Brt Dmp Pos", font)
-    draw_string(px, 0, 21, "P5-8 Bow Blw Stk Spc", font)
-    hline(px, 0, 29, 24)                      # underline P5-8 (levels active)
-    draw_string(px, 0, 31, "P5-8 BlT Flw Mal StT", font)
-    draw_string(px, 0, 42, "CvAD Flw Mal --- Gte", font)
-    hline(px, 30, 50, 18)                     # underline active CV (A)
-    draw_string(px, 0, 53, "S34 PyPge CvXY VO FM", font)
+    draw_string(px, 0, 11, "Geom Brgt Damp Posn", font)   # P1-P4
+    draw_string(px, 0, 21, "BowL BloL StkL Spce", font)   # P5-P8, levels state
+    draw_string(px, 0, 31, "Cont Play Page Asgn", font)   # E1  S3  S4  E2
+    draw_string(px, 0, 42, "A:Flw  B:Mal  C:---", font)   # assignable CV only
+    hline(px, 0, 50, 30)                                  # underline slot A
+    # bottom row is left blank: it shows the last control touched, and the idle module
+    # in a panel render is not touching anything
 
     big = img.resize((W * SCALE, H * SCALE), Image.NEAREST)
     rgb = Image.new("RGB", big.size, OFF)
