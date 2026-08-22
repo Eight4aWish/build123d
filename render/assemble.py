@@ -111,6 +111,11 @@ def _screen_rect(params) -> dict | None:
 
 # Hole labels that mount a momentary button cap on the daisy-style panels.
 _DAISY_BUTTON_KW = {"MODE", "BTN", "BUTTON", "SELECT"}
+# A 2-throw toggle is usually spotted by having a label above *and* below - one
+# per throw. A toggle whose two positions are not worth naming separately gets a
+# single label instead, and would otherwise fall through to the jack branch, so
+# name it here.
+_DAISY_TOGGLE_KW = {"FLIP", "TOGGLE", "TOG"}
 
 
 def _daisy_labels(mod, params, xf):
@@ -203,9 +208,11 @@ def build_assembly_daisy(mod, module_name: str):
         elif d < 5.0:  # small hole -> 3 mm LED
             placements.append((hw.led(color_name="red"), fx, fy, t))
             led_meta.append({"x": fx, "y": fy, "color": "red"})
-        elif label.strip() and abv.strip():  # both labels -> 2-throw toggle
+        elif (label.strip() and abv.strip()) or toks & _DAISY_TOGGLE_KW:
+            # Both labels (one per throw), or a single label that names a toggle.
             placements.append((hw.toggle_switch(), fx, fy, t))
-            placed_meta.append({"x": fx, "y": fy, "kind": "toggle", "label": f"{abv}/{label}"})
+            placed_meta.append({"x": fx, "y": fy, "kind": "toggle",
+                                "label": f"{abv}/{label}" if abv.strip() else label})
         elif toks & _DAISY_BUTTON_KW:  # MODE etc. -> momentary button
             placements.append((hw.switch_cap(), fx, fy, t))
             placed_meta.append({"x": fx, "y": fy, "kind": "button", "label": label})

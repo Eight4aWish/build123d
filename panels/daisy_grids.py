@@ -64,7 +64,7 @@ HOLE_LABELS = (
     "KICK",# B5
     "RESET",# B9
     "CLOCK",# B10
-    "EXTERNAL",# B8
+    "FLIP",# B8
     "HAT",# C10
     "MODE",# B7
     "CHAOS",# CV_4
@@ -87,7 +87,7 @@ HOLE_LABELS_ABOVE = (
     "",# B5
     "",# B9
     "",# B10
-    "INTERNAL",# B8
+    "",# B8
     "",# C10
     "",# B7
     "",# CV_4
@@ -322,7 +322,7 @@ def export_transform_labels(obj: object, params: PanelParams) -> object:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Interval Oscillator 10HP faceplate")
+    parser = argparse.ArgumentParser(description="Sorrow (daisy_grids) faceplate")
     parser.add_argument("--stl-base", type=Path, default=None, help="Export base STL")
     parser.add_argument("--stl-labels", type=Path, default=None, help="Export labels STL")
 

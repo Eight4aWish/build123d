@@ -32,14 +32,14 @@
       "x": 19.316702999999997,
       "y": 16.599998999999997,
       "kind": "jack",
-      "label": "IN-R",
+      "label": "",
       "nut": "nut_black"
     },
     {
       "x": 7.149999999999999,
       "y": 16.599998999999997,
       "kind": "jack",
-      "label": "IN-L",
+      "label": "",
       "nut": "nut_black"
     },
     {
@@ -102,7 +102,7 @@
       "x": 25.297105999999996,
       "y": 66.543403,
       "kind": "toggle",
-      "label": "INTERNAL/EXTERNAL"
+      "label": "FLIP"
     },
     {
       "x": 42.15000499999999,
