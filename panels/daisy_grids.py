@@ -84,6 +84,9 @@ HOLE_LABELS = (
 # A panel that prints only the Home row is documenting half the module, and the
 # half it leaves out contains WILDNESS - which is the control the whole module is
 # named around. Bracketed so the alternate reads as an alternate.
+# Rendered at 78% and in italic. Size alone was doing the work of saying "this is
+# the other page", and it was not quite enough at a glance - the slant is what
+# makes a secondary read as a secondary rather than as a shorter word.
 LABELS_SECONDARY = ("DENS-KC", "DENS-SN", "DENS-HT", "WILD")
 
 HOLE_LABELS_ABOVE = (

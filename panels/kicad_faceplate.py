@@ -116,6 +116,7 @@ class PanelSource:
     # name per control with an alternate, rather than two equal names.
     secondary: frozenset = frozenset()
     secondary_ratio: float = 0.78
+    secondary_italic: bool = True
     # LAYOUT panels attach a label to each control, so there is no HOLE_LABELS
     # order to reconstruct and no X-mirror to undo. When this is set,
     # build_labels() uses it verbatim instead of pairing labels to holes.
@@ -412,6 +413,7 @@ class Label:
     x: float
     y: float
     size: float  # glyph height, mm
+    italic: bool = False  # a control's second function, not a second control
 
 
 def labelable_holes(src: PanelSource) -> list[Hole]:
@@ -452,19 +454,23 @@ def build_labels(src: PanelSource, *, label_size: float, brand_size: float) -> l
     below_dy = -src.label_offset[1]  # (0, -7) -> label sits 7 mm *below* in KiCad's +Y-down
     holes = labelable_holes(src)
 
-    def _size(txt: str) -> float:
-        return round(label_size * src.secondary_ratio, 3) if txt in src.secondary else label_size
+    def _style(txt: str) -> tuple[float, bool]:
+        if txt in src.secondary:
+            return round(label_size * src.secondary_ratio, 3), src.secondary_italic
+        return label_size, False
 
     for idx, hole in enumerate(holes):
         target = _mirror_partner(src, hole)
         if idx < len(src.labels_below):
             txt = src.labels_below[idx].strip()
             if txt:
-                out.append(Label(txt, target.x, target.y + below_dy, _size(txt)))
+                sz, it = _style(txt)
+                out.append(Label(txt, target.x, target.y + below_dy, sz, it))
         if idx < len(src.labels_above):
             txt = src.labels_above[idx].strip()
             if txt:
-                out.append(Label(txt, target.x, target.y - below_dy, _size(txt)))
+                sz, it = _style(txt)
+                out.append(Label(txt, target.x, target.y - below_dy, sz, it))
 
     cx = src.panel_w / 2
     if src.brand_top.strip():
@@ -589,7 +595,8 @@ def render_pcb(
         # condensed to keep "OUT-L"/"OUT-R" inside the 12.17 mm jack pitch and
         # the branding clear of the mounting slots.
         o.append(f'\t(gr_text "{lb.text}" (at {_f(lb.x)} {_f(lb.y)}) (layer "F.SilkS") (tstamp {ids.next()})')
-        o.append(f"\t\t(effects (font (size {_f(lb.size)} {_f(w)}) (thickness {_f(th)}) bold))")
+        style = "bold italic" if lb.italic else "bold"
+        o.append(f"\t\t(effects (font (size {_f(lb.size)} {_f(w)}) (thickness {_f(th)}) {style}))")
         o.append("\t)")
 
     for dot in src.dots:
@@ -765,7 +772,16 @@ def write_preview(
             font = ImageFont.truetype(font_path, size) if font_path else ImageFont.load_default()
         except OSError:
             font = ImageFont.load_default()
-        d.text((mm(lb.x), mm(lb.y)), lb.text, fill=SILK, font=font, anchor="mm")
+        if lb.italic:
+            # PIL has no synthetic oblique, so shear a scratch layer and paste it.
+            box = d.textbbox((0, 0), lb.text, font=font, anchor="lt")
+            tw, tht = box[2] - box[0] + size, box[3] - box[1] + size
+            tile = Image.new("RGBA", (int(tw), int(tht)), (0, 0, 0, 0))
+            ImageDraw.Draw(tile).text((size * 0.3, 0), lb.text, fill=SILK, font=font, anchor="lt")
+            tile = tile.transform(tile.size, Image.AFFINE, (1, 0.22, 0, 0, 1, 0), Image.BICUBIC)
+            im.paste(tile, (int(mm(lb.x) - tw / 2), int(mm(lb.y) - tht / 2)), tile)
+        else:
+            d.text((mm(lb.x), mm(lb.y)), lb.text, fill=SILK, font=font, anchor="mm")
 
     im.resize((px_wide, int(round(px_wide * src.panel_h / src.panel_w))),
               Image.LANCZOS).save(out)
