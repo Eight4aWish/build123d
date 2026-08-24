@@ -124,24 +124,37 @@ Taken verbatim from the printed panel (which in turn comes from Electrosmith's
 
 ## Ordering from JLCPCB
 
-Upload `joy_10hp/joy_10hp-gerbers.zip` and set:
+Upload the `-gerbers.zip` from the module's folder and set:
 
 | Option | Value | Why |
 | --- | --- | --- |
 | Base material | FR-4 | |
 | Layers | 2 | 1-layer boards have their own (worse) mask/silk options |
-| Dimensions | 50.8 × 128.5 mm | should be detected from `Edge.Cuts` |
+| Dimensions | detected from `Edge.Cuts` | 50.8 × 128.5 for Joy and Sorrow, 101.3 × 128.5 for Girl |
 | PCB thickness | **1.6 mm** | standard Eurorack panel thickness |
 | PCB colour | **Black** (or your choice) | this *is* the panel colour |
 | Silkscreen | **White** | the lettering |
 | Surface finish | HASL lead-free, or ENIG | only the tiny washer rings are exposed |
 | Remove order number | **Specify a location** | the `JLCJLCJLCJLC` marker puts it on the back |
 | Gold fingers / castellated | No | |
+| Panel / delivery format | Single PCB | not a panelised array |
 
-The two internal cutouts are routed, so JLCPCB may add a small "special
-process" line item. Their router leaves an inside-corner radius of roughly
-0.5 mm, so the OLED window's corners come out slightly rounded — irrelevant with
-the display sitting behind it.
+Everything else can stay on its default.
+
+**The order-number setting is the one that matters.** Left alone, JLCPCB puts
+their number wherever they like, which on a faceplate means on the face. Choosing
+*Specify a location* makes them use the `JLCJLCJLCJLC` marker, which every board
+here carries on the **back** silkscreen.
+
+Internal cutouts are routed rather than drilled, so JLCPCB may add a small
+"special process" line item. Their router leaves an inside-corner radius of about
+0.5 mm, so cutout corners come out slightly rounded.
+
+| Module | Cutouts | Note |
+| --- | --- | --- |
+| Joy | 2 — SD slot, OLED window | window corners round off behind the display |
+| **Sorrow** | **1 — SD slot only** | no OLED, so no window |
+| Girl | 4 — OLED window, SD slot, 2 × USB | |
 
 There is essentially no copper on this board (just a 0.1 mm ring around each
 hole, carried over from Electrosmith's design, which sits under the jack and pot
@@ -154,9 +167,13 @@ faceplate files do.
   supplied with the jacks.
 - The OLED module mounts on the two Ø3.0 mm holes at (15.65, 61.75) and
   (35.15, 61.75), 19.5 mm apart, with M3 hardware or nylon standoffs.
-- The Patch Init's **B8 toggle switch must be removed** before this panel will
-  seat — see the [Joy firmware
+- **Joy only:** the Patch Init's **B8 toggle switch must be removed** before that
+  panel will seat, because the OLED window is where the toggle used to be — see
+  the [Joy firmware
   README](https://github.com/Eight4aWish/eurorack_daisy_patch_init/tree/main/daisy_braids_oled).
+- **Sorrow keeps the B8 toggle.** It is the FLIP control, so the panel has a
+  Ø6.2 hole for it and nothing needs removing. Sorrow's panel is the same
+  50.8 × 128.5 outline as Joy's with 22 holes and a single SD cutout.
 
 ## Girl, and where its geometry came from
 
