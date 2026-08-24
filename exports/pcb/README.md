@@ -177,9 +177,16 @@ Two honest caveats:
 - **The labels are still ours.** The real silkscreen is drawn as stroked
   outlines rather than as text, so it cannot be lifted mechanically. The jack
   wording below is our reading of what each one does.
-- **One Ø1.7 hole at (27.92, 99.70)** — between the pot rows — has no obvious
-  purpose. It is too small for a 3 mm LED. It is carried through anyway, so the
-  faceplate cannot quietly disagree with the board.
+- **The Ø1.7 hole at (27.92, 99.70)** is calibration access — a screwdriver hole
+  for a trimmer on the board behind, labelled `CAL`. It is the one hole on the
+  plot that is under 2 mm and still appears on every layer, which is what tells
+  it apart from the silkscreen dots below.
+- **The pot dial scales are silkscreen, not holes.** Eleven dots per pot, 30°
+  apart on an r=8 circle, with the bottom 60° left out because that is the dead
+  zone of a 300° pot: 88 in total. They appear on the plot's silkscreen layer
+  *only*, and at Ø1.2 they are easy to filter out as sub-millimetre noise, which
+  is exactly what happened the first time. A real hole shows on the mask and
+  drill layers too — that is the test.
 
 The mounting slots are the one deliberate departure: the plot gives 3 mm of
 travel at 3.0 mm wide, and these are opened to 3.2 mm for M3 clearance, matching

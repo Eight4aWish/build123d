@@ -55,7 +55,7 @@ import ast
 import json
 import math
 import zipfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -79,6 +79,22 @@ class RectCutout:
     h: float
 
 
+@dataclass(frozen=True)
+class SilkDot:
+    """A filled dot printed on the front silkscreen. Not a hole.
+
+    The Big Genes panel prints eleven of these in a ring around every pot - a
+    dial scale, 30 degrees apart at r=8, with the bottom 60 degrees left out
+    because that is the dead zone of a 300-degree pot. They only exist on the
+    silkscreen layer of the plot, which is how you tell them from a drilled hole:
+    a real hole shows up on the mask and drill layers too.
+    """
+
+    x: float
+    y: float
+    d: float
+
+
 @dataclass
 class PanelSource:
     """Everything ``kicad_faceplate`` needs out of a build123d panel script."""
@@ -99,6 +115,8 @@ class PanelSource:
     # order to reconstruct and no X-mirror to undo. When this is set,
     # build_labels() uses it verbatim instead of pairing labels to holes.
     explicit_labels: "list[Label] | None" = None
+    # Silkscreen markings that are not holes - the pot dial scales.
+    dots: "list[SilkDot]" = field(default_factory=list)
 
 
 class _Consts(ast.NodeVisitor):
@@ -301,6 +319,7 @@ def _from_layout(layout: dict, path: Path) -> PanelSource:
     holes: list[Hole] = []
     cutouts: list[RectCutout] = []
     labels: list[Label] = []
+    dots: list[SilkDot] = []
 
     for c in layout.get("controls", []):
         kind = str(c.get("kind", ""))
@@ -317,6 +336,25 @@ def _from_layout(layout: dict, path: Path) -> PanelSource:
             # than to guess a size and put a wrong hole in a fab file.
             print(f"  skipped {kind!r} at ({c['x']}, {c['y']}): no d and not a cutout")
             continue
+
+        # A dial scale: {"r": 8.0, "d": 1.2, "step": 30, "skip": 60} prints ticks
+        # every `step` degrees at radius `r`, leaving a gap of `skip` degrees at
+        # the bottom for the pot's dead zone. Measured off the Big Genes plot.
+        dial = c.get("dial")
+        if dial:
+            r_d = float(dial["r"])
+            dd = float(dial.get("d", 1.2))
+            step = float(dial.get("step", 30))
+            skip = float(dial.get("skip", 60))
+            n = int(round(360 / step))
+            for i in range(n):
+                # 0 deg is straight down; sweep clockwise. The dead zone is
+                # centred on straight down, so drop anything inside it.
+                ang = i * step
+                if min(ang, 360 - ang) < skip / 2:
+                    continue
+                th = math.radians(ang - 90)
+                dots.append(SilkDot(x + r_d * math.cos(th), y + r_d * math.sin(th), dd))
 
         text = str(c.get("label", "")).strip()
         if text:
@@ -340,6 +378,7 @@ def _from_layout(layout: dict, path: Path) -> PanelSource:
         brand_bottom=str(layout.get("brand_bottom", "")),
         stem=path.stem,
         explicit_labels=labels,
+        dots=dots,
     )
 
 
@@ -531,6 +570,13 @@ def render_pcb(
         o.append(f"\t\t(effects (font (size {_f(lb.size)} {_f(w)}) (thickness {_f(th)}) bold))")
         o.append("\t)")
 
+    for dot in src.dots:
+        # A filled circle is a zero-length line with a round cap of the right
+        # width - simpler than a gr_circle with a fill, and it plots identically.
+        o.append(f"\t(gr_line (start {_f(dot.x)} {_f(dot.y)}) (end {_f(dot.x)} {_f(dot.y)})")
+        o.append(f"\t\t(stroke (width {_f(dot.d)}) (type solid))")
+        o.append(f'\t\t(layer "F.SilkS") (tstamp {ids.next()}))')
+
     if jlc_marker is not None:
         # JLCPCB stamps its order number on every board. Left to itself it lands
         # somewhere on the front, which is not what you want on a faceplate. The
@@ -681,6 +727,10 @@ def write_preview(
     for c in src.cutouts:
         d.rectangle([mm(c.x), mm(c.y), mm(c.x + c.w), mm(c.y + c.h)],
                     fill=BG, outline=EDGE, width=max(1, int(mm(0.25))))
+
+    for dot in src.dots:
+        r = mm(dot.d / 2)
+        d.ellipse([mm(dot.x) - r, mm(dot.y) - r, mm(dot.x) + r, mm(dot.y) + r], fill=SILK)
 
     font_path = next((f for f in (
         "/System/Library/Fonts/HelveticaNeue.ttc",

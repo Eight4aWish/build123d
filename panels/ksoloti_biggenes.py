@@ -37,6 +37,13 @@ Screen content: render/screens/make_ksoloti_biggenes_screen.py (Elements UI).
 
 PW, PH = 101.3, 128.5  # 20HP x 3U, measured off the plot's Edge.Cuts
 
+# The dial scale printed around every pot: eleven silkscreen dots 30 degrees
+# apart on an r=8 circle, with the bottom 60 degrees left out - which is the dead
+# zone of a 300-degree pot. They are on the plot's silkscreen layer only, which is
+# how you tell a marking from a hole: a real hole shows on the mask and drill
+# layers too. Filtering sub-millimetre circles as noise loses them completely.
+DIAL = {"r": 8.0, "d": 1.2, "step": 30, "skip": 60}
+
 # Pots: two rows of four, 22.86 mm apart (9 x 2.54).
 _PX = (16.49, 39.35, 62.21, 85.07)
 _PY1, _PY2 = 111.10, 88.20
@@ -57,14 +64,14 @@ LAYOUT = {
     "brand_bottom": "Eight4aWish",
     "controls": [
         # --- 8 trimmer pots, Ø8.0 ---
-        {"kind": "trimmer", "d": 8.0, "x": _PX[0], "y": _PY1, "label": "P1", "label_dy": -6.5, "label_size": 2.0},
-        {"kind": "trimmer", "d": 8.0, "x": _PX[1], "y": _PY1, "label": "P2", "label_dy": -6.5, "label_size": 2.0},
-        {"kind": "trimmer", "d": 8.0, "x": _PX[2], "y": _PY1, "label": "P3", "label_dy": -6.5, "label_size": 2.0},
-        {"kind": "trimmer", "d": 8.0, "x": _PX[3], "y": _PY1, "label": "P4", "label_dy": -6.5, "label_size": 2.0},
-        {"kind": "trimmer", "d": 8.0, "x": _PX[0], "y": _PY2, "label": "P5", "label_dy": -6.5, "label_size": 2.0},
-        {"kind": "trimmer", "d": 8.0, "x": _PX[1], "y": _PY2, "label": "P6", "label_dy": -6.5, "label_size": 2.0},
-        {"kind": "trimmer", "d": 8.0, "x": _PX[2], "y": _PY2, "label": "P7", "label_dy": -6.5, "label_size": 2.0},
-        {"kind": "trimmer", "d": 8.0, "x": _PX[3], "y": _PY2, "label": "P8", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[0], "y": _PY1, "label": "P1", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[1], "y": _PY1, "label": "P2", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[2], "y": _PY1, "label": "P3", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[3], "y": _PY1, "label": "P4", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[0], "y": _PY2, "label": "P5", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[1], "y": _PY2, "label": "P6", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[2], "y": _PY2, "label": "P7", "label_dy": -6.5, "label_size": 2.0},
+        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[3], "y": _PY2, "label": "P8", "label_dy": -6.5, "label_size": 2.0},
         # --- encoders flanking the screen, Ø8.0, on the pot x-grid ---
         {"kind": "encoder", "d": 8.0, "x": _PX[0], "y": _EY, "label": "E1-S1", "label_dy": -9.5, "label_size": 2.0},
         {"kind": "encoder", "d": 8.0, "x": _PX[3], "y": _EY, "label": "E2-S2", "label_dy": -9.5, "label_size": 2.0},
@@ -89,11 +96,11 @@ LAYOUT = {
         {"kind": "led", "d": 2.2, "x": 82.35, "y": 49.30, "color": "green"},
         {"kind": "led", "d": 2.2, "x": 87.69, "y": 49.30, "color": "red"},
         {"kind": "led", "d": 2.2, "x": 93.02, "y": 49.30, "color": "red"},
-        # One Ø1.7 hole at (27.92, 99.70) between the pot rows, purpose unknown -
-        # too small for a 3 mm LED, so probably an indicator or an alignment pin.
-        # Carried through rather than dropped, because dropping it would make the
-        # render quietly disagree with the board.
-        {"kind": "led", "d": 1.7, "x": 27.92, "y": 99.70, "color": "red"},
+        # Calibration access. Ø1.7 at (27.92, 99.70), between the pot rows - a
+        # screwdriver hole for a trimmer on the board behind, not an indicator.
+        # It is the one hole on the plot that appears on every layer while being
+        # under 2 mm, which is what marks it out from the silkscreen dial dots.
+        {"kind": "bolt", "d": 1.7, "x": 27.92, "y": 99.70, "label": "CAL", "label_dy": -3.6, "label_size": 1.6},
         {"kind": "usb", "x": 79.10, "y": 41.26, "w": 9.5, "h": 3.6, "label": "PROG", "label_dy": -4.5, "label_size": 1.9},
         {"kind": "usb", "x": 94.10, "y": 41.26, "w": 9.5, "h": 3.6, "label": "HOST", "label_dy": -4.5, "label_size": 1.9},
         # --- jack bank, row A ---
