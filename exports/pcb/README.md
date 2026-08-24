@@ -135,16 +135,37 @@ Upload the `-gerbers.zip` from the module's folder and set:
 | PCB colour | **Black** (or your choice) | this *is* the panel colour |
 | Silkscreen | **White** | the lettering |
 | Surface finish | HASL lead-free, or ENIG | only the tiny washer rings are exposed |
-| Remove order number | **Specify a location** | the `JLCJLCJLCJLC` marker puts it on the back |
+| **Remove order number** | **Remove order number** | see below — and build the board with `--no-jlc-marker` |
 | Gold fingers / castellated | No | |
 | Panel / delivery format | Single PCB | not a panelised array |
 
 Everything else can stay on its default.
 
-**The order-number setting is the one that matters.** Left alone, JLCPCB puts
-their number wherever they like, which on a faceplate means on the face. Choosing
-*Specify a location* makes them use the `JLCJLCJLCJLC` marker, which every board
-here carries on the **back** silkscreen.
+### The order number, and the marker that goes with it
+
+Left alone, JLCPCB put their order number wherever they like, which on a
+faceplate means on the face. There are two ways out, and they need **different
+gerbers**:
+
+| Route | Build with | What ends up on the back |
+| --- | --- | --- |
+| **Remove order number** (JLCPCB's newer option, confirmed working) | `--no-jlc-marker` | nothing |
+| Specify a location | default | the `JLCJLCJLCJLC` marker, which they replace with the number |
+
+They are not interchangeable, because **the marker is drawn geometry, not an
+instruction**: 4.7 KB of stroke lines in `-B_Silkscreen.gbo`. It does something
+only if JLCPCB recognise the string and substitute for it. If "remove order
+number" means merely "do not add one", the literal text `JLCJLCJLCJLC` prints on
+the back of the board.
+
+It is on the back, so it is invisible once the panel is on a module — but there
+is no reason to carry it when the number is being removed, so `sorrow_10hp` is
+built without it. That drops its back silkscreen from 4.7 KB to 455 bytes of
+header, i.e. nothing at all.
+
+*Worth a look:* `joy_10hp` was ordered with the marker present and the order
+number removed. If the back of that board is blank, JLCPCB do strip it and this
+distinction is academic. If it reads `JLCJLCJLCJLC`, it is not.
 
 Internal cutouts are routed rather than drilled, so JLCPCB may add a small
 "special process" line item. Their router leaves an inside-corner radius of about
