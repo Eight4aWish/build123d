@@ -774,12 +774,21 @@ def write_preview(
             font = ImageFont.load_default()
         if lb.italic:
             # PIL has no synthetic oblique, so shear a scratch layer and paste it.
+            # The shear moves the ink sideways, so the tile is centred on the ink
+            # that survives it rather than on the tile - otherwise the preview
+            # shows the label off to one side of a hole the board centres it on,
+            # which is a lie about the board.
             box = d.textbbox((0, 0), lb.text, font=font, anchor="lt")
-            tw, tht = box[2] - box[0] + size, box[3] - box[1] + size
+            pad = size
+            tw, tht = box[2] - box[0] + 2 * pad, box[3] - box[1] + 2 * pad
             tile = Image.new("RGBA", (int(tw), int(tht)), (0, 0, 0, 0))
-            ImageDraw.Draw(tile).text((size * 0.3, 0), lb.text, fill=SILK, font=font, anchor="lt")
-            tile = tile.transform(tile.size, Image.AFFINE, (1, 0.22, 0, 0, 1, 0), Image.BICUBIC)
-            im.paste(tile, (int(mm(lb.x) - tw / 2), int(mm(lb.y) - tht / 2)), tile)
+            ImageDraw.Draw(tile).text((pad, pad), lb.text, fill=SILK, font=font, anchor="lt")
+            tile = tile.transform(tile.size, Image.AFFINE, (1, 0.22, -0.22 * tht / 2, 0, 1, 0),
+                                  Image.BICUBIC)
+            ink = tile.getbbox()
+            if ink:
+                cx, cy = (ink[0] + ink[2]) / 2, (ink[1] + ink[3]) / 2
+                im.paste(tile, (int(mm(lb.x) - cx), int(mm(lb.y) - cy)), tile)
         else:
             d.text((mm(lb.x), mm(lb.y)), lb.text, fill=SILK, font=font, anchor="mm")
 

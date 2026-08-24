@@ -67,7 +67,7 @@ HOLE_LABELS = (
     "FLIP",# B8
     "HAT",# C10
     "MODE",# B7
-    "WILD",# CV_4
+    "WILDNESS",# CV_4
     "DENS-HT",# CV_3
     "DENS-SN",# CV_2
     "DENS-KC",# CV_1
@@ -87,7 +87,7 @@ HOLE_LABELS = (
 # Rendered at 78% and in italic. Size alone was doing the work of saying "this is
 # the other page", and it was not quite enough at a glance - the slant is what
 # makes a secondary read as a secondary rather than as a shorter word.
-LABELS_SECONDARY = ("DENS-KC", "DENS-SN", "DENS-HT", "WILD")
+LABELS_SECONDARY = ("DENS-KC", "DENS-SN", "DENS-HT", "WILDNESS")
 
 HOLE_LABELS_ABOVE = (
     "",# OUT-R
