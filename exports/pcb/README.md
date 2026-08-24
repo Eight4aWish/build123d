@@ -13,8 +13,12 @@ the printed panel.
 | Folder | Module | Source script |
 | --- | --- | --- |
 | [`joy_10hp/`](joy_10hp/) | **Joy** — Braids macro-oscillator + 64×48 OLED, 10HP | [`panels/daisy_braids.py`](../../panels/daisy_braids.py) |
+| [`sorrow_10hp/`](sorrow_10hp/) | **Sorrow** — Grids drum-pattern generator, 10HP | [`panels/daisy_grids.py`](../../panels/daisy_grids.py) |
+| [`girl_20hp/`](girl_20hp/) | **Girl** — Elements on a Ksoloti Big Genes, 20HP | [`panels/ksoloti_biggenes.py`](../../panels/ksoloti_biggenes.py) |
 
-![Joy PCB faceplate](joy_10hp/preview.png)
+| Joy | Sorrow | Girl |
+| --- | --- | --- |
+| ![Joy PCB faceplate](joy_10hp/preview.png) | ![Sorrow PCB faceplate](sorrow_10hp/preview.png) | ![Girl PCB faceplate](girl_20hp/preview.png) |
 
 ## Regenerating
 
@@ -22,7 +26,40 @@ the printed panel.
 python3 panels/kicad_faceplate.py panels/daisy_braids.py \
     --outdir exports/pcb/joy_10hp --name joy_10hp \
     --title "Joy 10HP faceplate" --gerbers
+
+python3 panels/kicad_faceplate.py panels/daisy_grids.py \
+    --outdir exports/pcb/sorrow_10hp --name sorrow_10hp \
+    --title "Sorrow 10HP faceplate" --gerbers
+
+python3 panels/kicad_faceplate.py panels/ksoloti_biggenes.py \
+    --outdir exports/pcb/girl_20hp --name girl_20hp \
+    --title "Girl 20HP faceplate" --gerbers
 ```
+
+`kicad-cli` is not on `PATH` in a normal macOS install; it lives inside the app
+bundle, so prefix the command with:
+
+```sh
+export PATH="/Applications/KiCad/KiCad.app/Contents/MacOS:$PATH"
+```
+
+### Two kinds of panel script
+
+`joy_10hp` and `sorrow_10hp` come from Daisy Patch Init panels, which carry a
+`HOLES` table in Electrosmith's own KiCad coordinates plus two parallel label
+lists whose order has to be un-mirrored (see the module docstring).
+
+`girl_20hp` comes from a hand-authored panel that instead carries a `LAYOUT`
+dict — one entry per control, each with its own position, diameter and label.
+The generator reads both. Two things it has to convert for `LAYOUT`:
+
+- **Y is measured upward** from the bottom edge (a jack is low, a pot is high),
+  where KiCad measures downward. `y_kicad = panel_h - y_layout`.
+- **Slot and window positions are centres**, not corners.
+
+A `LAYOUT` control with neither a diameter nor a width/height is reported and
+skipped rather than guessed at, because a guessed hole in a fab file is worse
+than a missing one.
 
 `--gerbers` shells out to `kicad-cli` (KiCad 7 or newer) to plot the fab set and
 zip it. Without `kicad-cli`, open the `.kicad_pcb` and use **File → Fabrication
@@ -43,8 +80,14 @@ kicad-cli pcb export svg --mode-single -o preview.svg \
     exports/pcb/joy_10hp/joy_10hp.kicad_pcb
 ```
 
-then rasterised over black at 575 px wide. It is a picture of the plot, not of
-the finished board — the real panel is black mask with white lettering.
+then rasterised over black at 575 px wide. **That is no longer how it works.**
+`preview.png` is now drawn by the generator itself, from the same hole and label
+tables the gerbers come from, so it cannot drift from what gets fabricated — and
+it needs only PIL rather than a rasteriser. Pass `--no-preview` to skip it.
+
+It is still a picture of the plot, not of the finished board: mask-free copper
+rings red, silkscreen pale yellow, on black. The real panel is black mask with
+white lettering.
 
 ## What's in the design
 
@@ -114,3 +157,30 @@ faceplate files do.
 - The Patch Init's **B8 toggle switch must be removed** before this panel will
   seat — see the [Joy firmware
   README](https://github.com/Eight4aWish/eurorack_daisy_patch_init/tree/main/daisy_braids_oled).
+
+## Girl, and where its geometry came from
+
+`girl_20hp` is a faceplate for the **Ksoloti Big Genes**, which is someone
+else's board (Ksoloti, GPLv3). Until recently its panel CAD was not published,
+so `panels/ksoloti_biggenes.py` was a photo reconstruction and the renders were
+approximately right and precisely wrong — the jack rows were 1.2–1.7 mm out, the
+middle band was 8 mm out, and every hole diameter came from a generic default
+table rather than from the board.
+
+It is now measured off `ksoloti_big_genes_panel-brd.svg`, a KiCad plot of the
+real panel PCB **v0.8**. Checked both directions: 41 holes on the board, 41
+controls in the `LAYOUT`, no mismatch in position or diameter, nothing on the
+board left unplaced and nothing placed that is not on the board.
+
+Two honest caveats:
+
+- **The labels are still ours.** The real silkscreen is drawn as stroked
+  outlines rather than as text, so it cannot be lifted mechanically. The jack
+  wording below is our reading of what each one does.
+- **One Ø1.7 hole at (27.92, 99.70)** — between the pot rows — has no obvious
+  purpose. It is too small for a 3 mm LED. It is carried through anyway, so the
+  faceplate cannot quietly disagree with the board.
+
+The mounting slots are the one deliberate departure: the plot gives 3 mm of
+travel at 3.0 mm wide, and these are opened to 3.2 mm for M3 clearance, matching
+the printed panels elsewhere in this repo.

@@ -95,6 +95,10 @@ class PanelSource:
     brand_bottom: str = ""
     brand_margin: float = 4.01
     stem: str = "panel"
+    # LAYOUT panels attach a label to each control, so there is no HOLE_LABELS
+    # order to reconstruct and no X-mirror to undo. When this is set,
+    # build_labels() uses it verbatim instead of pairing labels to holes.
+    explicit_labels: "list[Label] | None" = None
 
 
 class _Consts(ast.NodeVisitor):
@@ -104,11 +108,28 @@ class _Consts(ast.NodeVisitor):
         self.values: dict[str, object] = {}
 
     def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802 (ast API)
-        if len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+        if len(node.targets) != 1:
+            return
+        target = node.targets[0]
+        if isinstance(target, ast.Name):
             try:
-                self.values[node.targets[0].id] = ast.literal_eval(node.value)
+                self.values[target.id] = ast.literal_eval(node.value)
             except ValueError:
                 pass
+            return
+        # Tuple unpacking - `PW, PH = 101.3, 128.5` and `_JA, _JB = 28.5, 15.8`
+        # are how the hand-authored panels declare their dimensions, and missing
+        # them meant the LAYOUT dict could not be folded at all.
+        if isinstance(target, ast.Tuple) and isinstance(node.value, ast.Tuple):
+            if len(target.elts) != len(node.value.elts):
+                return
+            for name, val in zip(target.elts, node.value.elts):
+                if not isinstance(name, ast.Name):
+                    continue
+                try:
+                    self.values[name.id] = ast.literal_eval(val)
+                except ValueError:
+                    pass
 
 
 def _eval(node: ast.AST, consts: dict[str, object]) -> object:
@@ -134,6 +155,11 @@ def _eval(node: ast.AST, consts: dict[str, object]) -> object:
         raise ValueError("unsupported operator")
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
         return -_eval(node.operand, consts)  # type: ignore[operator]
+    if isinstance(node, ast.Dict):
+        return {_eval(k, consts): _eval(v, consts) for k, v in zip(node.keys, node.values)}
+    if isinstance(node, ast.Subscript):
+        seq = _eval(node.value, consts)
+        return seq[_eval(node.slice, consts)]  # type: ignore[index]
     if isinstance(node, (ast.Tuple, ast.List)):
         return tuple(_eval(e, consts) for e in node.elts)
     return ast.literal_eval(node)
@@ -209,7 +235,10 @@ def load_panel(path: Path) -> PanelSource:
                 )
 
     if not holes:
-        raise SystemExit(f"{path}: no HOLES table found")
+        layout = _find_layout(tree, cvals)
+        if layout is not None:
+            return _from_layout(layout, path)
+        raise SystemExit(f"{path}: no HOLES table and no LAYOUT dict found")
 
     p = _panel_params(tree, cvals)
     return PanelSource(
@@ -224,6 +253,93 @@ def load_panel(path: Path) -> PanelSource:
         brand_top=str(p.get("brand_text_top", "")),
         brand_bottom=str(p.get("brand_text_bottom", "")),
         stem=path.stem,
+    )
+
+
+# ---------------------------------------------------------------------------
+# LAYOUT panels (hand-authored, not Daisy Patch Init)
+# ---------------------------------------------------------------------------
+#
+# The Daisy panels carry a HOLES table in vendor (KiCad) coordinates plus two
+# parallel label lists whose order has to be un-mirrored. The hand-authored
+# panels - ksoloti_biggenes.py and friends - instead carry a LAYOUT dict: one
+# entry per control, each with its own x, y, diameter and label. That is a nicer
+# thing to read, so this converts it rather than asking the panel to change.
+#
+# Two differences that matter:
+#
+#   * LAYOUT y measures UP from the bottom edge (a jack is low, a pot is high);
+#     KiCad measures DOWN from the top. So y_kicad = panel_h - y_layout.
+#   * LAYOUT x/y for a slot or window is its CENTRE. RectCutout wants a corner.
+
+# Kinds that are a rectangular opening rather than a drilled hole. The value is
+# just documentation - the width and height come from the control itself.
+_LAYOUT_RECT_KINDS = {"screen", "sd_slot", "usb"}
+
+# Mount slots. The plot gives 3 mm of travel; the width is opened to M3
+# clearance, which is what the printed panels in this repo use too.
+_MOUNT_SLOT = (6.2, 3.2)
+
+
+def _find_layout(tree: ast.Module, consts: dict[str, object]) -> dict | None:
+    """The ``LAYOUT = {...}`` dict, or None if the script has no such thing."""
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        tgt = node.targets[0]
+        if isinstance(tgt, ast.Name) and tgt.id == "LAYOUT":
+            got = _eval(node.value, consts)
+            return got if isinstance(got, dict) else None
+    return None
+
+
+def _from_layout(layout: dict, path: Path) -> PanelSource:
+    pw = float(layout.get("panel_w", 101.3))
+    ph = float(layout.get("panel_h", 128.5))
+    flip = lambda y: ph - float(y)  # noqa: E731 - LAYOUT is +Y up, KiCad is +Y down
+
+    holes: list[Hole] = []
+    cutouts: list[RectCutout] = []
+    labels: list[Label] = []
+
+    for c in layout.get("controls", []):
+        kind = str(c.get("kind", ""))
+        x, y = float(c["x"]), flip(c["y"])
+
+        if kind in _LAYOUT_RECT_KINDS:
+            w, h = float(c["w"]), float(c["h"])
+            cutouts.append(RectCutout(x=x - w / 2, y=y - h / 2, w=w, h=h))
+        elif "d" in c:
+            d = float(c["d"])
+            holes.append(Hole("circle", x, y, (d, d)))
+        else:
+            # No diameter and not a rectangle: nothing to cut. Better to say so
+            # than to guess a size and put a wrong hole in a fab file.
+            print(f"  skipped {kind!r} at ({c['x']}, {c['y']}): no d and not a cutout")
+            continue
+
+        text = str(c.get("label", "")).strip()
+        if text:
+            dy = float(c.get("label_dy", -6.0))
+            # label_x lets one label serve a pair - the MIDI jacks share one, and
+            # centring it on either jack pushes it off the panel edge.
+            lx = float(c.get("label_x", c["x"]))
+            labels.append(Label(text, lx, flip(float(c["y"]) + dy), float(c.get("label_size", 2.0))))
+
+    for mx, my in layout.get("mounts", []):
+        holes.append(Hole("oval", float(mx), flip(my), _MOUNT_SLOT))
+
+    return PanelSource(
+        holes=holes,
+        cutouts=cutouts,
+        labels_below=[],
+        labels_above=[],
+        panel_w=pw,
+        panel_h=ph,
+        brand_top=str(layout.get("brand_top", "")),
+        brand_bottom=str(layout.get("brand_bottom", "")),
+        stem=path.stem,
+        explicit_labels=labels,
     )
 
 
@@ -267,6 +383,14 @@ def _mirror_partner(src: PanelSource, hole: Hole, tol: float = 0.2) -> Hole:
 
 def build_labels(src: PanelSource, *, label_size: float, brand_size: float) -> list[Label]:
     out: list[Label] = []
+    if src.explicit_labels is not None:
+        out.extend(src.explicit_labels)
+        cx = src.panel_w / 2
+        if src.brand_top.strip():
+            out.append(Label(src.brand_top.strip(), cx, src.brand_margin, brand_size))
+        if src.brand_bottom.strip():
+            out.append(Label(src.brand_bottom.strip(), cx, src.panel_h - src.brand_margin, brand_size))
+        return out
     below_dy = -src.label_offset[1]  # (0, -7) -> label sits 7 mm *below* in KiCad's +Y-down
     holes = labelable_holes(src)
 
@@ -499,6 +623,83 @@ _PRO = {
 _FAB_LAYERS = "F.Cu,B.Cu,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts"
 
 
+def write_preview(
+    src: PanelSource,
+    labels: list[Label],
+    out: Path,
+    *,
+    px_wide: int = 1150,
+) -> None:
+    """Draw the board as a PNG, straight from the hole and label tables.
+
+    The README used to say "export an SVG with kicad-cli, then rasterise over
+    black", which needs a rasteriser this machine does not have and produced a
+    picture of a plot rather than of the board. Drawing it here needs only PIL,
+    and it draws the same tables the gerbers come from, so the preview cannot
+    drift from what gets fabricated.
+
+    Colours follow the convention the existing joy_10hp/preview.png set: the
+    mask-free copper rings red, silkscreen pale yellow, the outline grey, on
+    black. It is still a picture of the plot - the real panel is black mask with
+    white lettering.
+    """
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:  # pragma: no cover - preview is optional
+        print("  preview skipped: PIL not installed")
+        return
+
+    SS = 3  # supersample, then downsample once at the end for clean edges
+    scale = px_wide * SS / src.panel_w
+    W = int(round(src.panel_w * scale))
+    H = int(round(src.panel_h * scale))
+    mm = lambda v: v * scale  # noqa: E731
+
+    BG, COPPER, SILK, EDGE = "#000000", "#c83434", "#f2eda1", "#8a8d88"
+    im = Image.new("RGB", (W, H), BG)
+    d = ImageDraw.Draw(im)
+
+    d.rectangle([0, 0, W - 1, H - 1], outline=EDGE, width=max(1, int(mm(0.25))))
+
+    for h in src.holes:
+        major, minor = h.drill
+        ring = mm(0.9)  # the mask-free annulus around each hole
+        if h.shape == "oval" and abs(major - minor) > 1e-6:
+            half = mm((major - minor) / 2)
+            r = mm(minor / 2)
+            for rr, col in ((r + ring, COPPER), (r, BG)):
+                d.rounded_rectangle(
+                    [mm(h.x) - half - rr, mm(h.y) - rr, mm(h.x) + half + rr, mm(h.y) + rr],
+                    radius=rr, fill=col,
+                )
+        else:
+            r = mm(major / 2)
+            d.ellipse([mm(h.x) - r - ring, mm(h.y) - r - ring,
+                       mm(h.x) + r + ring, mm(h.y) + r + ring], fill=COPPER)
+            d.ellipse([mm(h.x) - r, mm(h.y) - r, mm(h.x) + r, mm(h.y) + r], fill=BG)
+
+    for c in src.cutouts:
+        d.rectangle([mm(c.x), mm(c.y), mm(c.x + c.w), mm(c.y + c.h)],
+                    fill=BG, outline=EDGE, width=max(1, int(mm(0.25))))
+
+    font_path = next((f for f in (
+        "/System/Library/Fonts/HelveticaNeue.ttc",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    ) if Path(f).exists()), None)
+    for lb in labels:
+        size = max(6, int(mm(lb.size)))
+        try:
+            font = ImageFont.truetype(font_path, size) if font_path else ImageFont.load_default()
+        except OSError:
+            font = ImageFont.load_default()
+        d.text((mm(lb.x), mm(lb.y)), lb.text, fill=SILK, font=font, anchor="mm")
+
+    im.resize((px_wide, int(round(px_wide * src.panel_h / src.panel_w))),
+              Image.LANCZOS).save(out)
+    print(f"wrote {out}")
+
+
 def plot_gerbers(pcb: Path, gerber_dir: Path, zip_name: str) -> None:
     """Plot gerbers + Excellon drill with ``kicad-cli`` and zip them up."""
     import shutil
@@ -618,6 +819,11 @@ def main() -> None:
         action="store_true",
         help="also plot gerbers + drill via kicad-cli and zip them for JLCPCB",
     )
+    ap.add_argument(
+        "--no-preview",
+        action="store_true",
+        help="skip preview.png (drawn from the hole and label tables, needs PIL)",
+    )
     args = ap.parse_args()
 
     src = load_panel(args.panel)
@@ -649,6 +855,9 @@ def main() -> None:
     print(report(src, labels))
     print(f"\nwrote {pcb}")
     print(f"wrote {args.outdir / f'{name}.kicad_pro'}")
+
+    if not args.no_preview:
+        write_preview(src, labels, args.outdir / "preview.png")
 
     if args.gerbers:
         plot_gerbers(pcb, args.outdir / "gerbers", f"{name}-gerbers.zip")

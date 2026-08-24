@@ -71,8 +71,11 @@ LAYOUT = {
         # --- OLED window, 31.2 x 17.2 (the hero) ---
         {"kind": "screen", "x": 50.78, "y": 64.40, "w": 31.2, "h": 17.2, "px": (128, 64)},
         # --- mid band: MIDI TRS, SD, buttons, LEDs, USB ---
-        {"kind": "midi", "d": 7.2, "x": 5.50, "y": _MID, "nut": "nut_black", "label": "MIDI", "label_dy": -5.0, "label_size": 1.9},
-        {"kind": "midi", "d": 7.2, "x": 15.66, "y": _MID, "nut": "nut_black"},
+        # The MIDI pair share one label. It hangs off the left edge if it is centred
+        # on the first jack at x=5.50, so it sits between the two instead.
+        {"kind": "midi", "d": 7.2, "x": 5.50, "y": _MID, "nut": "nut_black"},
+        {"kind": "midi", "d": 7.2, "x": 15.66, "y": _MID, "nut": "nut_black",
+         "label": "MIDI", "label_x": 10.58, "label_dy": -5.0, "label_size": 1.9},
         {"kind": "sd_slot", "x": 24.32, "y": 42.50, "w": 3.0, "h": 13.2},
         {"kind": "button", "d": 7.5, "x": 39.35, "y": 41.30, "label": "S3", "label_dy": -5.5, "label_size": 1.9},
         {"kind": "button", "d": 7.5, "x": 62.21, "y": 41.30, "label": "S4", "label_dy": -5.5, "label_size": 1.9},

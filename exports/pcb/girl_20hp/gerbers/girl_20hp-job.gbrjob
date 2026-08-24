@@ -5,16 +5,16 @@
       "Application": "Pcbnew",
       "Version": "9.0.7"
     },
-    "CreationDate": "2026-08-24T07:00:03+01:00"
+    "CreationDate": "2026-08-24T07:00:40+01:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
-      "Name": "sorrow_10hp",
-      "GUID": "736f7272-6f77-45f3-9130-68702e6b6963",
+      "Name": "girl_20hp",
+      "GUID": "6769726c-5f32-4306-9870-2e6b69636164",
       "Revision": "rev?"
     },
     "Size": {
-      "X": 50.9,
+      "X": 101.4,
       "Y": 128.6
     },
     "LayerNumber": 2,
@@ -31,37 +31,37 @@
   ],
   "FilesAttributes": [
     {
-      "Path": "sorrow_10hp-F_Cu.gtl",
+      "Path": "girl_20hp-F_Cu.gtl",
       "FileFunction": "Copper,L1,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "sorrow_10hp-B_Cu.gbl",
+      "Path": "girl_20hp-B_Cu.gbl",
       "FileFunction": "Copper,L2,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "sorrow_10hp-F_Silkscreen.gto",
+      "Path": "girl_20hp-F_Silkscreen.gto",
       "FileFunction": "Legend,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "sorrow_10hp-B_Silkscreen.gbo",
+      "Path": "girl_20hp-B_Silkscreen.gbo",
       "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "sorrow_10hp-F_Mask.gts",
+      "Path": "girl_20hp-F_Mask.gts",
       "FileFunction": "SolderMask,Top",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "sorrow_10hp-B_Mask.gbs",
+      "Path": "girl_20hp-B_Mask.gbs",
       "FileFunction": "SolderMask,Bot",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "sorrow_10hp-Edge_Cuts.gm1",
+      "Path": "girl_20hp-Edge_Cuts.gm1",
       "FileFunction": "Profile",
       "FilePolarity": "Positive"
     }
