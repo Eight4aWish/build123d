@@ -172,6 +172,31 @@ real panel PCB **v0.8**. Checked both directions: 41 holes on the board, 41
 controls in the `LAYOUT`, no mismatch in position or diameter, nothing on the
 board left unplaced and nothing placed that is not on the board.
 
+### Labels say what the module does, not what the board's pins are called
+
+The first pass at `girl_20hp` reproduced the Big Genes' own pin names - P1 to P8
+on the pots, CV-A to CV-D on the jacks. That documents the *board*. Girl is
+Elements running on that board, so the panel now says GEOM / BRIGHT / DAMP / POS
+and BOW / BLOW / STRIKE / SPACE, taken from
+`eurorack_modules/docs/KSOLOTI_ELEMENTS.md`.
+
+Both modules have controls whose function changes with a page, and a panel that
+prints only the first state is documenting a fraction of the module:
+
+| | pages | what changes |
+| --- | --- | --- |
+| **Girl** | 3, cycled by **S4** | P5-P7 are exciter *level*, then *meta* (Flow, Mallet), then *timbre*. P8 is Space in all three. |
+| **Sorrow** | 2, cycled by a short press on **B7** | the four pots stop being X / Y / DENSITY / CHAOS and become the per-drum density trims plus **wildness**. |
+
+Girl stacks its alternates under the primary name, smallest last. Sorrow puts its
+one alternate above the pot in brackets, because the panel already has a label
+below. Sorrow's omission was the worse of the two: the missing word was
+**WILDNESS**, which is the control the module is named around.
+
+Jacks carry both - the board's name in full size and Girl's use of it underneath
+in lower case, since a Big Genes owner needs to find CV-A and a Girl player needs
+to know it is Flow.
+
 Two honest caveats:
 
 - **The labels are still ours.** The real silkscreen is drawn as stroked

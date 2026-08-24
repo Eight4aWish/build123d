@@ -356,13 +356,26 @@ def _from_layout(layout: dict, path: Path) -> PanelSource:
                 th = math.radians(ang - 90)
                 dots.append(SilkDot(x + r_d * math.cos(th), y + r_d * math.sin(th), dd))
 
-        text = str(c.get("label", "")).strip()
-        if text:
-            dy = float(c.get("label_dy", -6.0))
-            # label_x lets one label serve a pair - the MIDI jacks share one, and
-            # centring it on either jack pushes it off the panel edge.
-            lx = float(c.get("label_x", c["x"]))
-            labels.append(Label(text, lx, flip(float(c["y"]) + dy), float(c.get("label_size", 2.0))))
+        # `label` is one line. `labels` is a stack, for a control whose function
+        # changes with a page or a mode - Girl's exciter pots cycle level, meta
+        # and timbre on S4, and Sorrow's four pots become per-drum densities and
+        # wildness on the Kit page. A panel that prints only the first state is
+        # documenting a third of the module.
+        stack = c.get("labels") or ([c["label"]] if c.get("label") else [])
+        dy = float(c.get("label_dy", -6.0))
+        pitch = float(c.get("label_pitch", 2.1))
+        # label_x lets one label serve a pair - the MIDI jacks share one, and
+        # centring it on either jack pushes it off the panel edge.
+        lx = float(c.get("label_x", c["x"]))
+        size = float(c.get("label_size", 2.0))
+        for n, text in enumerate(stack):
+            text = str(text).strip()
+            if not text:
+                continue
+            # The first line is the control's name; the rest are what it becomes
+            # on later pages, so they are set smaller and read as subordinate.
+            sz = size if n == 0 else float(c.get("alt_size", max(1.3, size - 0.5)))
+            labels.append(Label(text, lx, flip(float(c["y"]) + dy - n * pitch), sz))
 
     for mx, my in layout.get("mounts", []):
         holes.append(Hole("oval", float(mx), flip(my), _MOUNT_SLOT))

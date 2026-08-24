@@ -73,7 +73,13 @@ HOLE_LABELS = (
     "X",# CV_1
 )
 
-# Labels placed above each hole (use "" for no label above that hole)
+# Labels placed ABOVE each hole. This is the Kit page: a short press on B7 pulses
+# the LED once and the four pots stop being X / Y / DENSITY / CHAOS and become the
+# per-drum density trims plus wildness (main.cpp, `if(g_sub_mode == 1)`).
+#
+# A panel that prints only the Home row is documenting half the module, and the
+# half it leaves out contains WILDNESS - which is the control the whole module is
+# named around. Bracketed so the alternate reads as an alternate.
 HOLE_LABELS_ABOVE = (
     "",# OUT-R
     "",# OUT-L
@@ -90,10 +96,10 @@ HOLE_LABELS_ABOVE = (
     "",# B8
     "",# C10
     "",# B7
-    "",# CV_4
-    "",# CV_3
-    "",# CV_2
-    "",# CV_1
+    "(WILD)",# CV_4
+    "(HAT)",# CV_3
+    "(SNARE)",# CV_2
+    "(KICK)",# CV_1
 )
 
 # ---------------------------------------------------------------------------
