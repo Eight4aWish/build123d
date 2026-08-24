@@ -67,19 +67,25 @@ HOLE_LABELS = (
     "FLIP",# B8
     "HAT",# C10
     "MODE",# B7
-    "CHAOS",# CV_4
-    "DENSITY",# CV_3
-    "Y",# CV_2
-    "X",# CV_1
+    "WILD",# CV_4
+    "DENS-HT",# CV_3
+    "DENS-SN",# CV_2
+    "DENS-KC",# CV_1
 )
 
-# Labels placed ABOVE each hole. This is the Kit page: a short press on B7 pulses
+# The four pots carry both pages: the Home name ABOVE the pot, the Kit name
+# BELOW it and one size smaller (LABELS_SECONDARY, further down). Everything else
+# on the panel keeps its single label below the hole.
+#
+# Labels placed ABOVE each hole. For the pots this is the Home page: a short press on B7 pulses
 # the LED once and the four pots stop being X / Y / DENSITY / CHAOS and become the
 # per-drum density trims plus wildness (main.cpp, `if(g_sub_mode == 1)`).
 #
 # A panel that prints only the Home row is documenting half the module, and the
 # half it leaves out contains WILDNESS - which is the control the whole module is
 # named around. Bracketed so the alternate reads as an alternate.
+LABELS_SECONDARY = ("DENS-KC", "DENS-SN", "DENS-HT", "WILD")
+
 HOLE_LABELS_ABOVE = (
     "",# OUT-R
     "",# OUT-L
@@ -96,10 +102,10 @@ HOLE_LABELS_ABOVE = (
     "",# B8
     "",# C10
     "",# B7
-    "(WILD)",# CV_4
-    "(HAT)",# CV_3
-    "(SNARE)",# CV_2
-    "(KICK)",# CV_1
+    "CHAOS",# CV_4
+    "DENSITY",# CV_3
+    "Y",# CV_2
+    "X",# CV_1
 )
 
 # ---------------------------------------------------------------------------

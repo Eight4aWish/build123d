@@ -111,6 +111,11 @@ class PanelSource:
     brand_bottom: str = ""
     brand_margin: float = 4.01
     stem: str = "panel"
+    # Labels naming a control's SECOND function - what it becomes on another
+    # page. Set smaller than the primary so the panel reads at a glance as one
+    # name per control with an alternate, rather than two equal names.
+    secondary: frozenset = frozenset()
+    secondary_ratio: float = 0.78
     # LAYOUT panels attach a label to each control, so there is no HOLE_LABELS
     # order to reconstruct and no X-mirror to undo. When this is set,
     # build_labels() uses it verbatim instead of pairing labels to holes.
@@ -271,6 +276,7 @@ def load_panel(path: Path) -> PanelSource:
         brand_top=str(p.get("brand_text_top", "")),
         brand_bottom=str(p.get("brand_text_bottom", "")),
         stem=path.stem,
+        secondary=frozenset(cvals.get("LABELS_SECONDARY", ()) or ()),  # type: ignore[arg-type]
     )
 
 
@@ -446,16 +452,19 @@ def build_labels(src: PanelSource, *, label_size: float, brand_size: float) -> l
     below_dy = -src.label_offset[1]  # (0, -7) -> label sits 7 mm *below* in KiCad's +Y-down
     holes = labelable_holes(src)
 
+    def _size(txt: str) -> float:
+        return round(label_size * src.secondary_ratio, 3) if txt in src.secondary else label_size
+
     for idx, hole in enumerate(holes):
         target = _mirror_partner(src, hole)
         if idx < len(src.labels_below):
             txt = src.labels_below[idx].strip()
             if txt:
-                out.append(Label(txt, target.x, target.y + below_dy, label_size))
+                out.append(Label(txt, target.x, target.y + below_dy, _size(txt)))
         if idx < len(src.labels_above):
             txt = src.labels_above[idx].strip()
             if txt:
-                out.append(Label(txt, target.x, target.y - below_dy, label_size))
+                out.append(Label(txt, target.x, target.y - below_dy, _size(txt)))
 
     cx = src.panel_w / 2
     if src.brand_top.strip():

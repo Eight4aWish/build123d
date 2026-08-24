@@ -37,13 +37,6 @@ Screen content: render/screens/make_ksoloti_biggenes_screen.py (Elements UI).
 
 PW, PH = 101.3, 128.5  # 20HP x 3U, measured off the plot's Edge.Cuts
 
-# The dial scale printed around every pot: eleven silkscreen dots 30 degrees
-# apart on an r=8 circle, with the bottom 60 degrees left out - which is the dead
-# zone of a 300-degree pot. They are on the plot's silkscreen layer only, which is
-# how you tell a marking from a hole: a real hole shows on the mask and drill
-# layers too. Filtering sub-millimetre circles as noise loses them completely.
-DIAL = {"r": 8.0, "d": 1.2, "step": 30, "skip": 60}
-
 # Pots: two rows of four, 22.86 mm apart (9 x 2.54).
 _PX = (16.49, 39.35, 62.21, 85.07)
 _PY1, _PY2 = 111.10, 88.20
@@ -64,14 +57,14 @@ LAYOUT = {
     "brand_bottom": "Eight4aWish",
     "controls": [
         # --- 8 trimmer pots, Ø8.0 ---
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[0], "y": _PY1, "labels": ["GEOM", "DISP", "CHRD"], "label_dy": -10.4, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[1], "y": _PY1, "label": "BRIGHT", "label_dy": -10.4, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[2], "y": _PY1, "label": "DAMP", "label_dy": -10.4, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[3], "y": _PY1, "label": "POS", "label_dy": -10.4, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[0], "y": _PY2, "labels": ["BOW", "TIMB", "TIMB"], "label_dy": -9.2, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[1], "y": _PY2, "labels": ["BLOW", "FLOW", "TIMB"], "label_dy": -9.2, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[2], "y": _PY2, "labels": ["STRIKE", "MALLET", "TIMB"], "label_dy": -9.2, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
-        {"kind": "trimmer", "d": 8.0, "dial": DIAL, "x": _PX[3], "y": _PY2, "label": "SPACE", "label_dy": -9.2, "label_size": 1.9, "alt_size": 1.5, "label_pitch": 2.0},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[0], "y": _PY1, "label": "GEOM", "label_dy": -6.6, "label_size": 2.6},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[1], "y": _PY1, "label": "BRGT", "label_dy": -6.6, "label_size": 2.6},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[2], "y": _PY1, "label": "DAMP", "label_dy": -6.6, "label_size": 2.6},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[3], "y": _PY1, "label": "POSN", "label_dy": -6.6, "label_size": 2.6},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[0], "y": _PY2, "labels": ["BOW", "TIMB", "TIMB"], "label_dy": -6.6, "label_size": 2.6, "alt_size": 2.0, "label_pitch": 2.8},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[1], "y": _PY2, "labels": ["BLOW", "FLOW", "TIMB"], "label_dy": -6.6, "label_size": 2.6, "alt_size": 2.0, "label_pitch": 2.8},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[2], "y": _PY2, "labels": ["STRIKE", "MALLET", "TIMB"], "label_dy": -6.6, "label_size": 2.6, "alt_size": 2.0, "label_pitch": 2.8},
+        {"kind": "trimmer", "d": 8.0, "x": _PX[3], "y": _PY2, "label": "SPACE", "label_dy": -6.6, "label_size": 2.6, "alt_size": 2.0, "label_pitch": 2.8},
         # --- encoders flanking the screen, Ø8.0, on the pot x-grid ---
         {"kind": "encoder", "d": 8.0, "x": _PX[0], "y": _EY, "labels": ["CONTOUR", "push: MODEL"], "label_dy": -9.5, "label_size": 2.0, "alt_size": 1.5},
         {"kind": "encoder", "d": 8.0, "x": _PX[3], "y": _EY, "labels": ["ASSIGN", "push: CV A/B/C"], "label_dy": -9.5, "label_size": 2.0, "alt_size": 1.5},
@@ -82,7 +75,7 @@ LAYOUT = {
         # on the first jack at x=5.50, so it sits between the two instead.
         {"kind": "midi", "d": 7.2, "x": 5.50, "y": _MID, "nut": "nut_black"},
         {"kind": "midi", "d": 7.2, "x": 15.66, "y": _MID, "nut": "nut_black",
-         "label": "MIDI", "label_x": 10.58, "label_dy": -5.0, "label_size": 1.9},
+         "label": ""},
         {"kind": "sd_slot", "x": 24.32, "y": 42.50, "w": 3.0, "h": 13.2},
         {"kind": "button", "d": 7.5, "x": 39.35, "y": 41.30, "label": "PLAY", "label_dy": -5.5, "label_size": 1.9},
         {"kind": "button", "d": 7.5, "x": 62.21, "y": 41.30, "label": "PAGE", "label_dy": -5.5, "label_size": 1.9},
@@ -100,29 +93,29 @@ LAYOUT = {
         # screwdriver hole for a trimmer on the board behind, not an indicator.
         # It is the one hole on the plot that appears on every layer while being
         # under 2 mm, which is what marks it out from the silkscreen dial dots.
-        {"kind": "bolt", "d": 1.7, "x": 27.92, "y": 99.70, "label": "CAL", "label_dy": -3.6, "label_size": 1.6},
-        {"kind": "usb", "x": 79.10, "y": 41.26, "w": 9.5, "h": 3.6, "label": "PROG", "label_dy": -4.5, "label_size": 1.9},
-        {"kind": "usb", "x": 94.10, "y": 41.26, "w": 9.5, "h": 3.6, "label": "HOST", "label_dy": -4.5, "label_size": 1.9},
+        {"kind": "bolt", "d": 1.7, "x": 27.92, "y": 99.70, "label": ""},
+        {"kind": "usb", "x": 79.10, "y": 41.26, "w": 9.5, "h": 3.6, "label": "PROG", "label_dy": -4.5, "label_size": 2.0},
+        {"kind": "usb", "x": 94.10, "y": 41.26, "w": 9.5, "h": 3.6, "label": ""},
         # --- jack bank, row A ---
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[0], "y": _JA, "labels": ["P1", "geom"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[1], "y": _JA, "labels": ["P2", "brgt"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[2], "y": _JA, "labels": ["P3", "damp"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[3], "y": _JA, "labels": ["P4", "posn"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[4], "y": _JA, "labels": ["CV-X", "V/OCT"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[5], "y": _JA, "label": "GTE-1", "nut": "nut_gold"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[6], "y": _JA, "label": "CV-1", "nut": "nut_gold"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[7], "y": _JA, "label": "IN-L", "nut": "nut_black"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[8], "y": _JA, "label": "OUT-L", "nut": "nut_red"},
+        {"kind": "jack", "d": 7.2, "x": _JX[0], "y": _JA, "label": "GEOM", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[1], "y": _JA, "label": "BRGT", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[2], "y": _JA, "label": "DAMP", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[3], "y": _JA, "label": "POSN", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[4], "y": _JA, "label": "V/OCT", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[5], "y": _JA, "nut": "nut_gold"},
+        {"kind": "jack", "d": 7.2, "x": _JX[6], "y": _JA, "nut": "nut_gold"},
+        {"kind": "jack", "d": 7.2, "x": _JX[7], "y": _JA, "nut": "nut_black"},
+        {"kind": "jack", "d": 7.2, "x": _JX[8], "y": _JA, "label": "OUT-L", "label_size": 2.6, "nut": "nut_red"},
         # --- jack bank, row B ---
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[0], "y": _JB, "labels": ["CV-A", "flow"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[1], "y": _JB, "labels": ["CV-B", "mallet"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[2], "y": _JB, "labels": ["CV-C", "assign"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[3], "y": _JB, "labels": ["CV-D", "GATE"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[4], "y": _JB, "labels": ["CV-Y", "FM"], "nut": "nut_silver"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[5], "y": _JB, "label": "GTE-2", "nut": "nut_gold"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[6], "y": _JB, "label": "CV-2", "nut": "nut_gold"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[7], "y": _JB, "label": "IN-R", "nut": "nut_black"},
-        {"kind": "jack", "d": 7.2, "alt_size": 1.4, "label_pitch": 1.9, "x": _JX[8], "y": _JB, "label": "OUT-R", "nut": "nut_red"},
+        {"kind": "jack", "d": 7.2, "x": _JX[0], "y": _JB, "label": "CV-A", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[1], "y": _JB, "label": "CV-B", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[2], "y": _JB, "label": "CV-C", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[3], "y": _JB, "label": "GATE", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[4], "y": _JB, "label": "FM", "label_size": 2.6, "nut": "nut_silver"},
+        {"kind": "jack", "d": 7.2, "x": _JX[5], "y": _JB, "nut": "nut_gold"},
+        {"kind": "jack", "d": 7.2, "x": _JX[6], "y": _JB, "nut": "nut_gold"},
+        {"kind": "jack", "d": 7.2, "x": _JX[7], "y": _JB, "nut": "nut_black"},
+        {"kind": "jack", "d": 7.2, "x": _JX[8], "y": _JB, "label": "OUT-R", "label_size": 2.6, "nut": "nut_red"},
     ],
     # 3 mm mounting slots, 4 mm wide, measured off the plot's Edge.Cuts.
     "mounts": [(7.525, 125.475), (93.885, 125.475), (7.525, 2.975), (93.885, 2.975)],
