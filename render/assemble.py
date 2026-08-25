@@ -208,8 +208,15 @@ def build_assembly_daisy(mod, module_name: str):
         elif d < 5.0:  # small hole -> 3 mm LED
             placements.append((hw.led(color_name="red"), fx, fy, t))
             led_meta.append({"x": fx, "y": fy, "color": "red"})
-        elif (label.strip() and abv.strip()) or toks & _DAISY_TOGGLE_KW:
+        elif d < 7.0 and ((label.strip() and abv.strip()) or toks & _DAISY_TOGGLE_KW):
             # Both labels (one per throw), or a single label that names a toggle.
+            #
+            # The diameter guard is not optional. Two labels used to be a reliable
+            # tell for a toggle, until the panels started printing a pot's second
+            # page under it - Sorrow's X/Y/DENSITY/CHAOS above and DENS-KC/SN/HT/
+            # WILDNESS below, Girl's the same. All four of Sorrow's pots then came
+            # out of the renderer as toggle switches. A toggle bushing is 6.2 mm
+            # here and a pot is 7.2, so the hole itself settles it.
             placements.append((hw.toggle_switch(), fx, fy, t))
             placed_meta.append({"x": fx, "y": fy, "kind": "toggle",
                                 "label": f"{abv}/{label}" if abv.strip() else label})
