@@ -1,0 +1,92 @@
+{
+ "module": "tiliqua_lacuna",
+ "panel_w": 30.0,
+ "panel_h": 128.5,
+ "thickness": 2.0,
+ "base_color": [
+  0.028,
+  0.028,
+  0.032
+ ],
+ "label_color": [
+  0.92,
+  0.92,
+  0.93
+ ],
+ "holes": [
+  {
+   "x": 7.2,
+   "y": 113.11,
+   "kind": "jack",
+   "label": "GTE",
+   "nut": "nut_silver"
+  },
+  {
+   "x": 7.2,
+   "y": 99.31,
+   "kind": "jack",
+   "label": "V/O",
+   "nut": "nut_silver"
+  },
+  {
+   "x": 7.2,
+   "y": 85.54,
+   "kind": "jack",
+   "label": "RAD",
+   "nut": "nut_silver"
+  },
+  {
+   "x": 7.2,
+   "y": 71.74,
+   "kind": "jack",
+   "label": "GEO",
+   "nut": "nut_silver"
+  },
+  {
+   "x": 7.2,
+   "y": 57.96,
+   "kind": "jack",
+   "label": "OUTL",
+   "nut": "nut_red"
+  },
+  {
+   "x": 7.2,
+   "y": 44.17,
+   "kind": "jack",
+   "label": "OUTR",
+   "nut": "nut_red"
+  },
+  {
+   "x": 7.2,
+   "y": 30.38,
+   "kind": "jack",
+   "label": "",
+   "nut": "nut_black"
+  },
+  {
+   "x": 7.2,
+   "y": 16.61,
+   "kind": "jack",
+   "label": "",
+   "nut": "nut_black"
+  },
+  {
+   "x": 22.8,
+   "y": 113.1,
+   "kind": "encoder",
+   "label": ""
+  }
+ ],
+ "leds": [],
+ "screens": [],
+ "stl": {
+  "panel": "panel.stl",
+  "labels": "labels.stl",
+  "nut_silver": "nut_silver.stl",
+  "jack_body": "jack_body.stl",
+  "nut_red": "nut_red.stl",
+  "nut_black": "nut_black.stl",
+  "knob": "knob.stl",
+  "knob_pointer": "knob_pointer.stl"
+ }
+}
