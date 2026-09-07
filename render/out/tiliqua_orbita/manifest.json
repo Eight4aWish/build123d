@@ -39,22 +39,22 @@
    "x": 7.2,
    "y": 71.74,
    "kind": "jack",
-   "label": "GEO",
+   "label": "DCY",
    "nut": "nut_silver"
   },
   {
    "x": 7.2,
    "y": 57.96,
    "kind": "jack",
-   "label": "OUT",
+   "label": "OUTL",
    "nut": "nut_red"
   },
   {
    "x": 7.2,
    "y": 44.17,
    "kind": "jack",
-   "label": "",
-   "nut": "nut_black"
+   "label": "OUTR",
+   "nut": "nut_red"
   },
   {
    "x": 7.2,

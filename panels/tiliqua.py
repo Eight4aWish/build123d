@@ -142,18 +142,22 @@ LABEL_PT = 2.1
 # Top -> bottom: in 0-3, then out 0-3. Stock Tiliqua is numbered, and the real silkscreen
 # says so; our bitstreams get their jacks named instead, which makes the render plainly
 # ours rather than a copy of apf.audio's panel. Names are the control tables in
-# LACUNA.md / ORBITA.md. LACUNA is stereo (out0/out1); ORBITA is mono, so its out 1-3
-# stay blank.
+# LACUNA.md / ORBITA.md. Both are stereo (out0/out1), so out 2-3 stay blank on each.
 JACK_LABELS = {
     "TILIQUA": ["0", "1", "2", "3", "0", "1", "2", "3"],
-    # Deliberately identical across both instruments. Reading the two control tables
-    # side by side, every input is the same *kind* of thing: in0 a gate (LACUNA strikes on
-    # a rising edge, ORBITA plucks on one and drones on a held level), in1 1 V/oct from
-    # 55 Hz in both, in2 a radial position hub-to-rim, in3 the hole. Only the outputs
-    # differ. That is the whole argument of the pair made visible — same membrane, same
-    # four controls, two instruments that sound nothing alike.
+    # The first three inputs are the same *kind* of thing on both: in0 a gate (LACUNA
+    # strikes on a rising edge, ORBITA plucks on one and drones on a held level), in1
+    # 1 V/oct, in2 a radial position hub-to-rim. Same membrane, same three controls, two
+    # instruments that sound nothing alike — that is the argument of the pair, and it is
+    # still visible.
+    #
+    # in3 is where they part, and the panels have to say so. On LACUNA the hole is the
+    # instrument, so in3 modulates its radius at audio rate. On ORBITA a concentric scan
+    # circle never crosses a concentric hole, so geometry did nothing on five of the eight
+    # presets; in3 became damping instead — how long the surface holds its shape, which is
+    # the control scanned synthesis has had since Verplank.
     "LACUNA":  ["GTE", "V/O", "RAD", "GEO", "OUTL", "OUTR", "", ""],
-    "ORBITA":  ["GTE", "V/O", "RAD", "GEO", "OUT", "", "", ""],
+    "ORBITA":  ["GTE", "V/O", "RAD", "DCY", "OUTL", "OUTR", "", ""],
 }
 
 # House Befaco nut scheme (render/assemble.py, classify_nut): audio in black, control in
@@ -168,8 +172,9 @@ JACK_NUTS = {
     "LACUNA":  ["nut_silver"] * 4 + ["nut_red"] * 2 + ["nut_black"] * 2,
     # ORBITA: all four inputs are control. in0 was black here on a misreading of "drive"
     # as audio-rate — ORBITA.md is explicit that it is a gate edge, so it is silver like
-    # LACUNA's strike.
-    "ORBITA":  ["nut_silver"] * 4 + ["nut_red"] + ["nut_black"] * 3,
+    # LACUNA's strike. Stereo like LACUNA: out0 is the circle in2 selects and out1 a
+    # second circle further out, so two audio outs, not one.
+    "ORBITA":  ["nut_silver"] * 4 + ["nut_red"] * 2 + ["nut_black"] * 2,
 }
 
 # Right-hand column, top to bottom. The encoder carries no label on the real panel.
