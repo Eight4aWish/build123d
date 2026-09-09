@@ -139,6 +139,23 @@ GPDI_W, GPDI_H = 6.00, 15.50
 # zero, inputs then outputs, with the digit at the bottom-right of each hole.
 LABEL_PT = 2.1
 
+# The name as it appears on the panel: title case, the way Joy and Sorrow are set. The
+# jack maps above are keyed by the same word in caps, because the variant is an argv
+# token and a dict key, not a piece of typography.
+#
+# Silver and Gold are the public names -- five for silver, six for gold. The gateware
+# still calls them lacuna and orbita all the way down, and nothing in ~/GitHub/tiliqua
+# needs to change: this is a codename becoming a product name, which is normal.
+PANEL_NAME = {"SILVER": "Silver", "GOLD": "Gold", "TILIQUA": "Tiliqua"}
+TITLE_PT = 3.4
+
+# The wordmark every other panel in the range carries and this one did not. It goes in
+# the clear band between the bottom mount slots (y 3.0, so up to ~4.6) and the lowest
+# jack (y 16.61, so down to ~13.4) -- about 8mm of full-width space.
+BRAND = "Eight4aWish"
+BRAND_PT = 2.9
+BRAND_Y = 8.9
+
 # Top -> bottom: in 0-3, then out 0-3. Stock Tiliqua is numbered, and the real silkscreen
 # says so; our bitstreams get their jacks named instead, which makes the render plainly
 # ours rather than a copy of apf.audio's panel. Names are the control tables in
@@ -156,8 +173,8 @@ JACK_LABELS = {
     # circle never crosses a concentric hole, so geometry did nothing on five of the eight
     # presets; in3 became damping instead — how long the surface holds its shape, which is
     # the control scanned synthesis has had since Verplank.
-    "LACUNA":  ["GTE", "V/O", "RAD", "GEO", "OUTL", "OUTR", "", ""],
-    "ORBITA":  ["GTE", "V/O", "RAD", "DCY", "OUTL", "OUTR", "", ""],
+    "SILVER":  ["GTE", "V/O", "RAD", "GEO", "OUTL", "OUTR", "", ""],
+    "GOLD":    ["GTE", "V/O", "RAD", "DCY", "OUTL", "OUTR", "", ""],
 }
 
 # House Befaco nut scheme (render/assemble.py, classify_nut): audio in black, control in
@@ -169,12 +186,12 @@ JACK_NUTS = {
     "TILIQUA": ["nut_black"] * 4 + ["nut_red"] * 4,
     # LACUNA: strike, tension, strike position and geometry are all control voltages.
     # Stereo since 49faf3c — a second pickup a quarter turn round — so two audio outs.
-    "LACUNA":  ["nut_silver"] * 4 + ["nut_red"] * 2 + ["nut_black"] * 2,
+    "SILVER":  ["nut_silver"] * 4 + ["nut_red"] * 2 + ["nut_black"] * 2,
     # ORBITA: all four inputs are control. in0 was black here on a misreading of "drive"
     # as audio-rate — ORBITA.md is explicit that it is a gate edge, so it is silver like
     # LACUNA's strike. Stereo like LACUNA: out0 is the circle in2 selects and out1 a
     # second circle further out, so two audio outs, not one.
-    "ORBITA":  ["nut_silver"] * 4 + ["nut_red"] * 2 + ["nut_black"] * 2,
+    "GOLD":    ["nut_silver"] * 4 + ["nut_red"] * 2 + ["nut_black"] * 2,
 }
 
 # Right-hand column, top to bottom. The encoder carries no label on the real panel.
@@ -221,8 +238,10 @@ def build_base():
 def build_labels(title: str = "TILIQUA"):
     """Raised text, so a two-colour print picks it out — same as the rest of the range.
 
-    `title` is the word across the top. The hardware is Tiliqua; the bitstreams running on
-    it are LACUNA and ORBITA, and each wants its own title card off the same geometry.
+    `title` selects the variant and is a key into the jack maps, so it is upper case;
+    what gets cut is PANEL_NAME[title], which is title case. The hardware is Tiliqua; the
+    bitstreams running on it are Silver and Gold, and each wants its own title card off
+    the same geometry.
     """
     with BuildPart() as part:
         with BuildSketch(Plane.XY.offset(T)) as sk:
@@ -251,7 +270,10 @@ def build_labels(title: str = "TILIQUA"):
                     Text(text, font_size=LABEL_PT, font_style=FontStyle.BOLD,
                          align=(Align.CENTER, Align.MIN))
             with Locations((W / 2, H - 8.0)):
-                Text(title, font_size=3.4, font_style=FontStyle.BOLD,
+                Text(PANEL_NAME.get(title, title.title()), font_size=TITLE_PT,
+                     font_style=FontStyle.BOLD, align=(Align.CENTER, Align.CENTER))
+            with Locations((W / 2, BRAND_Y)):
+                Text(BRAND, font_size=BRAND_PT, font_style=FontStyle.BOLD,
                      align=(Align.CENTER, Align.CENTER))
         extrude(amount=LABEL_D)
     return part.part

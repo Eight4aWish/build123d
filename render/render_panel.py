@@ -44,6 +44,8 @@ def parse_args() -> dict:
             out["views"] = [v.strip() for v in argv[i + 1].split(",") if v.strip()]; i += 2
         elif a == "--view":
             out["views"] = [argv[i + 1]]; i += 2
+        elif a == "--loose":
+            out["loose"] = True; i += 1
         elif a == "--no-backing":
             out["no_backing"] = True; i += 1
         elif a == "--transparent":
@@ -232,7 +234,7 @@ def setup_lights(cx: float, cy: float) -> None:
     rim.rotation_euler = (math.radians(8), 0, math.radians(10))
 
 
-def setup_camera(manifest: dict, view: str):
+def setup_camera(manifest: dict, view: str, loose: bool = False):
     w, h = manifest["panel_w"], manifest["panel_h"]
     cx, cy = w / 2, h / 2
 
@@ -247,7 +249,17 @@ def setup_camera(manifest: dict, view: str):
     if view in ("flat", "front"):
         # True flat elevation: orthographic, straight down -Z.
         cam_data.type = "ORTHO"
-        cam_data.ortho_scale = manifest["panel_h"] + 14
+        # Frame the faceplate exactly. The 14mm of margin this used to leave was
+        # showing two things nobody wanted: the backing plane, which is drawn 10mm
+        # larger than the panel on every side and read as a black border, and the sky
+        # world past it, which read as grey bands top and bottom. Cropping to the
+        # panel outline puts both outside the frame while leaving the backing exactly
+        # where it was -- so the holes still read as dark recesses, which is the whole
+        # reason it exists.
+        #
+        # The width has to follow, or a 6HP panel floats in a frame sized for a 10HP
+        # one; that is done in main(), where the output resolution lives.
+        cam_data.ortho_scale = manifest["panel_h"] + (14 if loose else 0)
         cam.location = (cx, cy, 400)
         cam.rotation_euler = (0.0, 0.0, 0.0)
     else:  # tilt / three-quarter: yaw about Y, camera on the look ray.
@@ -304,11 +316,22 @@ def main() -> None:
     outdir.mkdir(parents=True, exist_ok=True)
 
     # Build the scene once; render each requested view from its own camera.
+    loose = bool(args.get("loose"))
     for view in args["views"]:
-        setup_camera(manifest, view)
+        setup_camera(manifest, view, loose=loose)
+        rn = bpy.context.scene.render
+        if view in ("flat", "front") and not loose:
+            # Height is what the caller asked for; width is whatever the panel is.
+            # A fixed 1100x2800 fits vertically, so the horizontal field was always
+            # ~56mm -- fine for a 10HP module and half empty for a 6HP one.
+            rn.resolution_y = args["res"][1]
+            rn.resolution_x = round(args["res"][1] * manifest["panel_w"] / manifest["panel_h"])
+        else:
+            rn.resolution_x, rn.resolution_y = args["res"]
         out_path = outdir / f"{module}_{view}.png"
         bpy.context.scene.render.filepath = str(out_path)
-        print(f"Rendering {view} -> {out_path}  ({args['res'][0]}x{args['res'][1]}, {args['samples']} spp)")
+        print(f"Rendering {view} -> {out_path}  "
+              f"({rn.resolution_x}x{rn.resolution_y}, {args['samples']} spp)")
         bpy.ops.render.render(write_still=True)
     print("Done.")
 
