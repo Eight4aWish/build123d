@@ -1,0 +1,156 @@
+{
+  "module": "alchemy_secret",
+  "panel_w": 60.96,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "x": 12.76,
+      "y": 107.2,
+      "kind": "knob",
+      "label": "TUNE"
+    },
+    {
+      "x": 30.24,
+      "y": 107.2,
+      "kind": "button",
+      "label": "MODEL"
+    },
+    {
+      "x": 47.76,
+      "y": 107.2,
+      "kind": "knob",
+      "label": "CHAOS"
+    },
+    {
+      "x": 12.76,
+      "y": 79.18,
+      "kind": "knob",
+      "label": "CHAR"
+    },
+    {
+      "x": 30.24,
+      "y": 79.18,
+      "kind": "button",
+      "label": "TAME MODE"
+    },
+    {
+      "x": 47.76,
+      "y": 79.2,
+      "kind": "knob",
+      "label": "TAME"
+    },
+    {
+      "x": 12.76,
+      "y": 51.17,
+      "kind": "knob",
+      "label": "AD"
+    },
+    {
+      "x": 30.24,
+      "y": 51.17,
+      "kind": "button",
+      "label": "ENV"
+    },
+    {
+      "x": 47.76,
+      "y": 51.2,
+      "kind": "knob",
+      "label": "SR"
+    },
+    {
+      "x": 6.73,
+      "y": 28.39,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 18.52,
+      "y": 28.39,
+      "kind": "jack",
+      "label": "V/OCT",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 30.29,
+      "y": 28.39,
+      "kind": "jack",
+      "label": "CHAOS",
+      "nut": "nut_black"
+    },
+    {
+      "x": 42.02,
+      "y": 28.39,
+      "kind": "jack",
+      "label": "X",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 53.91,
+      "y": 28.39,
+      "kind": "jack",
+      "label": "OUT-L",
+      "nut": "nut_red"
+    },
+    {
+      "x": 6.73,
+      "y": 15.46,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 18.52,
+      "y": 15.46,
+      "kind": "jack",
+      "label": "GATE",
+      "nut": "nut_silver"
+    },
+    {
+      "x": 30.29,
+      "y": 15.46,
+      "kind": "jack",
+      "label": "TAME",
+      "nut": "nut_black"
+    },
+    {
+      "x": 42.02,
+      "y": 15.46,
+      "kind": "jack",
+      "label": "Y",
+      "nut": "nut_gold"
+    },
+    {
+      "x": 53.91,
+      "y": 15.46,
+      "kind": "jack",
+      "label": "OUT-R",
+      "nut": "nut_red"
+    }
+  ],
+  "leds": [],
+  "screens": [],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "knob": "knob.stl",
+    "knob_pointer": "knob_pointer.stl",
+    "switch_cap": "switch_cap.stl",
+    "nut_black": "nut_black.stl",
+    "jack_body": "jack_body.stl",
+    "nut_silver": "nut_silver.stl",
+    "nut_gold": "nut_gold.stl",
+    "nut_red": "nut_red.stl"
+  }
+}

@@ -448,7 +448,10 @@ def build_assembly_layout(mod, module_name: str):
             placements.append((hw.jack(nut_label=nut), x, y, t))
             placed_meta.append({"x": x, "y": y, "kind": "jack", "label": lbl, "nut": nut})
         elif k == "knob":
-            placements.append((hw.knob(base_d=16, top_d=13, height=13, metal_cap=True), x, y, t))
+            # A control may ask for its own knob (`knob_kw`), e.g. the series' plain dark
+            # knob, hw.knob(indicator_deg=90), that the daisy-style panels use.
+            kw = c.get("knob_kw", {"base_d": 16, "top_d": 13, "height": 13, "metal_cap": True})
+            placements.append((hw.knob(**kw), x, y, t))
             placed_meta.append({"x": x, "y": y, "kind": "knob", "label": lbl})
         elif k == "encoder":
             placements.append((hw.knob(base_d=14, top_d=11, height=13, metal_cap=True), x, y, t))
