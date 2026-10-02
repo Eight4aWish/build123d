@@ -110,7 +110,7 @@ def _screen_rect(params) -> dict | None:
 
 
 # Hole labels that mount a momentary button cap on the daisy-style panels.
-_DAISY_BUTTON_KW = {"MODE", "BTN", "BUTTON", "SELECT"}
+_DAISY_BUTTON_KW = {"MODE", "BTN", "BUTTON", "SELECT", "BYPASS"}
 # A 2-throw toggle is usually spotted by having a label above *and* below - one
 # per throw. A toggle whose two positions are not worth naming separately gets a
 # single label instead, and would otherwise fall through to the jack branch, so

@@ -1,0 +1,186 @@
+{
+  "module": "daisy_neural",
+  "panel_w": 50.8,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "x": 43.650000999999996,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "OUT-R",
+      "nut": "nut_red"
+    },
+    {
+      "x": 31.483306,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "OUT-L",
+      "nut": "nut_red"
+    },
+    {
+      "x": 19.316702999999997,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 7.149999999999999,
+      "y": 16.599998999999997,
+      "kind": "jack",
+      "label": "IN",
+      "nut": "nut_black"
+    },
+    {
+      "x": 43.650000999999996,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "STEER",
+      "nut": "nut_black"
+    },
+    {
+      "x": 31.483306,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "CAPT",
+      "nut": "nut_black"
+    },
+    {
+      "x": 19.316702999999997,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "MIX",
+      "nut": "nut_black"
+    },
+    {
+      "x": 7.149999999999999,
+      "y": 30.188096,
+      "kind": "jack",
+      "label": "TRIM",
+      "nut": "nut_black"
+    },
+    {
+      "x": 43.650000999999996,
+      "y": 43.938047999999995,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 31.483306,
+      "y": 43.938097,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 19.316702999999997,
+      "y": 43.938097,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 7.149999999999999,
+      "y": 43.938097,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 42.15000499999999,
+      "y": 69.211775,
+      "kind": "jack",
+      "label": "",
+      "nut": "nut_black"
+    },
+    {
+      "x": 8.644912999999995,
+      "y": 69.211794,
+      "kind": "button",
+      "label": "BYPASS"
+    },
+    {
+      "x": 39.6245,
+      "y": 86.472689,
+      "kind": "trimmer",
+      "label": "STEER"
+    },
+    {
+      "x": 11.150003999999996,
+      "y": 86.472689,
+      "kind": "trimmer",
+      "label": "CAPTURE"
+    },
+    {
+      "x": 39.6245,
+      "y": 105.595711,
+      "kind": "trimmer",
+      "label": "MIX"
+    },
+    {
+      "x": 11.150003999999996,
+      "y": 105.595711,
+      "kind": "trimmer",
+      "label": "TRIM"
+    },
+    {
+      "x": 35.15,
+      "y": 66.75,
+      "kind": "bolt"
+    },
+    {
+      "x": 15.649999999999999,
+      "y": 66.75,
+      "kind": "bolt"
+    },
+    {
+      "x": 25.055999999999997,
+      "y": 88.606,
+      "kind": "sd_card"
+    }
+  ],
+  "leds": [
+    {
+      "x": 25.400000999999996,
+      "y": 109.247995,
+      "color": "red"
+    }
+  ],
+  "screens": [
+    {
+      "x": 25.4,
+      "y": 69.5,
+      "z": 1.6,
+      "w": 13.5,
+      "h": 10.5,
+      "dy": 0.0,
+      "image": "daisy_neural_screen.png"
+    }
+  ],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "nut_red": "nut_red.stl",
+    "jack_body": "jack_body.stl",
+    "nut_black": "nut_black.stl",
+    "switch_cap": "switch_cap.stl",
+    "trimmer": "trimmer.stl",
+    "trimmer_pointer": "trimmer_pointer.stl",
+    "led": "led.stl",
+    "led_dome": "led_dome.stl",
+    "bolt": "bolt.stl",
+    "sd_card": "sd_card.stl"
+  }
+}

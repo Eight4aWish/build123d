@@ -14,11 +14,12 @@ the printed panel.
 | --- | --- | --- |
 | [`joy_10hp/`](joy_10hp/) | **Joy** — Braids macro-oscillator + 64×48 OLED, 10HP | [`panels/daisy_braids.py`](../../panels/daisy_braids.py) |
 | [`sorrow_10hp/`](sorrow_10hp/) | **Sorrow** — Grids drum-pattern generator, 10HP | [`panels/daisy_grids.py`](../../panels/daisy_grids.py) |
+| [`mirth_10hp/`](mirth_10hp/) | **Mirth** — NAM captures and not-amps + 64×48 OLED, 10HP | [`panels/daisy_neural.py`](../../panels/daisy_neural.py) |
 | [`girl_20hp/`](girl_20hp/) | **Girl** — Elements on a Ksoloti Big Genes, 20HP | [`panels/ksoloti_biggenes.py`](../../panels/ksoloti_biggenes.py) |
 
-| Joy | Sorrow | Girl |
-| --- | --- | --- |
-| ![Joy PCB faceplate](joy_10hp/preview.png) | ![Sorrow PCB faceplate](sorrow_10hp/preview.png) | ![Girl PCB faceplate](girl_20hp/preview.png) |
+| Joy | Sorrow | Mirth | Girl |
+| --- | --- | --- | --- |
+| ![Joy PCB faceplate](joy_10hp/preview.png) | ![Sorrow PCB faceplate](sorrow_10hp/preview.png) | ![Mirth PCB faceplate](mirth_10hp/preview.png) | ![Girl PCB faceplate](girl_20hp/preview.png) |
 
 ## Regenerating
 
@@ -30,6 +31,10 @@ python3 panels/kicad_faceplate.py panels/daisy_braids.py \
 python3 panels/kicad_faceplate.py panels/daisy_grids.py \
     --outdir exports/pcb/sorrow_10hp --name sorrow_10hp \
     --title "Sorrow 10HP faceplate" --gerbers
+
+python3 panels/kicad_faceplate.py panels/daisy_neural.py \
+    --outdir exports/pcb/mirth_10hp --name mirth_10hp \
+    --title "Mirth 10HP faceplate" --gerbers
 
 python3 panels/kicad_faceplate.py panels/ksoloti_biggenes.py \
     --outdir exports/pcb/girl_20hp --name girl_20hp \
@@ -45,7 +50,7 @@ export PATH="/Applications/KiCad/KiCad.app/Contents/MacOS:$PATH"
 
 ### Two kinds of panel script
 
-`joy_10hp` and `sorrow_10hp` come from Daisy Patch Init panels, which carry a
+`joy_10hp`, `sorrow_10hp` and `mirth_10hp` come from Daisy Patch Init panels, which carry a
 `HOLES` table in Electrosmith's own KiCad coordinates plus two parallel label
 lists whose order has to be un-mirrored (see the module docstring).
 
