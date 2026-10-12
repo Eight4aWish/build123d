@@ -34,6 +34,7 @@ in [../exports/pcb/](../exports/pcb/).
 | Script | Module | Size / layout | Notes |
 | --- | --- | --- | --- |
 | `alchemy_secret.py` | Secret (Hermetic Alchemy Lab) | 12HP | Render-only `LAYOUT`, positions from Hermetic's KiCad panel template in the Alchemy SDK; the series' dark knob via `knob_kw` |
+| `alchemy_wish.py` | Wish (Hermetic Alchemy Lab) | 12HP | Render-only `LAYOUT`: Secret's geometry with Wish's labels |
 | `amyboard.py` | AMYboard | 10HP | Rebuilt from the assembled-panel photo |
 | `daisy_braids.py` | Joy | 10HP, OLED | Braids macro-oscillator. Renamed from "DaisyBraids". PCB faceplate in [`../exports/pcb/joy_10hp/`](../exports/pcb/joy_10hp/) |
 | `daisy_neural.py` | Mirth | 10HP, OLED | NAM captures and not-amps. Same holes as `daisy_braids.py` (Joy), different labels; renders with its RUN page on the OLED. PCB faceplate in [`../exports/pcb/mirth_10hp/`](../exports/pcb/mirth_10hp/) |
