@@ -110,7 +110,7 @@ def _screen_rect(params) -> dict | None:
 
 
 # Hole labels that mount a momentary button cap on the daisy-style panels. A panel
-# whose button label is also a jack's (Wish patch.Init(): FREEZE on B7 and on gate
+# whose button label is also a jack's (Wish on Daisy patch.Init(): FREEZE on B7 and on gate
 # in 2) names the button's hole instead, in PanelParams.button_holes.
 _DAISY_BUTTON_KW = {"MODE", "BTN", "BUTTON", "SELECT", "BYPASS"}
 # A 2-throw toggle is usually spotted by having a label above *and* below - one

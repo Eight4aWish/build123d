@@ -1,4 +1,4 @@
-"""Wish patch.Init() 10HP faceplate - face-up 2-colour printing.
+"""Wish on Daisy patch.Init() 10HP faceplate - face-up 2-colour printing.
 
 Sorrow's panel (daisy_grids.py), the stock patch.init() hole set from KiCad, with Wish
 patch.Init()'s labels (eurorack_daisy_patch_init/daisy_beads_patch_init/src/main.cpp).
@@ -327,7 +327,7 @@ def export_transform_labels(obj: object, params: PanelParams) -> object:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Wish patch.Init() (daisy_beads_patch_init) faceplate")
+    parser = argparse.ArgumentParser(description="Wish on Daisy patch.Init() (daisy_beads_patch_init) faceplate")
     parser.add_argument("--stl-base", type=Path, default=None, help="Export base STL")
     parser.add_argument("--stl-labels", type=Path, default=None, help="Export labels STL")
 
