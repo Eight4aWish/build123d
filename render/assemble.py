@@ -109,7 +109,9 @@ def _screen_rect(params) -> dict | None:
     return None
 
 
-# Hole labels that mount a momentary button cap on the daisy-style panels.
+# Hole labels that mount a momentary button cap on the daisy-style panels. A panel
+# whose button label is also a jack's (Wish patch.Init(): FREEZE on B7 and on gate
+# in 2) names the button's hole instead, in PanelParams.button_holes.
 _DAISY_BUTTON_KW = {"MODE", "BTN", "BUTTON", "SELECT", "BYPASS"}
 # A 2-throw toggle is usually spotted by having a label above *and* below - one
 # per throw. A toggle whose two positions are not worth naming separately gets a
@@ -188,6 +190,7 @@ def build_assembly_daisy(mod, module_name: str):
         for i, hh in enumerate(labelable)
     }
     nut_overrides = dict(getattr(params, "nut_overrides", ()))
+    button_keys = {(round(x, 2), round(y, 2)) for x, y in getattr(params, "button_holes", ())}
 
     placements: list[tuple[Compound, float, float, float]] = []
     placed_meta: list[dict] = []
@@ -220,7 +223,7 @@ def build_assembly_daisy(mod, module_name: str):
             placements.append((hw.toggle_switch(), fx, fy, t))
             placed_meta.append({"x": fx, "y": fy, "kind": "toggle",
                                 "label": f"{abv}/{label}" if abv.strip() else label})
-        elif toks & _DAISY_BUTTON_KW:  # MODE etc. -> momentary button
+        elif key in button_keys or toks & _DAISY_BUTTON_KW:  # MODE etc. -> momentary button
             placements.append((hw.switch_cap(), fx, fy, t))
             placed_meta.append({"x": fx, "y": fy, "kind": "button", "label": label})
         elif d < 7.0:  # jack
