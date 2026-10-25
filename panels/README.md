@@ -37,7 +37,7 @@ in [../exports/pcb/](../exports/pcb/).
 | `alchemy_wish.py` | Wish (Hermetic Alchemy Lab) | 12HP | Render-only `LAYOUT`: Secret's geometry with Wish's labels |
 | `amyboard.py` | AMYboard | 10HP | Rebuilt from the assembled-panel photo |
 | `daisy_braids.py` | Joy | 10HP, OLED | Braids macro-oscillator. Renamed from "DaisyBraids". PCB faceplate in [`../exports/pcb/joy_10hp/`](../exports/pcb/joy_10hp/) |
-| `daisy_neural.py` | Mirth | 10HP, OLED | NAM captures and not-amps. Same holes as `daisy_braids.py` (Joy), different labels; renders with its RUN page on the OLED. PCB faceplate in [`../exports/pcb/mirth_10hp/`](../exports/pcb/mirth_10hp/) |
+| `daisy_neural.py` | Mirth | 10HP, OLED | NAM captures, not-amps and filters (v1.1.0 labels: MIX, STEER/FREQ, RES, DRIVE, PATCH). Same holes as `daisy_braids.py` (Joy), different labels; renders with its RUN page on the OLED. PCB faceplate in [`../exports/pcb/mirth_10hp/`](../exports/pcb/mirth_10hp/) |
 | `daisy_grids.py` | Sorrow | 10HP, OLED | Same hole layout as `daisy_intervalosc.py`, different labels. Renamed from "DaisyGrids" |
 | `daisy_wish_patch_init.py` | Wish on Daisy patch.Init() | 10HP | Sorrow's stock patch.init hole set with Wish's labels: PLAY above each pot, TONE below; B7 is named a button by hole (`button_holes`), as its FREEZE label is shared with gate in 2 |
 | `daisy_intervalosc.py` | IntervalOsc | 10HP | Same hole layout as `daisy_grids.py`, different labels. *Renamed from `daisy_intervalosc copy.py`* |

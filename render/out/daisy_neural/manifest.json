@@ -46,28 +46,28 @@
       "x": 43.650000999999996,
       "y": 30.188096,
       "kind": "jack",
-      "label": "STEER",
+      "label": "DRIVE",
       "nut": "nut_black"
     },
     {
       "x": 31.483306,
       "y": 30.188096,
       "kind": "jack",
-      "label": "CAPT",
+      "label": "RES",
       "nut": "nut_black"
     },
     {
       "x": 19.316702999999997,
       "y": 30.188096,
       "kind": "jack",
-      "label": "MIX",
+      "label": "ST/FRQ",
       "nut": "nut_black"
     },
     {
       "x": 7.149999999999999,
       "y": 30.188096,
       "kind": "jack",
-      "label": "TRIM",
+      "label": "MIX",
       "nut": "nut_black"
     },
     {
@@ -109,31 +109,31 @@
       "x": 8.644912999999995,
       "y": 69.211794,
       "kind": "button",
-      "label": "BYPASS"
+      "label": "PATCH"
     },
     {
       "x": 39.6245,
       "y": 86.472689,
       "kind": "trimmer",
-      "label": "STEER"
+      "label": "DRIVE"
     },
     {
       "x": 11.150003999999996,
       "y": 86.472689,
       "kind": "trimmer",
-      "label": "CAPTURE"
+      "label": "RES"
     },
     {
       "x": 39.6245,
+      "y": 105.595711,
+      "kind": "trimmer",
+      "label": "STEER/FREQ"
+    },
+    {
+      "x": 11.150003999999996,
       "y": 105.595711,
       "kind": "trimmer",
       "label": "MIX"
-    },
-    {
-      "x": 11.150003999999996,
-      "y": 105.595711,
-      "kind": "trimmer",
-      "label": "TRIM"
     },
     {
       "x": 35.15,

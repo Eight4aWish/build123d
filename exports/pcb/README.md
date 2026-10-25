@@ -14,7 +14,7 @@ the printed panel.
 | --- | --- | --- |
 | [`joy_10hp/`](joy_10hp/) | **Joy** — Braids macro-oscillator + 64×48 OLED, 10HP | [`panels/daisy_braids.py`](../../panels/daisy_braids.py) |
 | [`sorrow_10hp/`](sorrow_10hp/) | **Sorrow** — Grids drum-pattern generator, 10HP | [`panels/daisy_grids.py`](../../panels/daisy_grids.py) |
-| [`mirth_10hp/`](mirth_10hp/) | **Mirth** — NAM captures and not-amps + 64×48 OLED, 10HP | [`panels/daisy_neural.py`](../../panels/daisy_neural.py) |
+| [`mirth_10hp/`](mirth_10hp/) | **Mirth** — NAM captures, not-amps and filters + 64×48 OLED, 10HP | [`panels/daisy_neural.py`](../../panels/daisy_neural.py) |
 | [`girl_20hp/`](girl_20hp/) | **Girl** — Elements on a Ksoloti Big Genes, 20HP | [`panels/ksoloti_biggenes.py`](../../panels/ksoloti_biggenes.py) |
 
 | Joy | Sorrow | Mirth | Girl |

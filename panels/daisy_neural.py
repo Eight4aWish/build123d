@@ -1,14 +1,16 @@
 """Mirth 10HP OLED faceplate - face-up 2-colour printing.
 
-Mirth (eurorack_daisy_patch_init/daisy_neural): NAM A2 captures and twelve not-amps on a
-Daisy Patch Init, with the same 64x48 OLED Joy has, where the B8 toggle was. Same holes
-and cutouts as Joy (daisy_braids.py); only the labels and the name differ.
+Mirth (eurorack_daisy_patch_init/daisy_neural): NAM A2 captures, nineteen not-amps and
+the FILTERS bank on a Daisy Patch Init, with the same 64x48 OLED Joy has, where the B8
+toggle was. Same holes and cutouts as Joy (daisy_braids.py); only the labels and the name
+differ.
 
-Controls (daisy_neural/src/main.cpp): CV_1 TRIM, CV_2 MIX, CV_3 CAPTURE (which capture in
-the bank), CV_4 STEER (the not-amp's control), each with its CV jack (CV_5-CV_8) under
-the same name; B7 BYPASS (held 1.5 s: change bank); audio IN on IN_L (IN_R is normalled
-to it and left unlabelled); the same mix on OUT-L and OUT-R. The gate jacks and CV_OUT_1
-are unused.
+Controls (daisy_neural/src/main.cpp, v1.1.0; the layout David set on 2026-10-21): CV_1 MIX,
+CV_2 STEER/FREQ (the not-amp's steer, or a filter's cutoff), CV_3 RES (filters), CV_4
+DRIVE, each with its CV jack (CV_5-CV_8) under the same name, CV_6's shortened to ST/FRQ
+to fit between its neighbours; B7 PATCH (held 1.5 s: the next bank); audio IN on IN_L
+(IN_R is normalled to it and left unlabelled); the same mix on OUT-L and OUT-R. The gate
+jacks and CV_OUT_1 are unused. v1.0.0's labels were TRIM, MIX, CAPTURE, STEER and BYPASS.
 
 The panel prints FACE-UP with embossed labels on the top surface: base in black
 filament, labels on top in white.
@@ -65,21 +67,21 @@ HOLE_LABELS = (
     "OUT-L",# OUT-L
     "",# IN-R (normalled to IN-L)
     "IN",# IN-L
-    "STEER",# CV_8
-    "CAPT",# CV_7
-    "MIX",# CV_6
-    "TRIM",# CV_5
+    "DRIVE",# CV_8
+    "RES",# CV_7
+    "ST/FRQ",# CV_6 (STEER/FREQ, shortened: the jacks sit 12 mm apart)
+    "MIX",# CV_5
     "",# B6
     "",# B5
     "",# B9
     "",# B10
     # B8 removed - OLED screen location
     "",# C10
-    "BYPASS",# B7
-    "STEER",# CV_4
-    "CAPTURE",# CV_3
-    "MIX",# CV_2
-    "TRIM",# CV_1
+    "PATCH",# B7
+    "DRIVE",# CV_4
+    "RES",# CV_3
+    "STEER/FREQ",# CV_2
+    "MIX",# CV_1
 )
 
 # Labels placed above each hole (use "" for no label above that hole)
@@ -199,8 +201,11 @@ class PanelParams:
     # Minimum hole diameter to label (excludes mounting holes)
     label_hole_min_d: float = 5.0
 
-    # The renderer reads "MIX" as an output; here it is CV_6, an input.
+    # The renderer reads "MIX" as an output; here it is CV_5, an input.
     nut_overrides: tuple[tuple[str, str], ...] = (("MIX", "nut_black"),)
+
+    # B7 is a button, which the renderer only knows from words like MODE or BYPASS.
+    button_holes: tuple[tuple[float, float], ...] = ((42.155087, 59.288206),)
 
     # Display colors — real-life finish: dark grey panel, white lettering.
     base_color: tuple[float, float, float] = (0.028, 0.028, 0.032)
