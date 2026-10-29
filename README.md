@@ -9,7 +9,7 @@ Two main themes: **Eurorack module faceplates** and **general 3D-printed parts**
 | Folder | What's in it |
 | --- | --- |
 | [panels/](panels/) | Eurorack faceplate generators (one `.py` per module). See [panels/README.md](panels/README.md). |
-| [hardware/](hardware/) | General printed parts: Gridfinity bins, headphone holder, switch caps, Z-rail bracket, vactrol potting. |
+| [hardware/](hardware/) | General printed parts: Gridfinity bins, headphone holder, switch caps, Z-rail bracket, vactrol potting, Pi camera tilt mount. |
 | [render/](render/) | Photoreal assembly-render pipeline (build123d → STL → Blender). See [render/README.md](render/README.md). |
 | [reference/](reference/) | Vendor data, datasheets, label templates, photos (inputs, not generated). |
 | [exports/](exports/) | Printable/CAD outputs (`.stl` / `.3mf` / `.step`), split into `panels/` and `hardware/`, plus PCB faceplates in [`exports/pcb/`](exports/pcb/). |
