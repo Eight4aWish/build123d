@@ -520,6 +520,7 @@ def build_assembly(module_name: str):
     buttons = set(int(i) for i in getattr(params, "button_led_indices", ()))
     buttons_plain = set(int(i) for i in getattr(params, "button_hole_indices", ()))
     trimmers_idx = set(int(i) for i in getattr(params, "trimmer_hole_indices", ()))
+    encoders = set(int(i) for i in getattr(params, "encoder_hole_indices", ()))
     outputs = set(int(i) for i in getattr(params, "output_hole_indices", ()))
     # Explicit per-label nut overrides ((label, material) pairs) win over the
     # keyword classifier — e.g. "X"/"Y" CV outs -> gold, "AUD-IN" -> silver.
@@ -547,6 +548,9 @@ def build_assembly(module_name: str):
         if idx in pots:
             placements.append((hw.knob(indicator_deg=90.0), x, y, t))
             placed_meta.append({"idx": idx, "x": x, "y": y, "kind": "pot", "label": label})
+        elif idx in encoders:
+            placements.append((hw.knob(base_d=14, top_d=11, height=13, metal_cap=True), x, y, t))
+            placed_meta.append({"idx": idx, "x": x, "y": y, "kind": "encoder", "label": label})
         elif idx in buttons or idx in buttons_plain:
             # Momentary switch in the main hole; an LED (if any) is a companion
             # hole placed separately from button_led_centers() below.

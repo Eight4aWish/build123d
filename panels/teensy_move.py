@@ -22,14 +22,16 @@ Notes:
   and where the OLED cutout should go.
 
 Run:
-  ./.venv/bin/python n8synth_10HP.py
+  ./.venv/bin/python panels/teensy_move.py
 
 Export (optional):
-  ./.venv/bin/python n8synth_10HP.py --export-mode base   --stl-base n8_10hp_base.stl
-  ./.venv/bin/python n8synth_10HP.py --export-mode labels --stl-labels n8_10hp_labels.stl
+  ./.venv/bin/python panels/teensy_move.py --stl-base boy_base.stl --stl-labels boy_labels.stl
 
 Paper template (1:1):
-  ./.venv/bin/python n8synth_10HP.py --template-svg n8_10hp_template.svg
+  ./.venv/bin/python panels/teensy_move.py --template-svg boy_template.svg
+
+teensy_move_reva.py (Boy on the analogue board Rev A) reuses this geometry with
+its own FaceplateParams.
 """
 
 from __future__ import annotations
@@ -181,6 +183,12 @@ class FaceplateParams:
 	hole_d: float = _u2mm(2 * 1358.627)  # from ellipse rx
 	hole_oversize: float = 0.0
 
+	# Encoder holes (by sorted index) cut at encoder_hole_d instead of hole_d,
+	# and drop their labels to encoder_label_dy so the knob doesn't cover them.
+	encoder_hole_indices: tuple[int, ...] = ()
+	encoder_hole_d: float = 7.5
+	encoder_label_dy: float = -10.0
+
 	# Labels (separate solid)
 	label_height: float = 0.2
 	label_font: str = "Arial"
@@ -244,6 +252,8 @@ class FaceplateParams:
 	screen_mount_hole_d: float = 3.0
 	# Vertical offset applied to screen + mount holes (positive = up on panel)
 	screen_y_offset: float = 2.0
+	# Horizontal offset applied to screen + mount holes (positive = right on panel)
+	screen_x_offset: float = 0.0
 	# Screen horizontal relationship to mount holes:
 	# left hole center is (left edge - 0.5mm), right hole center is (right edge + 1.5mm)
 	screen_left_hole_center_from_edge: float = 0.5
@@ -289,10 +299,17 @@ class FaceplateParams:
 		holes.sort(key=lambda pt: (-pt[1], pt[0]))  # top-to-bottom, left-to-right
 		return holes
 
-	def holes_enabled_sorted(self) -> list[tuple[float, float]]:
-		holes = self.holes_sorted()
+	def holes_by_diameter(self) -> dict[float, list[tuple[float, float]]]:
+		"""Enabled holes grouped by cut diameter (encoder holes at encoder_hole_d)."""
 		disabled = set(int(i) for i in self.remove_hole_indices)
-		return [pt for idx, pt in enumerate(holes) if idx not in disabled]
+		encoders = set(int(i) for i in self.encoder_hole_indices)
+		groups: dict[float, list[tuple[float, float]]] = {}
+		for idx, pt in enumerate(self.holes_sorted()):
+			if idx in disabled:
+				continue
+			d = self.encoder_hole_d if idx in encoders else self.hole_d
+			groups.setdefault(d, []).append(pt)
+		return groups
 
 	def eurorack_mount_slot_centers(self) -> list[tuple[float, float]]:
 		"""Return 4 slot centers derived from top-left at (x=4, y=11 from top)."""
@@ -315,7 +332,7 @@ class FaceplateParams:
 		a0, a1 = self.screen_anchor_indices
 		p0 = holes[int(a0)]
 		p1 = holes[int(a1)]
-		screen_cx = (p0[0] + p1[0]) / 2
+		screen_cx = (p0[0] + p1[0]) / 2 + self.screen_x_offset
 		screen_cy = (p0[1] + p1[1]) / 2 + self.screen_y_offset
 
 		# Derive mount center so that hole-to-screen edge offsets match the spec.
@@ -354,8 +371,6 @@ def build_base(params: FaceplateParams) -> object:
 	cut_z0 = -0.2
 	cut_h = params.thickness + 0.4
 
-	holes = params.holes_enabled_sorted()
-
 	with BuildPart() as p:
 		Box(
 			params.panel_w,
@@ -371,8 +386,9 @@ def build_base(params: FaceplateParams) -> object:
 				with Locations(*params.eurorack_mount_slot_centers()):
 					SlotOverall(params.mount_slot_overall_len, params.mount_hole_d)
 
-			with Locations(*holes):
-				Circle((params.hole_d + params.hole_oversize) / 2)
+			for d, pts in params.holes_by_diameter().items():
+				with Locations(*pts):
+					Circle((d + params.hole_oversize) / 2)
 
 			# OLED cutout + mount holes
 			if params.screen_enable:
@@ -419,17 +435,19 @@ def build_labels(params: FaceplateParams) -> object | None:
 		dx_off, dy_off = params.label_offset
 
 		disabled = set(int(i) for i in params.remove_hole_indices)
+		encoders = set(int(i) for i in params.encoder_hole_indices)
 		for idx, (hx, hy) in enumerate(holes_all):
 			if idx in disabled:
 				continue
+			dy = params.encoder_label_dy if idx in encoders else dy_off
 			if idx < len(params.hole_labels_below):
 				txt = params.hole_labels_below[idx].strip()
 				if txt:
-					add_text_extrusion(txt, x=hx + dx_off, y=hy + dy_off, rot=0.0, font_size=params.label_size)
+					add_text_extrusion(txt, x=hx + dx_off, y=hy + dy, rot=0.0, font_size=params.label_size)
 			if idx < len(params.hole_labels_above):
 				txt = params.hole_labels_above[idx].strip()
 				if txt:
-					add_text_extrusion(txt, x=hx + dx_off, y=hy - dy_off, rot=0.0, font_size=params.label_size)
+					add_text_extrusion(txt, x=hx + dx_off, y=hy - dy, rot=0.0, font_size=params.label_size)
 
 	return p.part
 
@@ -445,8 +463,6 @@ def export_print_template(params: FaceplateParams, svg: Path | None = None, dxf:
 
 	from build123d import Rectangle
 
-	holes = params.holes_enabled_sorted()
-
 	with BuildSketch(Plane.XY) as outline:
 		Rectangle(params.panel_w, params.panel_h, align=(Align.MIN, Align.MIN))
 
@@ -454,8 +470,9 @@ def export_print_template(params: FaceplateParams, svg: Path | None = None, dxf:
 		if params.add_mount_slots:
 			with Locations(*params.eurorack_mount_slot_centers()):
 				SlotOverall(params.mount_slot_overall_len, params.mount_hole_d)
-		with Locations(*holes):
-			Circle(params.hole_d / 2)
+		for d, pts in params.holes_by_diameter().items():
+			with Locations(*pts):
+				Circle(d / 2)
 
 		if params.screen_enable:
 			(sx, sy), mount_pts = params.screen_geometry()
@@ -481,10 +498,10 @@ def export_print_template(params: FaceplateParams, svg: Path | None = None, dxf:
 		exp.write(dxf)
 
 
-def main() -> None:
+def main(params: FaceplateParams | None = None, description: str = "Boy — N8Synth 10HP 3x6 Eurorack panel from SVG-derived geometry") -> None:
 	import argparse
 
-	parser = argparse.ArgumentParser(description="Boy — N8Synth 10HP 3x6 Eurorack panel from SVG-derived geometry")
+	parser = argparse.ArgumentParser(description=description)
 	parser.add_argument("--export-mode", choices=("combined", "base", "labels"), default="combined")
 	parser.add_argument("--stl", type=Path, default=None, help="Export STL to this path")
 	parser.add_argument("--stl-base", type=Path, default=None, help="Export base STL to this path")
@@ -494,7 +511,7 @@ def main() -> None:
 	parser.add_argument("--template-dxf", type=Path, default=None, help="Export a 1:1 DXF print template")
 	args = parser.parse_args()
 
-	params = FaceplateParams()
+	params = params or FaceplateParams()
 
 	if args.template_svg is not None or args.template_dxf is not None:
 		export_print_template(params, svg=args.template_svg, dxf=args.template_dxf)

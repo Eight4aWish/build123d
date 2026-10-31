@@ -55,10 +55,11 @@ in [../exports/pcb/](../exports/pcb/).
 | `teensy_chaos.py` | Chaos | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyChaos" (trademark) |
 | `teensy_expander.py` | Teensy Expander | 6HP, 2×N | Based on N8Synth 6HP |
 | `teensy_move.py` | Boy | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyMove" (trademark) |
+| `teensy_move_reva.py` | Boy on the analogue board Rev A ("Boy2") | 10HP, 3×6 | Subclasses Boy's `FaceplateParams`: a 7.5 mm encoder hole in place of MENU's button, the screen 1 mm further left, the Rev A labels. Deck layout: eurorack_electronics `docs/analogue_board_bringup.md`, stage 8 |
 
-> Note: `teensy_chaos.py` and `teensy_move.py` have no default export paths — export
-> with explicit `--stl-base`/`--stl-labels` paths, named after the product
-> (`chaos_*.stl`, `boy_*.stl`).
+> Note: `teensy_chaos.py`, `teensy_move.py` and `teensy_move_reva.py` have no default
+> export paths — export with explicit `--stl-base`/`--stl-labels` paths, named after the
+> product (`chaos_*.stl`, `boy_*.stl`, `boy2_*.stl`).
 
 ## Ribbed panel + raised lettering (`patch_init_oled.py`)
 

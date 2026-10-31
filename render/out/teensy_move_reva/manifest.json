@@ -1,0 +1,189 @@
+{
+  "module": "teensy_move_reva",
+  "panel_w": 50.5,
+  "panel_h": 128.5,
+  "thickness": 2.0,
+  "base_color": [
+    0.028,
+    0.028,
+    0.032
+  ],
+  "label_color": [
+    0.92,
+    0.92,
+    0.93
+  ],
+  "holes": [
+    {
+      "idx": 2,
+      "x": 40.520842966000004,
+      "y": 105.35869089600001,
+      "kind": "encoder",
+      "label": "MENU"
+    },
+    {
+      "idx": 3,
+      "x": 10.040845506000002,
+      "y": 88.088697496,
+      "kind": "jack",
+      "label": "GATE1",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 4,
+      "x": 25.280848046000003,
+      "y": 88.088697496,
+      "kind": "jack",
+      "label": "PITCH1",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 5,
+      "x": 40.520842966000004,
+      "y": 88.088697496,
+      "kind": "jack",
+      "label": "CLK",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 6,
+      "x": 10.040845506000002,
+      "y": 70.81874981600001,
+      "kind": "jack",
+      "label": "GATE2",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 7,
+      "x": 25.280848046000003,
+      "y": 70.81874981600001,
+      "kind": "jack",
+      "label": "PITCH2",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 8,
+      "x": 40.520842966000004,
+      "y": 70.81874981600001,
+      "kind": "jack",
+      "label": "DRM1",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 9,
+      "x": 10.040845506000002,
+      "y": 53.548743716000004,
+      "kind": "jack",
+      "label": "GATE3",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 10,
+      "x": 25.280848046000003,
+      "y": 53.548743716000004,
+      "kind": "jack",
+      "label": "PITCH3",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 11,
+      "x": 40.520842966000004,
+      "y": 53.548743716000004,
+      "kind": "jack",
+      "label": "DRM2",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 12,
+      "x": 10.040845506000002,
+      "y": 36.278818896000004,
+      "kind": "jack",
+      "label": "IN-L",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 13,
+      "x": 25.280848046000003,
+      "y": 36.278818896000004,
+      "kind": "jack",
+      "label": "RST",
+      "nut": "nut_silver"
+    },
+    {
+      "idx": 14,
+      "x": 40.520842966000004,
+      "y": 36.278818896000004,
+      "kind": "jack",
+      "label": "OUT-L",
+      "nut": "nut_red"
+    },
+    {
+      "idx": 15,
+      "x": 10.040845506000002,
+      "y": 19.008807715999993,
+      "kind": "jack",
+      "label": "IN-R",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 16,
+      "x": 25.280848046000003,
+      "y": 19.008807715999993,
+      "kind": "jack",
+      "label": "MIDI",
+      "nut": "nut_black"
+    },
+    {
+      "idx": 17,
+      "x": 40.520842966000004,
+      "y": 19.008807715999993,
+      "kind": "jack",
+      "label": "OUT-R",
+      "nut": "nut_red"
+    },
+    {
+      "x": 2.910846776000003,
+      "y": 99.10869089600001,
+      "kind": "bolt"
+    },
+    {
+      "x": 31.410846776000003,
+      "y": 99.10869089600001,
+      "kind": "bolt"
+    },
+    {
+      "x": 2.910846776000003,
+      "y": 115.60869089600001,
+      "kind": "bolt"
+    },
+    {
+      "x": 31.410846776000003,
+      "y": 115.60869089600001,
+      "kind": "bolt"
+    }
+  ],
+  "leds": [],
+  "screens": [
+    {
+      "x": 16.660846776000003,
+      "y": 107.35869089600001,
+      "z": 1.6,
+      "w": 25.5,
+      "h": 6.375,
+      "dy": 0.0,
+      "image": "teensy_move_reva_screen.png"
+    }
+  ],
+  "stl": {
+    "panel": "panel.stl",
+    "labels": "labels.stl",
+    "knob": "knob.stl",
+    "knob_cap": "knob_cap.stl",
+    "knob_pointer": "knob_pointer.stl",
+    "nut_silver": "nut_silver.stl",
+    "jack_body": "jack_body.stl",
+    "nut_black": "nut_black.stl",
+    "nut_red": "nut_red.stl",
+    "bolt": "bolt.stl"
+  }
+}
