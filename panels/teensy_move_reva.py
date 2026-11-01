@@ -1,10 +1,11 @@
 """Boy on the analogue board Rev A (Teensy 4.1) — N8Synth 10HP 3x6 panel.
 
-The Boy panel (teensy_move.py) for the "Boy2" build: the Teensy 4.1 on the
-analogue board Rev A, with a push encoder and TRS MIDI in. The cell-by-cell
-deck layout is stage 8 of eurorack_electronics' docs/analogue_board_bringup.md.
+The old Boy's panel (teensy_move.py), adapted for Boy on the Teensy 4.1 and
+the analogue board Rev A (built as "Boy2"), with a push encoder and TRS MIDI
+in. The cell-by-cell deck layout is stage 8 of eurorack_electronics'
+docs/analogue_board_bringup.md.
 
-Changes from Boy:
+Changes from the old Boy:
 - an encoder (Bourns PEC11R, M7 bushing) in place of the top-right MENU button,
   cut at 7.5 mm: it needs at least 7.1, and FDM prints holes slightly small;
 - the screen and its four mount holes 1 mm further left, so the screen module
