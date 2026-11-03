@@ -484,6 +484,10 @@ def build_labels(src: PanelSource, *, label_size: float, brand_size: float) -> l
 # KiCad board emission
 # ---------------------------------------------------------------------------
 
+# Copper ring around a plated hole, mm: JLCPCB's recommended annular ring for a
+# 2-layer 1 oz board (their absolute minimum is 0.18).
+PLATED_RING = 0.25
+
 _LAYERS = """	(layers
 		(0 "F.Cu" signal)
 		(31 "B.Cu" signal)
@@ -535,7 +539,7 @@ def render_pcb(
     edge_width: float,
     text_thickness_ratio: float,
     text_width_ratio: float,
-    washer_pads: bool,
+    plated: bool,
     jlc_marker: tuple[float, float] | None,
     title: str,
 ) -> str:
@@ -617,7 +621,7 @@ def render_pcb(
         o.append("\t)")
     o.append("")
 
-    # --- One footprint carrying every non-plated hole ---------------------
+    # --- One footprint carrying every hole ---------------------------------
     o.append(f'\t(footprint "faceplate:holes" (layer "F.Cu") (tstamp {ids.next()})')
     o.append("\t\t(at 0 0)")
     o.append('\t\t(attr through_hole exclude_from_pos_files exclude_from_bom)')
@@ -627,26 +631,30 @@ def render_pcb(
     o.append(f'\t\t(fp_text value "{title}" (at 0 -4) (layer "F.Fab") hide (tstamp {ids.next()})')
     o.append("\t\t\t(effects (font (size 1 1) (thickness 0.15)))")
     o.append("\t\t)")
-    # With washer pads the hole gets Electrosmith's 0.1 mm copper ring and a
-    # matching mask opening (a thin bare ring, hidden under the jack/pot washer).
-    # Without, pad size == drill size, so both the ring and the mask opening
-    # collapse onto the hole edge and the black mask runs right up to it.
-    ring_grow = 0.2 if washer_pads else 0.0
+    # Plated, the default: each hole is a plated through-hole with a
+    # PLATED_RING copper ring and a matching mask opening, so the finish runs
+    # through the hole and shows as a thin ring on both faces. That is the look
+    # Joy's board came back with, when JLCPCB chose to plate holes the files
+    # marked unplated (exports/pcb/README.md, "What came back").
+    # Unplated: pad size == drill size, so there is no copper at all and the
+    # black mask runs right up to the hole edge.
+    ring_grow = 2 * PLATED_RING if plated else 0.0
+    kind = "thru_hole" if plated else "np_thru_hole"
     layers = '"*.Cu" "*.Mask"'
     for h in sorted(src.holes, key=lambda h: (h.y, h.x)):
         if h.shape == "circle":
             d = h.drill[0]
             ring = d + ring_grow
             o.append(
-                f'\t\t(pad "" np_thru_hole circle (at {_f(h.x)} {_f(h.y)}) '
+                f'\t\t(pad "" {kind} circle (at {_f(h.x)} {_f(h.y)}) '
                 f"(size {_f(ring)} {_f(ring)}) (drill {_f(d)}) "
                 f"(layers {layers}) (tstamp {ids.next()}))"
             )
         else:
             major, minor = h.drill
             o.append(
-                f'\t\t(pad "" np_thru_hole oval (at {_f(h.x)} {_f(h.y)}) '
-                f"(size {_f(major + ring_grow * 2)} {_f(minor + ring_grow * 2)}) "
+                f'\t\t(pad "" {kind} oval (at {_f(h.x)} {_f(h.y)}) '
+                f"(size {_f(major + ring_grow)} {_f(minor + ring_grow)}) "
                 f"(drill oval {_f(major)} {_f(minor)}) "
                 f"(layers {layers}) (tstamp {ids.next()}))"
             )
@@ -900,10 +908,10 @@ def main() -> None:
     ap.add_argument("--board-thickness", type=float, default=1.6, help="PCB thickness, mm")
     ap.add_argument("--edge-width", type=float, default=0.1, help="Edge.Cuts line width, mm")
     ap.add_argument(
-        "--no-washer-pads",
+        "--unplated",
         action="store_true",
-        help="drop Electrosmith's 0.1 mm copper ring / mask opening around each hole, "
-        "so the solder mask runs right up to the hole edge",
+        help="unplated holes with no copper ring, so the solder mask runs right up "
+        "to the hole edge (default: plated, with a 0.25 mm ring)",
     )
     ap.add_argument(
         "--no-jlc-marker",
@@ -940,7 +948,7 @@ def main() -> None:
             edge_width=args.edge_width,
             text_thickness_ratio=args.text_thickness_ratio,
             text_width_ratio=args.text_width_ratio,
-            washer_pads=not args.no_washer_pads,
+            plated=not args.unplated,
             jlc_marker=None if args.no_jlc_marker else (src.panel_w / 2, 75.0),
             title=title,
         )

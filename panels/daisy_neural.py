@@ -6,11 +6,17 @@ toggle was. Same holes and cutouts as Joy (daisy_braids.py); only the labels and
 differ.
 
 Controls (daisy_neural/src/main.cpp, v1.1.0; the layout David set on 2026-10-21): CV_1 MIX,
-CV_2 STEER/FREQ (the not-amp's steer, or a filter's cutoff), CV_3 RES (filters), CV_4
-DRIVE, each with its CV jack (CV_5-CV_8) under the same name, CV_6's shortened to ST/FRQ
-to fit between its neighbours; B7 PATCH (held 1.5 s: the next bank); audio IN on IN_L
-(IN_R is normalled to it and left unlabelled); the same mix on OUT-L and OUT-R. The gate
-jacks and CV_OUT_1 are unused. v1.0.0's labels were TRIM, MIX, CAPTURE, STEER and BYPASS.
+CV_2 STEER or FREQ (the not-amp's steer, or a filter's cutoff), CV_3 RES (filters), CV_4
+DRIVE, each summed with the CV jack (CV_5-CV_8) in the same place along the row, which
+carries the same label; B7 PATCH (held 1.5 s: the next bank); audio IN on IN_L (IN_R is
+normalled to it and left unlabelled); the same mix on OUT-L and OUT-R. The gate jacks and
+CV_OUT_1 are unused.
+
+The two controls that change with the bank are labelled MOD1 and MOD2 (David, 2026-11-03,
+for the PCB faceplate): the RUN page on the OLED says what they are doing, and a capture to
+come (a BBD's time and feedback, a phaser's sweep) can use them without a new panel. MIX
+and DRIVE do the same job in every bank, so they keep their names. Before that the labels
+were MIX, STEER/FREQ, RES, DRIVE (v1.1.0), and TRIM, MIX, CAPTURE, STEER, BYPASS (v1.0.0).
 
 The panel prints FACE-UP with embossed labels on the top surface: base in black
 filament, labels on top in white.
@@ -68,8 +74,8 @@ HOLE_LABELS = (
     "",# IN-R (normalled to IN-L)
     "IN",# IN-L
     "DRIVE",# CV_8
-    "RES",# CV_7
-    "ST/FRQ",# CV_6 (STEER/FREQ, shortened: the jacks sit 12 mm apart)
+    "MOD2",# CV_7
+    "MOD1",# CV_6
     "MIX",# CV_5
     "",# B6
     "",# B5
@@ -79,8 +85,8 @@ HOLE_LABELS = (
     "",# C10
     "PATCH",# B7
     "DRIVE",# CV_4
-    "RES",# CV_3
-    "STEER/FREQ",# CV_2
+    "MOD2",# CV_3
+    "MOD1",# CV_2
     "MIX",# CV_1
 )
 
