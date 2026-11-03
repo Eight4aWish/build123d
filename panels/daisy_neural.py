@@ -12,11 +12,13 @@ carries the same label; B7 PATCH (held 1.5 s: the next bank); audio IN on IN_L (
 normalled to it and left unlabelled); the same mix on OUT-L and OUT-R. The gate jacks and
 CV_OUT_1 are unused.
 
-The two controls that change with the bank are labelled MOD1 and MOD2 (David, 2026-11-03,
-for the PCB faceplate): the RUN page on the OLED says what they are doing, and a capture to
-come (a BBD's time and feedback, a phaser's sweep) can use them without a new panel. MIX
-and DRIVE do the same job in every bank, so they keep their names. Before that the labels
-were MIX, STEER/FREQ, RES, DRIVE (v1.1.0), and TRIM, MIX, CAPTURE, STEER, BYPASS (v1.0.0).
+The panel names only MIX, which means dry/wet for any effect; knobs 2-4 are MOD1, MOD2 and
+MOD3 (David, 2026-11-03, for the PCB faceplate), as on MultiOsc. The RUN page on the OLED
+says what each is doing, so a capture to come (a BBD's time, feedback and tone, the 172's
+sweep, feedback and depth) can use all three without a new panel. MOD3 is DRIVE in every
+bank today, but DRIVE is gain before the network with no make-up after it, so on a
+near-linear capture it would only move the wet level. Before that the labels were MIX,
+STEER/FREQ, RES, DRIVE (v1.1.0), and TRIM, MIX, CAPTURE, STEER, BYPASS (v1.0.0).
 
 The panel prints FACE-UP with embossed labels on the top surface: base in black
 filament, labels on top in white.
@@ -73,7 +75,7 @@ HOLE_LABELS = (
     "OUT-L",# OUT-L
     "",# IN-R (normalled to IN-L)
     "IN",# IN-L
-    "DRIVE",# CV_8
+    "MOD3",# CV_8
     "MOD2",# CV_7
     "MOD1",# CV_6
     "MIX",# CV_5
@@ -84,7 +86,7 @@ HOLE_LABELS = (
     # B8 removed - OLED screen location
     "",# C10
     "PATCH",# B7
-    "DRIVE",# CV_4
+    "MOD3",# CV_4
     "MOD2",# CV_3
     "MOD1",# CV_2
     "MIX",# CV_1
