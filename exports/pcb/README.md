@@ -18,10 +18,11 @@ the printed panel.
 | [`mirth_10hp/`](mirth_10hp/) | **Mirth** — NAM captures, not-amps and filters + 64×48 OLED, 10HP | [`panels/daisy_neural.py`](../../panels/daisy_neural.py) |
 | [`girl_20hp/`](girl_20hp/) | **Girl** — Elements on a Ksoloti Big Genes, 20HP | [`panels/ksoloti_biggenes.py`](../../panels/ksoloti_biggenes.py) |
 | [`wish_patch_init_10hp/`](wish_patch_init_10hp/) | **Wish on Daisy patch.Init()** — Beads on a stock patch.init, 10HP | [`panels/daisy_wish_patch_init.py`](../../panels/daisy_wish_patch_init.py) |
+| [`p4_gesture_10hp/`](p4_gesture_10hp/) | **Health** — hand-tracking CV on the analogue board Rev B (ESP32-P4), N8Synth 10HP deck | [`panels/p4_gesture.py`](../../panels/p4_gesture.py) |
 
-| Joy | Sorrow | Mirth | Girl | Wish on patch.Init() |
-| --- | --- | --- | --- | --- |
-| ![Joy PCB faceplate](joy_10hp/preview.png) | ![Sorrow PCB faceplate](sorrow_10hp/preview.png) | ![Mirth PCB faceplate](mirth_10hp/preview.png) | ![Girl PCB faceplate](girl_20hp/preview.png) | ![Wish on patch.Init() PCB faceplate](wish_patch_init_10hp/preview.png) |
+| Joy | Sorrow | Mirth | Girl | Wish on patch.Init() | Health |
+| --- | --- | --- | --- | --- | --- |
+| ![Joy PCB faceplate](joy_10hp/preview.png) | ![Sorrow PCB faceplate](sorrow_10hp/preview.png) | ![Mirth PCB faceplate](mirth_10hp/preview.png) | ![Girl PCB faceplate](girl_20hp/preview.png) | ![Wish on patch.Init() PCB faceplate](wish_patch_init_10hp/preview.png) | ![Health PCB faceplate](p4_gesture_10hp/preview.png) |
 
 ## Regenerating
 
@@ -45,6 +46,10 @@ python3 panels/kicad_faceplate.py panels/ksoloti_biggenes.py \
 python3 panels/kicad_faceplate.py panels/daisy_wish_patch_init.py \
     --outdir exports/pcb/wish_patch_init_10hp --name wish_patch_init_10hp \
     --title "Wish on patch.Init() 10HP faceplate" --no-jlc-marker --gerbers
+
+python3 panels/kicad_faceplate.py panels/p4_gesture.py \
+    --outdir exports/pcb/p4_gesture_10hp --name p4_gesture_10hp \
+    --title "Health 10HP faceplate" --no-jlc-marker --gerbers
 ```
 
 `kicad-cli` is not on `PATH` in a normal macOS install; it lives inside the app
@@ -60,8 +65,11 @@ export PATH="/Applications/KiCad/KiCad.app/Contents/MacOS:$PATH"
 `HOLES` table in Electrosmith's own KiCad coordinates plus two parallel label
 lists whose order has to be un-mirrored (see the module docstring).
 
-`girl_20hp` comes from a hand-authored panel that instead carries a `LAYOUT`
-dict — one entry per control, each with its own position, diameter and label.
+`girl_20hp` and `p4_gesture_10hp` come from hand-authored panels that instead
+carry a `LAYOUT` dict — one entry per control, each with its own position, diameter
+and label. The generator reads the file with `ast` and never runs it, so a
+`LAYOUT` must be written out in full: constants and indexing are fine, function
+calls are not.
 The generator reads both. Two things it has to convert for `LAYOUT`:
 
 - **Y is measured upward** from the bottom edge (a jack is low, a pot is high),
@@ -98,7 +106,17 @@ it needs only PIL rather than a rasteriser. Pass `--no-preview` to skip it.
 
 It is still a picture of the plot, not of the finished board: mask-free copper
 rings red, silkscreen pale yellow, on black. The real panel is black mask with
-white lettering and gold rings.
+white lettering and gold rings. **The preview's lettering is Helvetica Neue, not
+the board's font.** The board gets KiCad's own stroke font, condensed to 72%
+(David chose to keep it, 2026-11-03), as on the Joy and Sorrow boards. To see
+the real lettering, render the board:
+
+```sh
+kicad-cli pcb render --side top --width 700 --height 1780 --background opaque \
+    --quality high --output render.png exports/pcb/p4_gesture_10hp/p4_gesture_10hp.kicad_pcb
+```
+
+That render shows KiCad's default green mask; the colours are not the board's.
 
 ## What's in the design
 
@@ -141,7 +159,7 @@ Upload the `-gerbers.zip` from the module's folder and set:
 | --- | --- | --- |
 | Base material | FR-4 | |
 | Layers | 2 | 1-layer boards have their own (worse) mask/silk options |
-| Dimensions | detected from `Edge.Cuts` | 50.8 × 128.5 for the 10HP boards, 101.3 × 128.5 for Girl |
+| Dimensions | detected from `Edge.Cuts` | 50.8 × 128.5 for the Daisy boards, 50.5 × 128.5 for Health, 101.3 × 128.5 for Girl |
 | PCB thickness | **1.6 mm** | standard Eurorack panel thickness |
 | PCB colour | **Black** (or your choice) | this *is* the panel colour |
 | Silkscreen | **White** | the lettering |
@@ -189,6 +207,7 @@ Internal cutouts are routed rather than drilled, so JLCPCB may add a small
 | Joy, Mirth | 2 — SD slot, OLED window | window corners round off behind the display |
 | **Sorrow, Wish** | **1 — SD slot only** | no OLED, so no window |
 | Girl | 4 — OLED window, SD slot, 2 × USB | |
+| Health | none | holes and rail slots only |
 
 The only copper on the board is a 0.25 mm ring round each hole, with a matching
 opening in the mask, and every hole is plated, so the finish runs through the
@@ -233,6 +252,10 @@ whoever makes the board.
   switch, so the panel has a Ø6.2 hole for it and nothing needs removing. Their
   panels are the same 50.8 × 128.5 outline as Joy's with 22 holes and a single
   SD cutout.
+- **Health** is not a patch.init panel: it fronts the N8Synth 10HP control deck
+  on the analogue board Rev B, with Boy's Rev A cell positions (the 2 mm lift that
+  keeps the deck off the rack rail included) and hole sizes (6.9 mm, 7.5 mm for
+  the encoder). The cell-by-cell wiring is in the panel script's docstring.
 
 ## Girl, and where its geometry came from
 

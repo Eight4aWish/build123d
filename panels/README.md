@@ -49,6 +49,7 @@ in [../exports/pcb/](../exports/pcb/).
 | `mkikick.py` | mkikick | 6HP, 2×6 | Derives `FaceplateParams` from `teensy_expander.py` |
 | `nanoesp32_corthex.py` | CortHex (N8Synth, Nano-ESP32) | 10HP, 3×6 | All 18 holes, no screen. Name maps to the matching eurorack repo |
 | `patch_init_oled.py` | Daisy Patch Init + Grove 0.66" OLED | 10HP, OLED | **Face-down 2-colour + back-side stiffening ribs.** Superseded by the face-up recipe, kept for the rib/assembly demo — see note below |
+| `p4_gesture.py` | Health (gesture module, analogue board Rev B, ESP32-P4) | 10HP, 3x6 | `LAYOUT` panel on the N8Synth deck with Boy's Rev A geometry: encoder and two buttons, X/Y/Z pots, both hands' X/Y/Z outs, audio, RST, CLK. PCB faceplate in [`../exports/pcb/p4_gesture_10hp/`](../exports/pcb/p4_gesture_10hp/); no printable STL yet |
 | `pico2w_onclite.py` | OnCLite (N8Synth 6HP, Pico 2 W) | 6HP, 2×N | Name maps to the matching eurorack repo; docstring/argparse text still say generic "N8Synth 6HP" |
 | `seed_panel.py` | Seeed XIAO RP2040 | 8HP Intellijel 1U | Tactile switch + 3 mm LED; includes retainer fit variants |
 | `seed_recorder_panel.py` | Seed Recorder | 8HP Intellijel 1U | |
