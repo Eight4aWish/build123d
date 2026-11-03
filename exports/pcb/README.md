@@ -139,7 +139,7 @@ Upload the `-gerbers.zip` from the module's folder and set:
 | PCB thickness | **1.6 mm** | standard Eurorack panel thickness |
 | PCB colour | **Black** (or your choice) | this *is* the panel colour |
 | Silkscreen | **White** | the lettering |
-| Surface finish | HASL lead-free, or ENIG | only the tiny washer rings are exposed |
+| Surface finish | HASL with lead, as Joy was | the finish shows wherever JLCPCB plate a hole; see [What came back](#what-came-back) |
 | **Remove order number** | **Remove order number** | see below — and build the board with `--no-jlc-marker` |
 | Gold fingers / castellated | No | |
 | Panel / delivery format | Single PCB | not a panelised array |
@@ -182,10 +182,30 @@ Internal cutouts are routed rather than drilled, so JLCPCB may add a small
 | **Sorrow** | **1 — SD slot only** | no OLED, so no window |
 | Girl | 4 — OLED window, SD slot, 2 × USB | |
 
-There is essentially no copper on this board (just a 0.1 mm ring around each
-hole, carried over from Electrosmith's design, which sits under the jack and pot
-washers). That is fine to fabricate — it is exactly what the stock Patch Init
-faceplate files do.
+There is essentially no copper on this board: a 0.1 mm ring around each hole,
+carried over from Electrosmith's design, with a matching opening in the mask.
+Every hole is in the unplated (NPTH) drill file. The SD slot and OLED window
+have no ring.
+
+### What came back
+
+What JLCPCB do with that ring is their call. It is inside their
+[guidance](https://jlcpcb.com/blog/npth-design-guide) that copper sit 0.2–0.3 mm
+back from an unplated hole, and Joy and Sorrow came back differently from files
+that are the same in this respect:
+
+| Board | Order (gerbers) | Finish | What came back |
+| --- | --- | --- | --- |
+| Joy | `joy_10hp-gerbers_Y7` | HASL with lead | Holes plated, the finish running through them. David: it looks very good. |
+| Sorrow | `sorrow_10hp-gerbers_Y8` | LeadFree HASL | No metal edging at the holes. |
+
+Everything else on the two orders is the same: black mask, white ink-jet
+silkscreen, 1.6 mm TG135, "Remove Mark", no production-file confirmation. Only
+Joy's order-number remark differs. Joy's black also came out better than
+Sorrow's; with two boards, the finish and batch variation cannot be told apart.
+
+Until the files mark the holes as plated, Joy's look is not something an order
+can ask for.
 
 ## Assembly notes
 
