@@ -1,5 +1,8 @@
 """Health, the gesture module on the analogue board Rev B (ESP32-P4) — N8Synth 10HP 3x6 panel.
 
+Health is dropped for now (David, 2026-11-04): gesture control is an app on Boy Rev B. This panel was
+already on order, so the script stays as it is, to match what arrives.
+
 Named for the rhyme's "eleven for health" (David, 2026-11-03).
 
 Hand tracking from the P4's camera, which sits on top of the rack, not on this panel.

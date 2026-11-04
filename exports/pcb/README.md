@@ -18,7 +18,7 @@ the printed panel.
 | [`mirth_10hp/`](mirth_10hp/) | **Mirth** — NAM captures, not-amps and filters + 64×48 OLED, 10HP | [`panels/daisy_neural.py`](../../panels/daisy_neural.py) |
 | [`girl_20hp/`](girl_20hp/) | **Girl** — Elements on a Ksoloti Big Genes, 20HP | [`panels/ksoloti_biggenes.py`](../../panels/ksoloti_biggenes.py) |
 | [`wish_patch_init_10hp/`](wish_patch_init_10hp/) | **Wish on Daisy patch.Init()** — Beads on a stock patch.init, 10HP | [`panels/daisy_wish_patch_init.py`](../../panels/daisy_wish_patch_init.py) |
-| [`p4_gesture_10hp/`](p4_gesture_10hp/) | **Health** — hand-tracking CV on the analogue board Rev B (ESP32-P4), N8Synth 10HP deck | [`panels/p4_gesture.py`](../../panels/p4_gesture.py) |
+| [`p4_gesture_10hp/`](p4_gesture_10hp/) | **Health** — hand-tracking CV on the analogue board Rev B (ESP32-P4), N8Synth 10HP deck. Dropped for now (2026-11-04): gesture control is an app on Boy Rev B; this panel was already on order | [`panels/p4_gesture.py`](../../panels/p4_gesture.py) |
 
 | Joy | Sorrow | Mirth | Girl | Wish on patch.Init() | Health |
 | --- | --- | --- | --- | --- | --- |
