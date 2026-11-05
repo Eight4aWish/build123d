@@ -54,7 +54,7 @@ in [../exports/pcb/](../exports/pcb/).
 | `seed_panel.py` | Seeed XIAO RP2040 | 8HP Intellijel 1U | Tactile switch + 3 mm LED; includes retainer fit variants |
 | `seed_recorder_panel.py` | Seed Recorder | 8HP Intellijel 1U | |
 | `teensy_chaos.py` | Chaos | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyChaos" (trademark) |
-| `teensy_expander.py` | Teensy Expander | 6HP, 2×N | Based on N8Synth 6HP |
+| `teensy_expander.py` | Teensy Expander | 6HP, 2×N | Based on N8Synth 6HP. Retired with the old Boy, 2026-11-05 |
 | `teensy_move.py` | Boy | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyMove" (trademark) |
 | `teensy_move_reva.py` | Boy on the analogue board Rev A | 10HP, 3×6 | Subclasses Boy's `FaceplateParams`: a 7.5 mm encoder hole in place of MENU's button, the screen 1 mm further left, the Rev A labels. Deck layout: eurorack_electronics `docs/analogue_board_bringup.md`, stage 8 |
 | `teensy_move_reva_mask.py` | Face masks for Boy: Warps, Chordal | 49.9 x 97 mm, 1.6 mm | Goes on in front of the panel when Boy runs another mode, and says what the CV and gate jacks do. Leaves the screen, encoder and audio jacks showing, and is held by knurled thumbscrews in the two lower rack slots. Writes a 1:1 PDF of each to check on paper |
