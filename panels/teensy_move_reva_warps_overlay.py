@@ -1,4 +1,4 @@
-"""Warps overlay for Boy: a card that slips over the panel when Boy runs mode 2.
+"""Warps overlay for Boy: a card that slips over the panel when Boy runs Warps, mode 3.
 
 Boy's panel is labelled for mode 1, the Move companion. This card sits on it and says
 what the jacks do in Warps, with no tools and no change to the panel. The jacks are
@@ -72,7 +72,7 @@ class OverlayParams(BoyRevAParams):
 	# Halfway between a hole's edge and the next hole's, as the bigger holes leave less room
 	label_offset: tuple[float, float] = (0.0, -8.6)
 
-	# In the order of mode 2's jacks: docs/TEENSY_MOVE.md
+	# In the order of Warps' jacks: docs/TEENSY_MOVE.md
 	hole_labels_below: tuple[str, ...] = (
 		# Row 1 (top):  col1      col2        col3
 		"",             "",         "",
