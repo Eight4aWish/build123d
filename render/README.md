@@ -13,6 +13,7 @@ so it stays in sync with the source geometry automatically.
 | --- | --- |
 | `hardware.py` | Parametric build123d models of panel hardware (jacks, knobs, nuts, OLED, LEDs), positioned relative to the panel front face. |
 | `assemble.py` | Loads a module's `FaceplateParams`, places hardware from the module's own parameters, and exports per-material STLs + `manifest.json`. |
+| `assemble_tiliqua.py` | A one-off standing in for `assemble.py`, for Tiliqua's irregular panel. Writes the same asset set. |
 | `render_panel.py` | Headless Blender (4.x) renderer: reads the STLs + manifest, assigns PBR materials, builds emissive screen planes, lights and renders with Cycles. |
 | `screens/` | Screen images composited onto OLED planes. |
 | `out/` | Generated per-module assets and renders (one subdir per module). |

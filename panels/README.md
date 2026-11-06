@@ -39,6 +39,7 @@ in [../exports/pcb/](../exports/pcb/).
 | `daisy_braids.py` | Joy | 10HP, OLED | Braids macro-oscillator. Renamed from "DaisyBraids". PCB faceplate in [`../exports/pcb/joy_10hp/`](../exports/pcb/joy_10hp/) |
 | `daisy_neural.py` | Mirth | 10HP, OLED | NAM captures, not-amps and filters. Labels MIX, MOD1, MOD2, MOD3, PATCH, as MultiOsc's: only MIX is named, and the OLED says what the MODs do (MOD3 is DRIVE today). Same holes as `daisy_braids.py` (Joy), different labels; renders with its RUN page on the OLED. PCB faceplate in [`../exports/pcb/mirth_10hp/`](../exports/pcb/mirth_10hp/) |
 | `daisy_grids.py` | Sorrow | 10HP, OLED | Same hole layout as `daisy_intervalosc.py`, different labels. Renamed from "DaisyGrids" |
+| `daisy_grids_kit.py` | Sorrow, kit page labelling | 10HP, OLED | For the video's control diagram only, not a manufacturing file. `daisy_grids.py` is the one to order |
 | `daisy_wish_patch_init.py` | Wish on Daisy patch.Init() | 10HP | Sorrow's stock patch.init hole set with Wish's labels: PLAY above each pot, TONE below; B7 is named a button by hole (`button_holes`), as its FREEZE label is shared with gate in 2. PCB faceplate in [`../exports/pcb/wish_patch_init_10hp/`](../exports/pcb/wish_patch_init_10hp/) |
 | `daisy_intervalosc.py` | IntervalOsc | 10HP | Same hole layout as `daisy_grids.py`, different labels. *Renamed from `daisy_intervalosc copy.py`* |
 | `daisy_mfx.py` | Daisy Patch Init OLED (MFX) | 10HP | |
@@ -55,9 +56,10 @@ in [../exports/pcb/](../exports/pcb/).
 | `seed_recorder_panel.py` | Seed Recorder | 8HP Intellijel 1U | |
 | `teensy_chaos.py` | Chaos | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyChaos" (trademark) |
 | `teensy_expander.py` | Teensy Expander | 6HP, 2×N | Based on N8Synth 6HP. Retired with the old Boy, 2026-11-05 |
-| `teensy_move.py` | Boy | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyMove" (trademark) |
+| `teensy_move.py` | The old Boy, retired 2026-11-05 | 10HP, 3×6 | Derived from a KiCad/PCBNEW label-template SVG. Renamed from "TeensyMove" (trademark). Boy Rev A's panel inherits from it |
 | `teensy_move_reva.py` | Boy on the analogue board Rev A | 10HP, 3×6 | Subclasses Boy's `FaceplateParams`: a 7.5 mm encoder hole in place of MENU's button, the screen 1 mm further left, the Rev A labels. Deck layout: eurorack_electronics `docs/analogue_board_bringup.md`, stage 8 |
 | `teensy_move_reva_mask.py` | Face masks for Boy: Warps, Chordal | 49.9 x 97 mm, 1.6 mm | Goes on in front of the panel when Boy runs another mode, and says what the CV and gate jacks do. Leaves the screen, encoder and audio jacks showing, and is held by knurled thumbscrews in the two lower rack slots. Writes a 1:1 PDF of each to check on paper |
+| `tiliqua.py` | Tiliqua (apf.audio) | 6HP | Render-only, like `ksoloti_biggenes.py`: their product and their panel, modelled so it can appear in the same visual language. Measured from their published CAD |
 
 > Note: `teensy_chaos.py`, `teensy_move.py` and `teensy_move_reva.py` have no default
 > export paths — export with explicit `--stl-base`/`--stl-labels` paths, named after the
