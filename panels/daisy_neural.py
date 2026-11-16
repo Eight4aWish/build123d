@@ -8,9 +8,11 @@ differ.
 Controls (daisy_neural/src/main.cpp, v1.1.0; the layout David set on 2026-10-21): CV_1 MIX,
 CV_2 STEER or FREQ (the not-amp's steer, or a filter's cutoff), CV_3 RES (filters), CV_4
 DRIVE, each summed with the CV jack (CV_5-CV_8) in the same place along the row, which
-carries the same label; B7 PATCH (held 1.5 s: the next bank); audio IN on IN_L (IN_R is
-normalled to it and left unlabelled); the same mix on OUT-L and OUT-R. The gate jacks and
-CV_OUT_1 are unused.
+carries the same label; B7 PATCH (held 1.5 s: the next bank); audio in on IN_L, with IN_R
+normalled to it; OUT-L and OUT-R. The FX bank (`make FX=1`, daisy_neural/FX.md) is stereo
+in and out and takes a clock on gate in 1 (B10) for its delays, so the panel names IN-L,
+IN-R and CLOCK (David, 2026-11-16: the first PCB run named only IN and left both unmarked).
+The other banks ignore IN_R and the clock. Gate in 2, the gate outs and CV_OUT_1 are unused.
 
 The panel names only MIX, which means dry/wet for any effect; knobs 2-4 are MOD1, MOD2 and
 MOD3 (David, 2026-11-03, for the PCB faceplate), as on MultiOsc. The RUN page on the OLED
@@ -73,8 +75,8 @@ from ocp_vscode import Camera, show
 HOLE_LABELS = (
     "OUT-R",# OUT-R
     "OUT-L",# OUT-L
-    "",# IN-R (normalled to IN-L)
-    "IN",# IN-L
+    "IN-R",# IN-R (normalled to IN-L)
+    "IN-L",# IN-L
     "MOD3",# CV_8
     "MOD2",# CV_7
     "MOD1",# CV_6
@@ -82,7 +84,7 @@ HOLE_LABELS = (
     "",# B6
     "",# B5
     "",# B9
-    "",# B10
+    "CLOCK",# B10   gate in 1: the FX bank's delays
     # B8 removed - OLED screen location
     "",# C10
     "PATCH",# B7

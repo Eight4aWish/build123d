@@ -15,7 +15,7 @@ the printed panel.
 | --- | --- | --- |
 | [`joy_10hp/`](joy_10hp/) | **Joy** — Braids macro-oscillator + 64×48 OLED, 10HP | [`panels/daisy_braids.py`](../../panels/daisy_braids.py) |
 | [`sorrow_10hp/`](sorrow_10hp/) | **Sorrow** — Grids drum-pattern generator, 10HP | [`panels/daisy_grids.py`](../../panels/daisy_grids.py) |
-| [`mirth_10hp/`](mirth_10hp/) | **Mirth** — NAM captures, not-amps and filters + 64×48 OLED, 10HP | [`panels/daisy_neural.py`](../../panels/daisy_neural.py) |
+| [`mirth_10hp/`](mirth_10hp/) | **Mirth** — NAM captures, not-amps, filters and effects + 64×48 OLED, 10HP | [`panels/daisy_neural.py`](../../panels/daisy_neural.py) |
 | [`girl_20hp/`](girl_20hp/) | **Girl** — Elements on a Ksoloti Big Genes, 20HP | [`panels/ksoloti_biggenes.py`](../../panels/ksoloti_biggenes.py) |
 | [`wish_patch_init_10hp/`](wish_patch_init_10hp/) | **Wish on Daisy patch.Init()** — Beads on a stock patch.init, 10HP | [`panels/daisy_wish_patch_init.py`](../../panels/daisy_wish_patch_init.py) |
 | [`p4_gesture_10hp/`](p4_gesture_10hp/) | **Health** — hand-tracking CV on the analogue board Rev B (ESP32-P4), N8Synth 10HP deck. Dropped for now (2026-11-04): gesture control is an app on Boy Rev B; this panel was already on order | [`panels/p4_gesture.py`](../../panels/p4_gesture.py) |
@@ -237,6 +237,19 @@ Sorrow's; with two boards, the finish and batch variation cannot be told apart.
 
 That is why the files now mark every hole plated: Joy's look on purpose,
 whoever makes the board.
+
+The **November order** (placed 3 Nov with the analogue board Rev B, arrived 16 Nov)
+was Mirth, Wish and Health from here, plus Secret from
+`eurorack_daisy_patch_init/daisy_chaos/panel`. Two of the four came back with
+wrong lettering. The fault was in the files, not at JLCPCB:
+
+- **Mirth** named only IN, so the FX bank's second input and its clock (gate in 1)
+  went unmarked. The panel now names IN-L, IN-R and CLOCK.
+- **Secret** kept Hermetic's Avenir Next at 1.5–1.8 mm, and its name sat on the
+  top rule, 3 mm below the rail slots. It now uses these boards' font and sizes,
+  with its name on the line of the top slots.
+
+The plating through the holes and the backs of these boards are still to be checked.
 
 ## Assembly notes
 
