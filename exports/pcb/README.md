@@ -245,9 +245,10 @@ wrong lettering. The fault was in the files, not at JLCPCB:
 
 - **Mirth** named only IN, so the FX bank's second input and its clock (gate in 1)
   went unmarked. The panel now names IN-L, IN-R and CLOCK.
-- **Secret** kept Hermetic's Avenir Next at 1.5–1.8 mm, and its name sat on the
-  top rule, 3 mm below the rail slots. It now uses these boards' font and sizes,
-  with its name on the line of the top slots.
+- **Secret** kept Hermetic's Avenir Next at 1.5–1.8 mm, and its name, in capitals,
+  sat on the top rule, 3 mm below the rail slots. It now uses these boards' font
+  and sizes, with its name in title case like every other module's, on the line of
+  the top slots.
 
 The plating through the holes and the backs of these boards are still to be checked.
 
