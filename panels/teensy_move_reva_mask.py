@@ -98,13 +98,22 @@ def _panel_labels(**changes: str) -> tuple[str, ...]:
 	return tuple(labels)
 
 
-MASKS = {
+MASKS = {  # in the apps' order at power-on: 1 Move, 2 Chordal, 3 Warps
 	# Move, in David's layout (2026-11-21; eurorack_modules move_mode.cpp): drums 1-3 down the right where CLK, DRM1
 	# and DRM2 are, drum 4 on audio out L, the clock where RST is (where Chordal's is), reset on audio out R; the audio
 	# ins are unused
 	"move": MaskParams(app="Move", labels=_panel_labels(
 		CLK="DRM1", DRM1="DRM2", DRM2="DRM3", RST="CLK",
 		**{"OUT-L": "DRM4", "OUT-R": "RST", "IN-L": "", "IN-R": ""},
+	)),
+	# Chordal (eurorack_modules chordal_mode.cpp), in David's layout (2026-11-21): the four pitches in pairs on the top
+	# two rows, MOTION and note 4's gate below them, notes 1-3's gates down the right, a clock where RST was. The audio
+	# ins are summed to ring the strings; the outs are the chord in stereo.
+	"chordal": MaskParams(app="Chordal", labels=_panel_labels(
+		GATE1="NOTE1", PITCH1="NOTE2", CLK="GATE1",
+		GATE2="NOTE3", PITCH2="NOTE4", DRM1="GATE2",
+		GATE3="MOTION", PITCH3="GATE4", DRM2="GATE3",
+		RST="CLK",
 	)),
 	# Warps (META, stock Warps): the names on Boy's screen in Warps mode (eurorack_modules warps_mode.cpp), paired as
 	# Warps' controls read, ALGO and TIMB over LEV1 and LEV2 (David, 2026-11-21; the firmware moved its CVs to suit).
@@ -116,15 +125,6 @@ MASKS = {
 		GATE2="LEV1", PITCH2="LEV2", DRM1="",
 		GATE3="V/OCT", PITCH3="", DRM2="",
 		**{"IN-L": "CARR", "RST": "", "OUT-L": "OUT", "IN-R": "MOD", "OUT-R": "AUX"},
-	)),
-	# Chordal (eurorack_modules chordal_mode.cpp), in David's layout (2026-11-21): the four pitches in pairs on the top
-	# two rows, MOTION and note 4's gate below them, notes 1-3's gates down the right, a clock where RST was. The audio
-	# ins are summed to ring the strings; the outs are the chord in stereo.
-	"chordal": MaskParams(app="Chordal", labels=_panel_labels(
-		GATE1="NOTE1", PITCH1="NOTE2", CLK="GATE1",
-		GATE2="NOTE3", PITCH2="NOTE4", DRM1="GATE2",
-		GATE3="MOTION", PITCH3="GATE4", DRM2="GATE3",
-		RST="CLK",
 	)),
 }
 
