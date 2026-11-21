@@ -99,9 +99,13 @@ def _panel_labels(**changes: str) -> tuple[str, ...]:
 
 
 MASKS = {
-	# Move: Boy's own labels, but as Move mode uses the audio jacks (eurorack_modules move_mode.cpp): drum notes 36-39
-	# fire DRM1, DRM2, then the DC-coupled audio outs, so OUT-L and OUT-R are drums 3 and 4; the audio ins are unused
-	"move": MaskParams(app="Move", labels=_panel_labels(**{"OUT-L": "DRM3", "OUT-R": "DRM4", "IN-L": "", "IN-R": ""})),
+	# Move, in David's layout (2026-11-21; eurorack_modules move_mode.cpp): drums 1-3 down the right where CLK, DRM1
+	# and DRM2 are, drum 4 on audio out L, the clock where RST is (where Chordal's is), reset on audio out R; the audio
+	# ins are unused
+	"move": MaskParams(app="Move", labels=_panel_labels(
+		CLK="DRM1", DRM1="DRM2", DRM2="DRM3", RST="CLK",
+		**{"OUT-L": "DRM4", "OUT-R": "RST", "IN-L": "", "IN-R": ""},
+	)),
 	# Warps (META, stock Warps): the names on Boy's screen in Warps mode (eurorack_modules warps_mode.cpp), paired as
 	# Warps' controls read, ALGO and TIMB over LEV1 and LEV2 (David, 2026-11-21; the firmware moved its CVs to suit).
 	# IN-L is Warps' IN 1, the carrier; IN-R its IN 2, the modulator; OUT-R its AUX. MIDI plays the chord engine.
