@@ -384,6 +384,15 @@ def pictures(masks: list[MaskParams], template: Path, preview: Path) -> None:
 	ax.set_ylim(0, PANEL.panel_h)
 	ax.axis("off")
 	fig.savefig(preview, dpi=150, facecolor=fig.get_facecolor())
+	# for a slide: the same picture on a transparent ground, tighter, at video resolution
+	fig = plt.figure(figsize=(w / 25.4, PANEL.panel_h / 25.4))
+	ax = fig.add_axes((0, 0, 1, 1))
+	for i, m in enumerate(masks):
+		draw(ax, m, i * (PANEL.panel_w + gap), paper=False)
+	ax.set_xlim(0, w)
+	ax.set_ylim(0, PANEL.panel_h)
+	ax.axis("off")
+	fig.savefig(preview.with_name(preview.stem.replace("_flat", "") + "_video.png"), dpi=500, transparent=True)
 	plt.close(fig)
 
 
