@@ -1,4 +1,4 @@
-"""Face masks for Boy Rev A: one per app, Move and Warps so far.
+"""Face masks for Boy Rev A: one per app, Move, Warps and Chordal.
 
 David's design (2026-11-21): a thin sheet the full size of the panel that goes on over it, held by the panel's
 own four rack screws through the same slots. It replaces every label on the panel, its holes clear the jack nuts,
@@ -88,10 +88,13 @@ class MaskParams:
 
 def _panel_labels(**changes: str) -> tuple[str, ...]:
 	"""The panel's labels, with some jacks renamed or blanked; the encoder's MENU is placed separately."""
-	labels = list(PANEL.hole_labels_below)
+	# each jack found by the panel's own label, so one rename can't land on another's new name (GATE1 -> CLK, then
+	# CLK -> GATE1 once swapped the first one back)
+	original = PANEL.hole_labels_below
+	labels = list(original)
 	labels[ENCODER] = ""
 	for old, new in changes.items():
-		labels[labels.index(old)] = new
+		labels[original.index(old)] = new
 	return tuple(labels)
 
 
@@ -109,6 +112,15 @@ MASKS = {
 		GATE2="LEV1", PITCH2="LEV2", DRM1="",
 		GATE3="V/OCT", PITCH3="", DRM2="",
 		**{"IN-L": "CARR", "RST": "", "OUT-L": "OUT", "IN-R": "MOD", "OUT-R": "AUX"},
+	)),
+	# Chordal (eurorack_modules chordal_mode.cpp), in David's layout (2026-11-21): the four pitches in pairs on the top
+	# two rows, MOTION and note 4's gate below them, notes 1-3's gates down the right, a clock where RST was. The audio
+	# ins are summed to ring the strings; the outs are the chord in stereo.
+	"chordal": MaskParams(app="Chordal", labels=_panel_labels(
+		GATE1="NOTE1", PITCH1="NOTE2", CLK="GATE1",
+		GATE2="NOTE3", PITCH2="NOTE4", DRM1="GATE2",
+		GATE3="MOTION", PITCH3="GATE4", DRM2="GATE3",
+		RST="CLK",
 	)),
 }
 
