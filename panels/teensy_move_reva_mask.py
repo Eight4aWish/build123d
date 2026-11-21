@@ -95,12 +95,13 @@ def _panel_labels(**changes: str) -> tuple[str, ...]:
 MASKS = {
 	# Move: Boy's own labels; only the name and MENU change
 	"move": MaskParams(app="Move", labels=_panel_labels()),
-	# Warps (META, stock Warps): the names on Boy's screen in Warps mode (eurorack_modules warps_mode.cpp). IN-L is
-	# Warps' IN 1, the carrier; IN-R its IN 2, the modulator; OUT-R its AUX. MIDI plays the chord engine. GATE3,
-	# PITCH3 and the gate outs (CLK, DRM1, DRM2, RST) are unused.
+	# Warps (META, stock Warps): the names on Boy's screen in Warps mode (eurorack_modules warps_mode.cpp), paired as
+	# Warps' controls read, ALGO and TIMB over LEV1 and LEV2 (David, 2026-11-21; the firmware moved its CVs to suit).
+	# IN-L is Warps' IN 1, the carrier; IN-R its IN 2, the modulator; OUT-R its AUX. MIDI plays the chord engine.
+	# GATE3, PITCH3 and the gate outs (CLK, DRM1, DRM2, RST) are unused.
 	"warps": MaskParams(app="Warps", labels=_panel_labels(
-		GATE1="ALGO", PITCH1="LEV1", CLK="",
-		GATE2="TIMB", PITCH2="LEV2", DRM1="",
+		GATE1="ALGO", PITCH1="TIMB", CLK="",
+		GATE2="LEV1", PITCH2="LEV2", DRM1="",
 		GATE3="", PITCH3="", DRM2="",
 		**{"IN-L": "CARR", "RST": "", "OUT-L": "OUT", "IN-R": "MOD", "OUT-R": "AUX"},
 	)),
