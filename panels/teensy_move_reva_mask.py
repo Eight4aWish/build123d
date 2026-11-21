@@ -83,6 +83,7 @@ class MaskParams:
 	menu_gap: float = 1.0          # from the encoder hole's edge to MENU's lower edge
 	min_gap: float = 0.6           # the checks: a label to an opening or the edge
 	min_web: float = 1.0           # ...and the mask between two openings, or an opening and the edge
+	min_cover: float = 0.4         # ...and over the panel's own labels: the rack screws' play in their slots
 
 
 def _panel_labels(**changes: str) -> tuple[str, ...]:
@@ -246,7 +247,46 @@ def check(m: MaskParams) -> list[str]:
 			sy0, sy1 = y - PANEL.mount_hole_d / 2, y + PANEL.mount_hole_d / 2
 			if bx0 < sx1 + m.min_gap and bx1 > sx0 - m.min_gap and by0 < sy1 + m.min_gap and by1 > sy0 - m.min_gap:
 				problems.append(f"{m.app}: {txt} touches a rack slot")
+	# no two of the mask's labels touch
+	boxes = [(t, sk.bounding_box()) for t, sk in label_sketches(m)]
+	for i, (t1, b1) in enumerate(boxes):
+		for t2, b2 in boxes[i + 1:]:
+			if b1.min.X < b2.max.X + m.min_gap and b2.min.X < b1.max.X + m.min_gap and \
+			   b1.min.Y < b2.max.Y + m.min_gap and b2.min.Y < b1.max.Y + m.min_gap:
+				problems.append(f"{m.app}: {t1} and {t2} touch")
+	# the panel's own labels stay hidden: none comes within min_cover of an opening
+	cover = panel_label_cover(m)
+	for txt, c in cover:
+		if c < m.min_cover:
+			problems.append(f"{m.app}: the panel's {txt} is {c:.2f} mm from an opening, and would show")
 	return problems
+
+
+def panel_label_cover(m: MaskParams) -> list[tuple[str, float]]:
+	"""For each of the panel's own labels (teensy_move.build_labels' placing), the mask between it and the nearest
+	opening, in mm."""
+	pts = PANEL.holes_sorted()
+	labels = []
+	for idx, (hx, hy) in enumerate(pts):
+		if idx in PANEL.remove_hole_indices or idx >= len(PANEL.hole_labels_below) or not PANEL.hole_labels_below[idx]:
+			continue
+		dy = PANEL.encoder_label_dy if idx in PANEL.encoder_hole_indices else PANEL.label_offset[1]
+		labels.append((PANEL.hole_labels_below[idx], hx + PANEL.label_offset[0], hy + dy, PANEL.label_size))
+	labels.append((PANEL.brand_text_top, *PANEL.brand_top_pos(), PANEL.brand_size))
+	labels.append((PANEL.brand_text_bottom, *PANEL.brand_bottom_pos(), PANEL.brand_size))
+	slot_boxes = [(x - PANEL.mount_slot_overall_len / 2, y - PANEL.mount_hole_d / 2,
+	               x + PANEL.mount_slot_overall_len / 2, y + PANEL.mount_hole_d / 2) for x, y in slots()]
+	out = []
+	for txt, x, y, size in labels:
+		bb = _text_sketch(txt, x, y, size).bounding_box()
+		box = (bb.min.X, bb.min.Y, bb.max.X, bb.max.Y)
+		gaps = [_circle_to_box(hx, hy, d / 2, box) for _, hx, hy, d in holes(m)]
+		for ob in [bay(m), *slot_boxes]:  # box to box
+			gx = max(ob[0] - box[2], box[0] - ob[2], 0)
+			gy = max(ob[1] - box[3], box[1] - ob[3], 0)
+			gaps.append((gx ** 2 + gy ** 2) ** 0.5 if gx or gy else -1.0)
+		out.append((txt, min(gaps)))
+	return out
 
 
 # ---------------------------------------------------------------------------------------------------- pictures
