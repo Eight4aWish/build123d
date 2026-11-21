@@ -6,7 +6,8 @@ the encoder knob and the screen's screws so it goes on with the knob still fitte
 where the panel says "Boy". It's only a mask: the panel behind it is the structure.
 
 Everything is placed from Boy Rev A's panel (teensy_move_reva.FaceplateParams), so a mask can't drift from the
-panel it covers. The labels use the panel's font, size and offset, so each one lands over the label it hides.
+panel it covers. The labels use the panel's font and size; they sit 0.4 mm lower than the panel's, to clear the
+wider holes the Befaco Bananuts need, and the sheet hides the panel's own wherever they go.
 MENU moves to just above the encoder: on the panel it sits 10 mm below, crowding the CLK jack.
 
 Printing: as the panels, face up, the letters raised `label_height` on top of a `thickness` sheet; one
@@ -18,7 +19,7 @@ leave slivers of a few tenths of a millimetre, too thin to print or to survive.
 
 The clearances are settings, checked on a 1:1 paper template before printing:
 - the encoder: David's knobs are 10 mm wide (12.5 mm tall), under them the PEC11R's M7 nut;
-- the jacks: the knurled nuts, 7.8 mm in the renderer (render/hardware.py);
+- the jacks: David's Befaco Bananuts, 9.5 mm across (David, 2026-11-21; Befaco doesn't publish it);
 - the screen's four screws: their heads, which set the bay's size.
 
 Run:
@@ -74,7 +75,8 @@ class MaskParams:
 	thickness: float = 1.0
 	label_height: float = 0.2      # as the panels
 	encoder_clear_d: float = 11.0  # a 10 mm knob, and the M7 nut under it
-	jack_clear_d: float = 9.2      # the knurled nuts (7.8 mm) and FDM holes printing small
+	jack_clear_d: float = 10.5     # the Bananuts (9.5 mm), and FDM holes printing small
+	label_dy: float = -7.4         # below each jack's centre: the panel's -7.0, moved to clear the wider hole
 	screw_clear_d: float = 5.0     # the screen screws' heads: the bay reaches this far round each
 	bay_corner_r: float = 1.0
 	menu: str = "MENU"
@@ -99,11 +101,12 @@ MASKS = {
 	# Warps (META, stock Warps): the names on Boy's screen in Warps mode (eurorack_modules warps_mode.cpp), paired as
 	# Warps' controls read, ALGO and TIMB over LEV1 and LEV2 (David, 2026-11-21; the firmware moved its CVs to suit).
 	# IN-L is Warps' IN 1, the carrier; IN-R its IN 2, the modulator; OUT-R its AUX. MIDI plays the chord engine.
-	# GATE3, PITCH3 and the gate outs (CLK, DRM1, DRM2, RST) are unused.
+	# GATE3 is the internal oscillator's V/oct (on Warps, Level 1's jack doubles as it). PITCH3 and the gate outs
+	# (CLK, DRM1, DRM2, RST) are unused.
 	"warps": MaskParams(app="Warps", labels=_panel_labels(
 		GATE1="ALGO", PITCH1="TIMB", CLK="",
 		GATE2="LEV1", PITCH2="LEV2", DRM1="",
-		GATE3="", PITCH3="", DRM2="",
+		GATE3="V/OCT", PITCH3="", DRM2="",
 		**{"IN-L": "CARR", "RST": "", "OUT-L": "OUT", "IN-R": "MOD", "OUT-R": "AUX"},
 	)),
 }
@@ -141,7 +144,7 @@ def slots() -> list[tuple[float, float]]:
 def texts(m: MaskParams) -> list[tuple[str, float, float, float]]:
 	"""(text, x, y, size) of every label, each centred on (x, y) as the panel centres them."""
 	pts = PANEL.holes_sorted()
-	dx, dy = PANEL.label_offset
+	dx, dy = PANEL.label_offset[0], m.label_dy
 	out = []
 	for i in JACKS:
 		if m.labels[i].strip():
