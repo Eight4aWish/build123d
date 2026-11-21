@@ -1,329 +1,352 @@
-"""Face masks for Boy: what the panel says, for the jacks that change with the app.
+"""Face masks for Boy Rev A: one per app, Move and Warps so far.
 
-Boy's panel is labelled for mode 1, the Move companion. A mask goes on in front of it and says what
-those jacks do in another mode, with no change to the panel. The screen, the encoder and the audio
-jacks are the same in every mode, so a mask leaves them and their labels showing (David, 2026-11-05):
+David's design (2026-11-21): a thin sheet the full size of the panel that goes on over it, held by the panel's
+own four rack screws through the same slots. It replaces every label on the panel, its holes clear the jack nuts,
+the encoder knob and the screen's screws so it goes on with the knob still fitted, and it carries the app's name
+where the panel says "Boy". It's only a mask: the panel behind it is the structure.
 
-- a band over rows 2-4: the CV and gate jacks. The panel's MENU label sits just above the third jack in
-  row 2, closer than a wall will print, so the band steps up over it and prints MENU in the same place
-  and size (David: "feel free to add it to the face mask");
-- a spine down the middle column, over RST and MIDI, to carry the band to the foot;
-- a foot across the bottom, with the panel's two lower rack screw slots. Knurled thumbscrews in
-  those two hold the mask on, and the mode's name sits between them, over the panel's own "Boy".
+Everything is placed from Boy Rev A's panel (teensy_move_reva.FaceplateParams), so a mask can't drift from the
+panel it covers. The labels use the panel's font, size and offset, so each one lands over the label it hides.
+MENU moves to just above the encoder: on the panel it sits 10 mm below, crowding the CLK jack.
 
-The upper rack screws and the panel's top branding are left alone.
+Printing: as the panels, face up, the letters raised `label_height` on top of a `thickness` sheet; one
+filament change at Z = thickness prints them white (panels/README.md).
 
-It keeps the panel's coordinates (teensy_move_reva.py), so every hole lines up by construction. It
-clears the jack nuts, whatever their kind: holes of 10 mm, against 8 mm round nuts or an 8 mm hex
-nut's 9.2 mm corners, with room for FDM printing holes small.
+The screen and its four screws share one opening, a bay that runs out through the panel's left edge. The left two
+screws sit 2.9 mm from that edge and about 2.5 mm from the window's corners, so a round hole over each head would
+leave slivers of a few tenths of a millimetre, too thin to print or to survive.
 
-Printing: as the panels, one height-based filament change at the top of the card, Z = 1.6 mm, so the
-labels print white.
+The clearances are settings, checked on a 1:1 paper template before printing:
+- the encoder: David's knobs are 10 mm wide (12.5 mm tall), under them the PEC11R's M7 nut;
+- the jacks: the knurled nuts, 7.8 mm in the renderer (render/hardware.py);
+- the screen's four screws: their heads, which set the bay's size.
 
-Run (exports both, checks them and writes a 1:1 PDF of each to print on paper first):
-  ./.venv/bin/python panels/teensy_move_reva_mask.py
+Run:
+  ./.venv/bin/python panels/teensy_move_reva_mask.py              # every mask
+  ./.venv/bin/python panels/teensy_move_reva_mask.py warps        # one
 
-Another mode: a new class below, with its `hole_labels_below` and `brand_text_bottom`.
+Writes, for each app, exports/panels/boy_<app>_mask_base.stl and _labels.stl; all of them side by side as a 1:1
+paper template, exports/panels/boy_masks_template.pdf (print at 100 %); and a preview, render/out/boy_masks/boy_masks_flat.png.
+It checks every label clears every hole, the window and the panel edge, and stops if one doesn't.
 """
 
 from __future__ import annotations
 
-import os
+import argparse
+import sys
 from dataclasses import dataclass, replace
 from pathlib import Path
 
 from build123d import (
 	Align,
-	Axis,
-	BuildPart,
 	BuildSketch,
 	Circle,
-	Cylinder,
+	Compound,
+	Location,
 	Locations,
 	Mode,
 	Plane,
-	Pos,
 	Rectangle,
+	RectangleRounded,
 	SlotOverall,
+	Text,
 	export_stl,
 	extrude,
-	fillet,
 )
 
-from teensy_move import build_labels
-from teensy_move_reva import FaceplateParams as BoyRevAParams
+from teensy_move import _text_local_offset
+from teensy_move_reva import FaceplateParams as PanelParams
 
-BASE = BoyRevAParams()
+PANEL = PanelParams()
+ROOT = Path(__file__).resolve().parent.parent
 
-# What the mask must leave showing: indices into the panel's 18 cells
-SCREEN_ROW = (0, 1, 2)
-AUDIO = (12, 14, 15, 17)
-
-
-@dataclass(frozen=True)
-class MaskParams(BoyRevAParams):
-	# Stiff enough for a 15 mm spine that gets handled, and the nuts still stand about 1 mm proud of it.
-	thickness: float = 1.6
-	# Inside the panel's width, so it can't foul the next module.
-	card_w: float = 49.9
-	# The band's top: under the MENU label and the screen's lower screw heads, over row 2's holes.
-	band_y1: float = 95.8
-	# The band's bottom: over IN-L's and OUT-L's nuts, under row 4's labels.
-	band_y0: float = 42.0
-	# The foot's top: under the IN-R and OUT-R labels.
-	foot_y1: float = 9.6
-	foot_y0: float = 0.0
-	spine_w: float = 15.0
-	# The step up over the panel's MENU label: under the reach of a knob up to 16 mm across, and right of
-	# the screen's lower right screw head
-	menu_x0: float = 35.0
-	menu_y1: float = 97.0
-	corner_r: float = 1.5
-
-	add_mount_slots: bool = False
-	# An M3 thumbscrew, with room for FDM printing holes small. The panel's slot runs the same way.
-	slot_len: float = 4.4
-	slot_w: float = 3.4
-	# What the checks allow for
-	knurled_head_d: float = 11.0
-	audio_nut_d: float = 10.0
-	knob_d: float = 16.0
-	screw_head_clear_d: float = 6.5
-
-	remove_hole_indices: tuple[int, ...] = SCREEN_ROW + AUDIO
-	encoder_hole_indices: tuple[int, ...] = ()
-	hole_d: float = 10.0
-
-	# Halfway between a hole's edge and the next hole's, as the bigger holes leave less room
-	label_offset: tuple[float, float] = (0.0, -8.6)
-
-	brand_text_top: str = ""
-	brand_size: float = 4.0
-
-	def brand_bottom_pos(self) -> tuple[float, float]:
-		return (self.panel_w / 2, 4.3)
-
-	def spine_x(self) -> float:
-		return self.holes_sorted()[13][0]
-
-	def slots(self) -> list[tuple[float, float]]:
-		return self.eurorack_mount_slot_centers()[2:]
+# The panel's holes, sorted top to bottom and left to right (PanelParams.holes_sorted): 0 and 1 are under the
+# screen, 2 is the encoder, 3-17 the fifteen jacks, three to a row.
+ENCODER = 2
+JACKS = tuple(range(3, 18))
 
 
 @dataclass(frozen=True)
-class WarpsMask(MaskParams):
-	# As eurorack_modules docs/TEENSY_MOVE.md has them
-	hole_labels_below: tuple[str, ...] = (
-		# Row 1 (top):  col1      col2        col3
-		"",             "",         "",
-		"ALGO",         "LEV1 V/O", "",
-		"TIMBRE",       "LEV2",     "",
-		"",             "",         "",
-		"",             "",         "",
-		"",             "MIDI",     "",
-	)
-	brand_text_bottom: str = "WARPS"
+class MaskParams:
+	app: str
+	# below each jack, in the panel's order (PanelParams.hole_labels_below); "" for a jack the app doesn't use
+	labels: tuple[str, ...]
+	thickness: float = 1.0
+	label_height: float = 0.2      # as the panels
+	encoder_clear_d: float = 11.0  # a 10 mm knob, and the M7 nut under it
+	jack_clear_d: float = 9.2      # the knurled nuts (7.8 mm) and FDM holes printing small
+	screw_clear_d: float = 5.0     # the screen screws' heads: the bay reaches this far round each
+	bay_corner_r: float = 1.0
+	menu: str = "MENU"
+	menu_gap: float = 1.0          # from the encoder hole's edge to MENU's lower edge
+	min_gap: float = 0.6           # the checks: a label to an opening or the edge
+	min_web: float = 1.0           # ...and the mask between two openings, or an opening and the edge
 
 
-@dataclass(frozen=True)
-class ChordalMask(MaskParams):
-	# As eurorack_modules docs/TEENSY_MOVE.md has them. The triggers are in the order the notes enter.
-	hole_labels_below: tuple[str, ...] = (
-		# Row 1 (top):  col1      col2        col3
-		"",             "",         "",
-		"NOTE4",        "NOTE1",    "TRIG1",
-		"GATE",         "NOTE2",    "TRIG3",
-		"MOTION",       "NOTE3",    "TRIG2",
-		"",             "TRIG4",    "",
-		"",             "MIDI",     "",
-	)
-	brand_text_bottom: str = "CHORDAL"
+def _panel_labels(**changes: str) -> tuple[str, ...]:
+	"""The panel's labels, with some jacks renamed or blanked; the encoder's MENU is placed separately."""
+	labels = list(PANEL.hole_labels_below)
+	labels[ENCODER] = ""
+	for old, new in changes.items():
+		labels[labels.index(old)] = new
+	return tuple(labels)
 
 
-MASKS = {"warps": WarpsMask(), "chordal": ChordalMask()}
+MASKS = {
+	# Move: Boy's own labels; only the name and MENU change
+	"move": MaskParams(app="Move", labels=_panel_labels()),
+	# Warps (META, stock Warps): the names on Boy's screen in Warps mode (eurorack_modules warps_mode.cpp). IN-L is
+	# Warps' IN 1, the carrier; IN-R its IN 2, the modulator; OUT-R its AUX. MIDI plays the chord engine. GATE3,
+	# PITCH3 and the gate outs (CLK, DRM1, DRM2, RST) are unused.
+	"warps": MaskParams(app="Warps", labels=_panel_labels(
+		GATE1="ALGO", PITCH1="LEV1", CLK="",
+		GATE2="TIMB", PITCH2="LEV2", DRM1="",
+		GATE3="", PITCH3="", DRM2="",
+		**{"IN-L": "CARR", "RST": "", "OUT-L": "OUT", "IN-R": "MOD", "OUT-R": "AUX"},
+	)),
+}
 
 
-def build_card(p: MaskParams) -> object:
-	x0 = (p.panel_w - p.card_w) / 2
-	with BuildPart() as part:
-		with BuildSketch() as outline:
-			with Locations((x0, p.band_y0)):
-				Rectangle(p.card_w, p.band_y1 - p.band_y0, align=(Align.MIN, Align.MIN))
-			with Locations((x0, p.foot_y0)):
-				Rectangle(p.card_w, p.foot_y1 - p.foot_y0, align=(Align.MIN, Align.MIN))
-			with Locations((p.spine_x() - p.spine_w / 2, p.foot_y0)):
-				Rectangle(p.spine_w, p.band_y1 - p.foot_y0, align=(Align.MIN, Align.MIN))
-			fillet(outline.vertices(), radius=p.corner_r)
-			with Locations((p.menu_x0, p.band_y0 + 20.0)):
-				Rectangle(x0 + p.card_w - p.menu_x0, p.menu_y1 - p.band_y0 - 20.0, align=(Align.MIN, Align.MIN))
-			fillet([v for v in outline.vertices() if abs(v.Y - p.menu_y1) < 1e-6], radius=0.8)
-		extrude(amount=p.thickness)
-		with BuildSketch(Plane.XY.offset(-0.2)):
-			for d, pts in p.holes_by_diameter().items():
-				with Locations(*pts):
-					Circle((d + p.hole_oversize) / 2)
-			with Locations(*p.slots()):
-				SlotOverall(p.slot_len, p.slot_w)
-		extrude(amount=p.thickness + 0.4, mode=Mode.SUBTRACT)
-	return part.part
+# ---------------------------------------------------------------------------------------------------- geometry
+
+def holes(m: MaskParams) -> list[tuple[str, float, float, float]]:
+	"""(kind, x, y, diameter) of every round cut-out."""
+	pts = PANEL.holes_sorted()
+	out = [("encoder", *pts[ENCODER], m.encoder_clear_d)]
+	out += [("jack", *pts[i], m.jack_clear_d) for i in JACKS]
+	return out
 
 
-def _volume(shape: object) -> float:
-	return getattr(shape, "volume", 0.0) if shape is not None else 0.0
+def bay(m: MaskParams) -> tuple[float, float, float, float]:
+	"""The screen bay as (x0, y0, x1, y1): round the four screws' heads, and so round the window, out through the
+	left edge (x0 lies off the panel, taking the bay's left corners with it)."""
+	_, screws = PANEL.screen_geometry()
+	r = m.screw_clear_d / 2
+	xs, ys = [x for x, _ in screws], [y for _, y in screws]
+	return (-2 * m.bay_corner_r - 1, min(ys) - r, max(xs) + r, max(ys) + r)
 
 
-def _discs(pts: list[tuple[float, float]], d: float, height: float = 3.0) -> object:
-	with BuildPart() as part:
-		with Locations(*[(x, y, -0.5) for x, y in pts]):
-			Cylinder(d / 2, height, align=(Align.CENTER, Align.CENTER, Align.MIN))
-	return part.part
+def window() -> tuple[float, float, float, float]:
+	"""The panel's screen window as (x0, y0, x1, y1), inside the bay."""
+	(sx, sy), _ = PANEL.screen_geometry()
+	return (sx - PANEL.screen_w / 2, sy - PANEL.screen_h / 2, sx + PANEL.screen_w / 2, sy + PANEL.screen_h / 2)
 
 
-def build_mask_labels(p: MaskParams) -> object:
-	"""The mask's lettering, with MENU as the panel has it: the same place and size."""
-	menu = tuple(t if i == 2 else "" for i, t in enumerate(BASE.hole_labels_below))
-	return build_labels(p) + build_labels(replace(BASE, hole_labels_below=menu, brand_text_top="", brand_text_bottom="", thickness=p.thickness))
+def slots() -> list[tuple[float, float]]:
+	return PANEL.eurorack_mount_slot_centers()
 
 
-def panel_labels_kept() -> object:
-	"""The panel's own labels that a mask must leave showing, at a height inside the card."""
-	kept = tuple(t if i in AUDIO else "" for i, t in enumerate(BASE.hole_labels_below))
-	return build_labels(replace(BASE, hole_labels_below=kept, brand_text_top="", brand_text_bottom="", thickness=0.5))
+def texts(m: MaskParams) -> list[tuple[str, float, float, float]]:
+	"""(text, x, y, size) of every label, each centred on (x, y) as the panel centres them."""
+	pts = PANEL.holes_sorted()
+	dx, dy = PANEL.label_offset
+	out = []
+	for i in JACKS:
+		if m.labels[i].strip():
+			out.append((m.labels[i], pts[i][0] + dx, pts[i][1] + dy, PANEL.label_size))
+	# MENU just above the encoder: the hole's top edge, the gap, then half the letters' height
+	ex, ey = pts[ENCODER]
+	h = _text_height(m.menu, PANEL.label_size)
+	out.append((m.menu, ex, ey + m.encoder_clear_d / 2 + m.menu_gap + h / 2, PANEL.label_size))
+	# the app's name where the panel says "Boy", Eight4aWish where it does (flip_y puts "bottom" at the top)
+	out.append((m.app, *PANEL.brand_bottom_pos(), PANEL.brand_size))
+	out.append((PANEL.brand_text_top, *PANEL.brand_top_pos(), PANEL.brand_size))
+	return out
 
 
-def check(p: MaskParams, card: object, labels: object, kept: object) -> list[str]:
-	"""What would spoil a print or a fit: damaged copies of these parameters each make one of them fail."""
-	errs: list[str] = []
-	if len(card.solids()) != 1:
-		errs.append(f"the card is {len(card.solids())} pieces")
-
-	flat = Pos(0, 0, -p.thickness) * labels  # the lettering, moved down into the card
-	off = flat - card
-	if _volume(off) > 1e-6:
-		errs.append(f"lettering off the card or over a hole: {off.volume:.3f} mm3")
-
-	covered = kept & card
-	if _volume(covered) > 1e-6:
-		errs.append(f"the card covers a label it should leave showing: {covered.volume:.3f} mm3")
-
-	holes = BASE.holes_sorted()
-	(_, _), mount_pts = BASE.screen_geometry()
-	lower_screws = sorted(mount_pts, key=lambda pt: pt[1])[:2]
-	stand_proud = {
-		"an audio jack's nut": _discs([holes[i] for i in AUDIO], p.audio_nut_d),
-		"the encoder's knob": _discs([holes[2]], p.knob_d),
-		"a screw head on the screen": _discs(lower_screws, p.screw_head_clear_d),
-	}
-	for what, discs in stand_proud.items():
-		hit = discs & card
-		if _volume(hit) > 1e-6:
-			errs.append(f"the card runs into {what}: {hit.volume:.3f} mm3")
-
-	heads = _discs(p.slots(), p.knurled_head_d)
-	on_text = heads & flat
-	if _volume(on_text) > 1e-6:
-		errs.append(f"a thumbscrew's head sits on the lettering: {on_text.volume:.3f} mm3")
-
-	# The thinnest wall: a hole to an edge, a hole to a hole, a slot to the foot's edge
-	x0 = (p.panel_w - p.card_w) / 2
-	x1 = x0 + p.card_w
-	round_holes = [(d / 2, pt) for d, pts in p.holes_by_diameter().items() for pt in pts]
-	thinnest = 1e9
-	for i, (r, (x, y)) in enumerate(round_holes):
-		if y > p.band_y0:
-			thinnest = min(thinnest, x - r - x0, x1 - x - r, y - r - p.band_y0, p.band_y1 - y - r)
-		else:
-			thinnest = min(thinnest, x - r - (p.spine_x() - p.spine_w / 2), p.spine_x() + p.spine_w / 2 - x - r)
-		for r2, (x2, y2) in round_holes[i + 1 :]:
-			thinnest = min(thinnest, ((x - x2) ** 2 + (y - y2) ** 2) ** 0.5 - r - r2)
-	for x, y in p.slots():
-		thinnest = min(thinnest, y - p.slot_w / 2 - p.foot_y0, p.foot_y1 - y - p.slot_w / 2, x - p.slot_len / 2 - x0, x1 - x - p.slot_len / 2)
-	print(f"  thinnest wall: {thinnest:.2f} mm")
-	if thinnest < 1.2:
-		errs.append(f"a wall of {thinnest:.2f} mm: too thin to print well")
-	return errs
+def _text_sketch(txt: str, x: float, y: float, size: float):
+	ox, oy = _text_local_offset(txt, font=PANEL.label_font, style=PANEL.label_font_style, font_size=size)
+	with BuildSketch() as sk:
+		with Locations(Location((x + ox, y + oy, 0))):
+			Text(txt, font_size=size, font=PANEL.label_font, font_style=PANEL.label_font_style)
+	return sk.sketch
 
 
-def export_pdf(p: MaskParams, card: object, path: Path, preview: Path | None = None) -> None:
-	"""The mask at 1:1 on A4, over the panel's outline, with a scale bar to check the print's scale."""
+def _text_height(txt: str, size: float) -> float:
+	bb = _text_sketch(txt, 0, 0, size).bounding_box()
+	return bb.max.Y - bb.min.Y
+
+
+def mask_sketch(m: MaskParams):
+	with BuildSketch() as sk:
+		Rectangle(PANEL.panel_w, PANEL.panel_h, align=(Align.MIN, Align.MIN))
+		with Locations(*slots()):
+			SlotOverall(PANEL.mount_slot_overall_len, PANEL.mount_hole_d, mode=Mode.SUBTRACT)
+		for _, x, y, d in holes(m):
+			with Locations((x, y)):
+				Circle(d / 2, mode=Mode.SUBTRACT)
+		x0, y0, x1, y1 = bay(m)
+		with Locations(((x0 + x1) / 2, (y0 + y1) / 2)):
+			RectangleRounded(x1 - x0, y1 - y0, m.bay_corner_r, mode=Mode.SUBTRACT)
+	return sk.sketch
+
+
+def label_sketches(m: MaskParams) -> list[tuple[str, object]]:
+	return [(t, _text_sketch(t, x, y, s)) for t, x, y, s in texts(m)]
+
+
+def build(m: MaskParams):
+	base = extrude(mask_sketch(m), amount=m.thickness)
+	labels = [extrude(Plane.XY.offset(m.thickness) * sk, amount=m.label_height) for _, sk in label_sketches(m)]
+	return base, Compound(labels)
+
+
+# ---------------------------------------------------------------------------------------------------- checks
+
+def _circle_to_box(x: float, y: float, r: float, box: tuple[float, float, float, float]) -> float:
+	"""Gap from a circle to a rectangle, negative where they overlap."""
+	bx0, by0, bx1, by1 = box
+	nx, ny = min(max(x, bx0), bx1), min(max(y, by0), by1)
+	return ((nx - x) ** 2 + (ny - y) ** 2) ** 0.5 - r
+
+
+def check(m: MaskParams) -> list[str]:
+	"""Every label clear of every opening, the slots and the panel edge by min_gap; and no web of mask thinner than
+	min_web between two openings, or between an opening and the edge."""
+	problems = []
+	x0w, y0w, x1w, y1w = bay(m)
+	slot_boxes = [(x - PANEL.mount_slot_overall_len / 2, y - PANEL.mount_hole_d / 2,
+	               x + PANEL.mount_slot_overall_len / 2, y + PANEL.mount_hole_d / 2) for x, y in slots()]
+	hs = holes(m)
+	for i, (kind, x, y, d) in enumerate(hs):
+		r = d / 2
+		edge = min(x - r, y - r, PANEL.panel_w - x - r, PANEL.panel_h - y - r)
+		if edge < m.min_web:
+			problems.append(f"{m.app}: the {kind} hole at ({x:.1f}, {y:.1f}) leaves {edge:.2f} mm to the edge")
+		for kind2, x2, y2, d2 in hs[i + 1:]:
+			web = ((x - x2) ** 2 + (y - y2) ** 2) ** 0.5 - r - d2 / 2
+			if web < m.min_web:
+				problems.append(f"{m.app}: {web:.2f} mm between the {kind} and {kind2} holes at ({x:.1f}, {y:.1f})")
+		for box, what in [(bay(m), "the screen bay"), *[(b, "a rack slot") for b in slot_boxes]]:
+			web = _circle_to_box(x, y, r, box)
+			if web < m.min_web:
+				problems.append(f"{m.app}: {web:.2f} mm between the {kind} hole at ({x:.1f}, {y:.1f}) and {what}")
+	for b in slot_boxes:
+		if not (b[0] > x1w + m.min_web or b[2] < x0w - m.min_web or b[1] > y1w + m.min_web or b[3] < y0w - m.min_web):
+			problems.append(f"{m.app}: a rack slot is within {m.min_web} mm of the screen bay")
+	for txt, sk in label_sketches(m):
+		bb = sk.bounding_box()
+		bx0, by0, bx1, by1 = bb.min.X, bb.min.Y, bb.max.X, bb.max.Y
+		if bx0 < m.min_gap or by0 < m.min_gap or bx1 > PANEL.panel_w - m.min_gap or by1 > PANEL.panel_h - m.min_gap:
+			problems.append(f"{m.app}: {txt} runs off the panel")
+		for kind, x, y, d in holes(m):
+			nx, ny = min(max(x, bx0), bx1), min(max(y, by0), by1)  # nearest point of the label's box
+			gap = ((nx - x) ** 2 + (ny - y) ** 2) ** 0.5 - d / 2
+			if gap < m.min_gap:
+				problems.append(f"{m.app}: {txt} is {gap:.2f} mm from a {kind} hole at ({x:.1f}, {y:.1f})")
+		if bx0 < x1w + m.min_gap and bx1 > x0w - m.min_gap and by0 < y1w + m.min_gap and by1 > y0w - m.min_gap:
+			problems.append(f"{m.app}: {txt} touches the screen bay")
+		for x, y in slots():
+			sx0, sx1 = x - PANEL.mount_slot_overall_len / 2, x + PANEL.mount_slot_overall_len / 2
+			sy0, sy1 = y - PANEL.mount_hole_d / 2, y + PANEL.mount_hole_d / 2
+			if bx0 < sx1 + m.min_gap and bx1 > sx0 - m.min_gap and by0 < sy1 + m.min_gap and by1 > sy0 - m.min_gap:
+				problems.append(f"{m.app}: {txt} touches a rack slot")
+	return problems
+
+
+# ---------------------------------------------------------------------------------------------------- pictures
+
+def _paths(sketch):
+	"""A sketch's faces as matplotlib paths, holes included (the inner wires run the other way)."""
+	import numpy as np
+	from matplotlib.path import Path as MPath
+
+	def ring(wire):
+		# edge by edge, so a straight edge keeps its exact corners and a curve gets enough points
+		pts = []
+		for e in wire.order_edges():
+			n = 2 if e.geom_type.name == "LINE" else 24
+			pts += [e.position_at(t) for t in np.linspace(0, 1, n)][:-1]
+		return [(p.X, p.Y) for p in pts]
+
+	out = []
+	for f in sketch.faces():
+		verts, codes = [], []
+		for w in [f.outer_wire(), *f.inner_wires()]:
+			r = ring(w)
+			verts += r + [r[0]]
+			codes += [MPath.MOVETO] + [MPath.LINETO] * (len(r) - 1) + [MPath.CLOSEPOLY]
+		out.append(MPath(verts, codes))
+	return out
+
+
+def draw(ax, m: MaskParams, x_off: float, *, paper: bool) -> None:
+	from matplotlib.patches import Circle as Disc, PathPatch, Rectangle as Box2D
+	from matplotlib.transforms import Affine2D
+
+	shift = Affine2D().translate(x_off, 0)
+	if not paper:  # Boy underneath, roughly: the panel, its screen, the jack nuts, the knob and the screen screws
+		ax.add_patch(Box2D((x_off, 0), PANEL.panel_w, PANEL.panel_h, facecolor="#37373c"))
+		x0, y0, x1, y1 = window()
+		ax.add_patch(Box2D((x_off + x0, y0), x1 - x0, y1 - y0, facecolor="#050506"))
+		for kind, x, y, _ in holes(m):
+			r = 5.0 if kind == "encoder" else 3.9
+			ax.add_patch(Disc((x_off + x, y), r, facecolor="#b9b9bd" if kind == "encoder" else "#8d8d92"))
+			if kind == "jack":
+				ax.add_patch(Disc((x_off + x, y), 1.8, facecolor="#050506"))
+		for x, y in PANEL.screen_geometry()[1]:
+			ax.add_patch(Disc((x_off + x, y), 2.0, facecolor="#9a9a9f"))
+	for p in _paths(mask_sketch(m)):
+		ax.add_patch(PathPatch(p.transformed(shift), facecolor="none" if paper else "#141416",
+		                       edgecolor="black" if paper else "none", lw=0.3))
+	for _, sk in label_sketches(m):
+		for p in _paths(sk):
+			ax.add_patch(PathPatch(p.transformed(shift), facecolor="black" if paper else "#ececee", edgecolor="none"))
+
+
+def pictures(masks: list[MaskParams], template: Path, preview: Path) -> None:
 	import matplotlib
-
 	matplotlib.use("Agg")
 	import matplotlib.pyplot as plt
-	from matplotlib.patches import Circle as Disc, Rectangle as Rect
 
-	fig = plt.figure(figsize=(210 / 25.4, 297 / 25.4))
+	gap = 15.0
+	w = len(masks) * PANEL.panel_w + (len(masks) - 1) * gap
+	# 1:1 on A4 portrait: the figure is the page in inches, the axes a box of exactly w x panel_h mm
+	page_w, page_h = 210.0, 297.0
+	fig = plt.figure(figsize=(page_w / 25.4, page_h / 25.4))
+	ax = fig.add_axes(((page_w - w) / 2 / page_w, (page_h - PANEL.panel_h) / 2 / page_h, w / page_w, PANEL.panel_h / page_h))
+	for i, m in enumerate(masks):
+		draw(ax, m, i * (PANEL.panel_w + gap), paper=True)
+	ax.set_xlim(0, w)
+	ax.set_ylim(0, PANEL.panel_h)
+	ax.axis("off")
+	fig.text(0.5, 0.06, "Print at 100 %: the outline is 50.5 x 128.5 mm. Cut the holes out and lay it over Boy.",
+	         ha="center", fontsize=8)
+	fig.savefig(template)
+	plt.close(fig)
+
+	fig = plt.figure(figsize=(w / 25.4 * 2.5, PANEL.panel_h / 25.4 * 2.5), facecolor="#8a8a90")
 	ax = fig.add_axes((0, 0, 1, 1))
-	ax.set_xlim(-80, 130)
-	ax.set_ylim(-110, 187)
-	ax.set_axis_off()
-	pts_of = lambda mm: mm * 72 / 25.4 * 0.72  # about a cap height in mm, as points
-
-	# The panel, in grey, with what the mask leaves showing
-	ax.add_patch(Rect((0, 0), p.panel_w, p.panel_h, fill=False, ec="0.65", lw=0.6, ls="--"))
-	holes = BASE.holes_sorted()
-	for i, (x, y) in enumerate(holes):
-		d = BASE.encoder_hole_d if i == 2 else BASE.hole_d
-		if i not in SCREEN_ROW[:2]:
-			ax.add_patch(Disc((x, y), d / 2, fill=False, ec="0.65", lw=0.4))
-	(sx, sy), mount_pts = BASE.screen_geometry()
-	ax.add_patch(Rect((sx - BASE.screen_w / 2, sy - BASE.screen_h / 2), BASE.screen_w, BASE.screen_h, fill=False, ec="0.65", lw=0.5, ls="--"))
-	for x, y in mount_pts:
-		ax.add_patch(Disc((x, y), BASE.screen_mount_hole_d / 2, fill=False, ec="0.65", lw=0.4))
-	for x, y in BASE.eurorack_mount_slot_centers()[:2]:
-		ax.add_patch(Disc((x, y), BASE.mount_hole_d / 2, fill=False, ec="0.65", lw=0.4))
-	for i in AUDIO:
-		x, y = holes[i]
-		ax.text(x, y + BASE.label_offset[1], BASE.hole_labels_below[i], ha="center", va="center", fontsize=pts_of(BASE.label_size), fontweight="bold", family="Arial", color="0.55")
-
-	# The mask, in black: every edge of its top face
-	top = card.faces().sort_by(Axis.Z)[-1]
-	for edge in top.edges():
-		pts = edge.positions([t / 40 for t in range(41)])
-		ax.plot([q.X for q in pts], [q.Y for q in pts], color="k", lw=0.8, solid_capstyle="round")
-	for i, txt in enumerate(p.hole_labels_below):
-		if txt and i not in p.remove_hole_indices:
-			x, y = holes[i]
-			ax.text(x, y + p.label_offset[1], txt, ha="center", va="center", fontsize=pts_of(p.label_size), fontweight="bold", family="Arial")
-	mx, my = holes[2]
-	ax.text(mx, my + BASE.encoder_label_dy, BASE.hole_labels_below[2], ha="center", va="center", fontsize=pts_of(p.label_size), fontweight="bold", family="Arial")
-	tx, ty = p.brand_bottom_pos()
-	ax.text(tx, ty, p.brand_text_bottom, ha="center", va="center", fontsize=pts_of(p.brand_size), fontweight="bold", family="Arial")
-
-	# scale bar
-	ax.plot([0, 50], [-12, -12], color="k", lw=1)
-	for x in (0, 50):
-		ax.plot([x, x], [-14, -10], color="k", lw=1)
-	ax.text(25, -17, "50 mm: print at 100 %, no fit-to-page", ha="center", fontsize=9, family="Arial")
-	ax.text(25, -24, "Black: the mask. Grey: Boy's panel.", ha="center", fontsize=9, family="Arial")
-	fig.savefig(path)
-	if preview is not None:
-		ax.set_xlim(-6, 56.5)
-		ax.set_ylim(-28, 134)
-		fig.set_size_inches(6.25, 16.2)
-		fig.savefig(preview, dpi=120)
+	for i, m in enumerate(masks):
+		draw(ax, m, i * (PANEL.panel_w + gap), paper=False)
+	ax.set_xlim(0, w)
+	ax.set_ylim(0, PANEL.panel_h)
+	ax.axis("off")
+	fig.savefig(preview, dpi=150, facecolor=fig.get_facecolor())
 	plt.close(fig)
 
 
 def main() -> None:
-	out = Path(__file__).resolve().parent.parent / "exports" / "panels"
-	previews = os.environ.get("MASK_PREVIEW_DIR")
-	kept = panel_labels_kept()
-	failed = False
-	for name, p in MASKS.items():
-		print(name)
-		card = build_card(p)
-		labels = build_mask_labels(p)
-		errs = check(p, card, labels, kept)
-		stem = f"boy_{name}_mask"
-		export_stl(card, out / f"{stem}_base.stl")
-		export_stl(labels, out / f"{stem}_labels.stl")
-		export_pdf(p, card, out / f"{stem}_template.pdf", Path(previews) / f"{stem}.png" if previews else None)
-		for e in errs:
-			print("  PROBLEM:", e)
-		failed = failed or bool(errs)
-		print(f"  {'FAILS its checks' if errs else 'passes its checks'}")
-	raise SystemExit(1 if failed else 0)
+	ap = argparse.ArgumentParser(description="Face masks for Boy Rev A")
+	ap.add_argument("apps", nargs="*", choices=[[], *MASKS], default=[], help="the masks to make (default: all)")
+	ap.add_argument("--out", type=Path, default=ROOT / "exports" / "panels")
+	ap.add_argument("--preview", type=Path, default=ROOT / "render" / "out" / "boy_masks" / "boy_masks_flat.png")
+	a = ap.parse_args()
+	masks = [MASKS[k] for k in (a.apps or MASKS)]
+
+	problems = [p for m in masks for p in check(m)]
+	if problems:
+		sys.exit("Not written:\n  " + "\n  ".join(problems))
+	a.out.mkdir(parents=True, exist_ok=True)
+	a.preview.parent.mkdir(parents=True, exist_ok=True)
+	for m in masks:
+		base, labels = build(m)
+		stem = f"boy_{m.app.lower()}_mask"
+		export_stl(base, a.out / f"{stem}_base.stl")
+		export_stl(labels, a.out / f"{stem}_labels.stl")
+		print(f"{m.app}: {a.out / stem}_base.stl and _labels.stl ({m.thickness} mm, letters {m.label_height} mm)")
+	pictures(masks, a.out / "boy_masks_template.pdf", a.preview)
+	print(f"template {a.out / 'boy_masks_template.pdf'}, preview {a.preview}")
 
 
 if __name__ == "__main__":
